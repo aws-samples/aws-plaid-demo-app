@@ -1,4 +1,4 @@
-# Plaid AWS Demo App
+# AWS Plaid Demo App
 
 This repo demonstrates how to build a Fintech app on AWS that uses Plaid Link to connect a user to his or her bank 
 account. The app allows users to sign up using Amazon Cognito, select their bank from a list, log in to the bank, and display the latest transactions. The app is built using AWS Amplify, Amazon API Gateway, Amazon Cognitio, AWS Secrets 
@@ -13,7 +13,7 @@ After cloning the repo and running `npm install`, perform the following steps.
 ### `amplify init`
 
 ```
-? Enter a name for the project (plaidawsdemoapp)
+? Enter a name for the project (awsplaiddemoapp)
 ? Initialize the project with the above configuration? (Y/n) y
 ? Select the authentication profile you want to use: AWS profile 
 ? Please choose the profile you want to use: default
