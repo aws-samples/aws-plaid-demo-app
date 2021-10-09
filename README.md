@@ -4,9 +4,23 @@ This repo demonstrates how to build a Fintech app on AWS that uses Plaid Link to
 account. The app allows users to sign up using Amazon Cognito, select their bank from a list, log in to the bank, and display the latest transactions. The app is built using AWS Amplify, Amazon API Gateway, Amazon Cognitio, AWS Secrets 
 Manager and Amazon DynamoDB. 
 
+## Pre-requisites
+Before building the app, you will need to get your API keys from Plaid. Go to https://plaid.com, click on the **Get API Keys** button, and create an account. You can create a free sandbox account, and use your sandbox API key to start.
+
+Install AWS Amplify by following the instructions at https://docs.amplify.aws/cli/start/install/ 
+
+If you have not already done so, create a default AWS configuration profile by running the **aws configure** command, as described at https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config 
+
 ## Building the app 
 
-After cloning the repo and running `npm install`, perform the following steps. 
+```
+$ git clone https://github.com/aws-samples/aws-plaid-demo-app
+$ cd aws-plaid-demo-app
+$ npm install
+
+```
+
+Then perform the following steps. 
 
 1. Initialize a new amplify project.
 
