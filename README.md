@@ -107,7 +107,7 @@ Next `cd` into our lambda function's directory
 
 install some dependencies we're going to be using
 
-`npm i aws-sdk moment plaid`
+`npm i aws-sdk moment plaid@8.5.4`
 
 
 4. `amplify push`
