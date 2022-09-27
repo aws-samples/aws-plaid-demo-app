@@ -1,0 +1,21 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --no-fund --no-audit
+    build:
+      commands:
+        - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+        - REACT_APP_COGNITO_DOMAIN=${REACT_APP_COGNITO_DOMAIN}
+        - REACT_APP_COGNTIO_USERPOOL_ID=${REACT_APP_COGNTIO_USERPOOL_ID}
+        - REACT_APP_COGNITO_CLIENT_ID=${REACT_APP_COGNITO_CLIENT_ID}
+        - REACT_APP_REGION=${REACT_APP_REGION}
+        - npm run-script build
+  artifacts:
+    baseDirectory: build
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - "node_modules/**/*"

@@ -1,0 +1,3 @@
+wheel==0.37.1
+aws-lambda-powertools==1.29.2
+black==22.8.0
