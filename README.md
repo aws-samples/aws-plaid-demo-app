@@ -14,7 +14,7 @@
 
 ## Introduction
 
-This repo demonstrates how to build a Fintech app on AWS that uses [Plaid Link](https://plaid.com/plaid-link/) to connect a user to their bank account. The app allows users to sign up using [Amazon Cognito](https://aws.amazon.com/cognito/), select their bank from a list, log in to the bank, and display the accounts. The app is built using [AWS Amplify](https://aws.amazon.com/amplify/), [Amazon API Gateway](https://aws.amazon.com/api-gateway/), Amazon Cognitio, [AWS Secrets
+This repo demonstrates how to build a Fintech app on AWS that uses [Plaid Link](https://plaid.com/plaid-link/) to connect a user to their bank account. The app allows users to sign up using [Amazon Cognito](https://aws.amazon.com/cognito/), select their bank from a list, log in to the bank, and display the accounts. The app is built using [AWS Amplify](https://aws.amazon.com/amplify/), [Amazon API Gateway](https://aws.amazon.com/api-gateway/), Amazon Cognito, [AWS Secrets
 Manager](https://aws.amazon.com/secrets-manager/), [Amazon Simple Queue Service](https://aws.amazon.com/sqs/) and [Amazon DynamoDB](https://aws.amazon.com/dynamodb/).
 
 ## Architecture
@@ -26,7 +26,7 @@ The architecture consists of a [React](https://reactjs.org/) application hosted 
 ## Prerequisites
 
 - [Python 3](https://www.python.org/downloads/), installed
-- [AWS Command Line Interface (AWS CLI)](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) version 2, installed
+- [AWS Command Line Interface (AWS CLI)](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) version 2, installed. Please follow these instructions with how to [setup your AWS credentials](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-set-up-credentials.html).
 - [AWS Serverless Application Model (SAM)](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html), installed
 - [Docker Desktop](https://www.docker.com/products/docker-desktop), installed
 - [GitHub](https://github.com) account
@@ -59,17 +59,17 @@ The architecture consists of a [React](https://reactjs.org/) application hosted 
 
 #### Installation
 
-1. GitHub: [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). The access token will be used by AWS Amplify to securely connect to your GitHub account to access the source code. Amplify will then build, deploy and host the application using [Amplify Hosting](https://aws.amazon.com/amplify/hosting/).
+1. GitHub: [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the `repo` scope selected. The access token will be used by AWS Amplify to securely connect to your GitHub account to access the source code. Amplify will then build, deploy and host the application using [Amplify Hosting](https://aws.amazon.com/amplify/hosting/).
 2. GitHub: [Fork the repository to your personal account](https://docs.github.com/en/get-started/quickstart/fork-a-repo#forking-a-repository). This is required so Amplify can access the repository and download the source code.
 3. Plaid: Ensure you have both a `client_id` and `Sandbox Secret` available on the [Keys](https://dashboard.plaid.com/team/keys) page
 
 ```
-git clone https://github.com/<username>/aws-plaid-demo-app
+git clone https://github.com/<GitHubUserName>/aws-plaid-demo-app
 cd aws-plaid-demo-app
 sam build --use-container --parallel --cached
 sam deploy \
   --guided \
-  --tags "GITHUB_ORG=aws-samples GITHUB_REPO=aws-plaid-demo-app"
+  --tags "GITHUB_ORG=<GitHubUserName> GITHUB_REPO=aws-plaid-demo-app"
 ```
 
 SAM will then prompt you to provide values for the missing parameters listed above:
@@ -80,7 +80,7 @@ Setting default arguments for 'sam deploy'
 Stack Name [sam-app]: aws-plaid-demo-app
 AWS Region [us-east-1]:
 Parameter Environment [dev]:
-Parameter GitHubOrg [aws-samples]:
+Parameter GitHubOrg: <GitHubUserName>
 Parameter GitHubRepo [aws-plaid-demo-app]:
 Parameter PlaidClientId: *************
 Parameter PlaidSecretKey: *************
@@ -112,8 +112,8 @@ Go through the process to create a new account providing your email address for 
 
 Select "Bank of America" and use these demo credentials:
 
-- Username: `gooduser`
-- Password: `goodpass`
+- Username: `user_good`
+- Password: `pass_good`
 - Code: `1111`
 
 Continue through the Plaid Link process to have "Bank of America" and its accounts linked to the application.
