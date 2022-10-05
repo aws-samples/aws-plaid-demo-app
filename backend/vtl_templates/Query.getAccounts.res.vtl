@@ -1,0 +1,11 @@
+#if ($ctx.result.items.size() == 0)
+  #return([])
+#end
+
+#set ($accounts = [])
+#foreach( $item in $ctx.result.items )
+  #set ( $item.account_id = $util.str.toReplace($item.sk, "ACCOUNT#", ""))
+  $util.qr($accounts.add($item))
+#end
+
+$util.toJson($accounts)

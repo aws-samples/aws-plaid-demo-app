@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Divider, Flex, Heading, View } from '@aws-amplify/ui-react';
 import Accounts from '../components/Accounts';
 import Transactions from '../components/Transactions';
-import Refresh from '../components/Refresh';
 
 export default function Institution() {
 
@@ -24,7 +23,6 @@ export default function Institution() {
       <Divider/>
       <Flex direction="row">
         <Heading level={5}>Institution</Heading>
-        <Refresh item_id={id}/>
       </Flex>
       <Flex direction="row">
         <View>

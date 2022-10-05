@@ -22,6 +22,6 @@ export default function Refresh({ item_id }) {
   }
 
   return (
-    <Button isLoading={loading} onClick={refresh} size="small">Refresh</Button>
+    <Button isLoading={loading} onClick={refresh} size="small">Refresh Balances</Button>
   )
 }

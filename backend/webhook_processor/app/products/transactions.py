@@ -71,6 +71,8 @@ class Transactions(AbstractProduct):
         if event_name != "REMOVE" and isinstance(transaction, Transaction):
             body |= transaction.to_dict()
             body["plaid_type"] = type(transaction).__name__
+            body["gsi1pk"] = f"USER#{user_id}#ITEM#{item_id}#TRANSACTIONS"
+            body["gsi1sk"] = f"TRANSACTION#{transaction.date}#{transaction_id}"
 
         message["MessageBody"] = utils.json_dumps(body)
 

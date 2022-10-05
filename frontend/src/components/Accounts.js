@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { API, Logger } from 'aws-amplify';
+import { API, graphqlOperation, Logger } from 'aws-amplify';
 import { Table, TableHead, TableRow, TableCell, TableBody, Loader } from '@aws-amplify/ui-react';
+import { getAccounts as GetAccounts } from '../graphql/queries';
 import Account from './Account';
 
 const logger = new Logger("Accounts");
-
-const apiName = "plaidapi";
 
 export default function Accounts({ id, updateAccounts }) {
 
@@ -15,10 +14,9 @@ export default function Accounts({ id, updateAccounts }) {
   const getAccounts = async () => {
     setLoading(true);
     try {
-      const res = await API.get(apiName, `/v1/items/${id}/accounts`);
-      logger.debug(`GET /v1/items/${id}/accounts response:`, res);
-      setAccounts(res.accounts);
-      updateAccounts(res.accounts);
+      const res = await API.graphql(graphqlOperation(GetAccounts, { id }));
+      setAccounts(res.data.getAccounts);
+      updateAccounts(res.data.getAccounts);
       setLoading(false);
     } catch (err) {
       setLoading(false);

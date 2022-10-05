@@ -169,23 +169,13 @@ def exchange_token() -> Response:
             }
         },
         {
-            "Put": {  # get all of the items for a user
-                "TableName": TABLE_NAME,
-                "Item": {
-                    "pk": f"USER#{user_id}#ITEMS",
-                    "sk": f"ITEM#{item_id}",
-                    "institution_id": institution_id,
-                    "institution_name": institution.get("name"),
-                },
-                "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-            }
-        },
-        {
-            "Put": {  # get all of the items across all users
+            "Put": {  # get all of the items across all users or a single user
                 "TableName": TABLE_NAME,
                 "Item": {
                     "pk": "ITEMS",
                     "sk": f"USER#{user_id}#ITEM#{item_id}",
+                    "institution_id": institution_id,
+                    "institution_name": institution.get("name"),
                 },
                 "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
             }

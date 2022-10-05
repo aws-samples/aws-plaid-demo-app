@@ -9,7 +9,7 @@ export default function Transaction({ transaction, account }) {
         <Currency amount={ transaction.amount } currency={ transaction.iso_currency_code }/>
       </TableCell>
       <TableCell>{ transaction.date }</TableCell>
-      <TableCell>{ account.name }</TableCell>
+      <TableCell>{ account ? account.name : transaction.account_id }</TableCell>
       <TableCell>{ transaction.payment_channel }</TableCell>
       <TableCell>{ transaction.transaction_type }</TableCell>
     </TableRow>

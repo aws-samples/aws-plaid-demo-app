@@ -309,7 +309,20 @@ Resources:
           AttributeType: S
         - AttributeName: sk
           AttributeType: S
+        - AttributeName: gsi1pk
+          AttributeType: S
+        - AttributeName: gsi1sk
+          AttributeType: S
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: gsi1pk
+              KeyType: HASH
+            - AttributeName: gsi1sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       KeySchema:
         - AttributeName: pk
           KeyType: HASH
@@ -370,6 +383,43 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
+  AppSyncRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: !Sub "appsync.${AWS::URLSuffix}"
+            Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by AppSync. Created by ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs"
+      Policies:
+        - PolicyName: AppSyncPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "dynamodb:Query"
+                Resource:
+                  - !GetAtt Table.Arn
+                  - !Sub "${Table.Arn}/index/*"
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: AppSyncRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
   HttpApi:
     Type: "AWS::ApiGatewayV2::Api" # used to avoid circular dependencies when using AWS::Serverless::HttpApi
     Properties:
@@ -395,7 +445,81 @@ Resources:
         GITHUB_ORG: !Ref GitHubOrg
         GITHUB_REPO: !Ref GitHubRepo
         Environment: !Ref Environment
-      Version: "0.1.0"
+
+  GraphQLApi:
+    Type: "AWS::AppSync::GraphQLApi"
+    Properties:
+      AdditionalAuthenticationProviders:
+        - AuthenticationType: AWS_IAM
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      LogConfig:
+        CloudWatchLogsRoleArn: !GetAtt AppSyncRole.Arn
+        ExcludeVerboseContent: true
+        FieldLogLevel: ERROR
+      Name: !Sub "Plaid GraphQL API - ${Environment}"
+      Tags:
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUB_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+      UserPoolConfig:
+        AppIdClientRegex: !Ref UserPoolClient
+        AwsRegion: !Ref "AWS::Region"
+        DefaultAction: ALLOW
+        UserPoolId: !Ref CognitoUserPool
+      XrayEnabled: true
+
+  DynamoDBDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DynamoDBConfig:
+        AwsRegion: !Ref "AWS::Region"
+        TableName: !Ref Table
+      Name: DynamoDB
+      ServiceRoleArn: !GetAtt AppSyncRole.Arn
+      Type: AMAZON_DYNAMODB
+
+  GraphQLSchema:
+    Type: "AWS::AppSync::GraphQLSchema"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DefinitionS3Location: backend/schema.graphql
+
+  GetItemsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getItems
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getItems.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getItems.res.vtl
+      TypeName: Query
+
+  GetAccountsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getAccounts
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.res.vtl
+      TypeName: Query
+
+  GetTransactionsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getTransactions
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getTransactions.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getTransactions.res.vtl
+      TypeName: Query
 
   HttpApiAuthorizer:
     Type: "AWS::ApiGatewayV2::Authorizer"
@@ -422,7 +546,7 @@ Resources:
       PayloadFormatVersion: "2.0"
       TimeoutInMillis: 10000 # 10 seconds (matches Plaid's webhook timeout)
 
-  LambdaPermission:
+  HttpApiLambdaPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: "lambda:InvokeFunction"
@@ -670,7 +794,6 @@ Resources:
               - "dynamodb:DescribeTable"
               - "dynamodb:GetItem"
               - "dynamodb:PutItem"
-              - "dynamodb:Query"
             Resource: !GetAtt Table.Arn
           - Effect: Allow
             Action:
@@ -1023,6 +1146,7 @@ Resources:
                 - REACT_APP_COGNITO_CLIENT_ID=${REACT_APP_COGNITO_CLIENT_ID}
                 - REACT_APP_COGNITO_DOMAIN=${REACT_APP_COGNITO_DOMAIN}
                 - REACT_APP_COGNTIO_USERPOOL_ID=${REACT_APP_COGNTIO_USERPOOL_ID}
+                - REACT_APP_GRAPHQL_URL=${REACT_APP_GRAPHQL_URL}
                 - REACT_APP_REGION=${REACT_APP_REGION}
                 - npm run-script build
           artifacts:
@@ -1057,6 +1181,8 @@ Resources:
           Value: !Ref CognitoUserPool
         - Name: REACT_APP_COGNITO_CLIENT_ID
           Value: !Ref UserPoolClient
+        - Name: REACT_APP_GRAPHQL_URL
+          Value: !GetAtt GraphQLApi.GraphQLUrl
         - Name: REACT_APP_REGION
           Value: !Ref "AWS::Region"
       IAMServiceRole: !GetAtt AmplifyRole.Arn
@@ -1084,6 +1210,9 @@ Outputs:
   BackendUrl:
     Description: API URL
     Value: !GetAtt HttpApi.ApiEndpoint
+  GraphQLUrl:
+    Description: GraphQL URL
+    Value: !GetAtt GraphQLApi.GraphQLUrl
   FrontendUrl:
     Description: Application URL
     Value: !Sub "https://${BranchName}.${FrontendApp.DefaultDomain}"

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { API, Logger } from 'aws-amplify';
+import { API, graphqlOperation, Logger } from 'aws-amplify';
 import { Table, TableHead, TableRow, TableCell, TableBody, Loader, View, Button } from '@aws-amplify/ui-react';
 import Transaction from './Transaction';
+import { getTransactions as GetTransactions } from '../graphql/queries';
 
 const logger = new Logger("Transactions");
-
-const apiName = "plaidapi";
 
 export default function Transactions({ id, accounts = {} }) {
 
@@ -18,12 +17,11 @@ export default function Transactions({ id, accounts = {} }) {
   const getTransactions = async () => {
     setLoading(true);
     try {
-      const res = await API.get(apiName, `/v1/items/${id}/transactions`);
-      logger.debug(`GET /v1/items/${id}/transactions response:`, res);
-      setTransactions(res.transactions);
-      if (res.cursor) {
+      const res = await API.graphql(graphqlOperation(GetTransactions, { id }));
+      setTransactions(res.data.getTransactions.transactions);
+      if (res.data.getTransactions.cursor) {
         setHasMorePages(true);
-        setNextToken(res.cursor);
+        setNextToken(res.data.getTransactions.cursor);
       }
       setLoading(false);
     } catch (err) {
@@ -33,23 +31,16 @@ export default function Transactions({ id, accounts = {} }) {
   }
 
   const handleLoadMore = async () => {
-    const init = {
-      queryStringParameters: {
-        cursor: nextToken
-      }
-    }
-
     try {
-      const res = await API.get(apiName, `/v1/items/${id}/transactions`, init);
-      logger.debug(`GET /v1/items/${id}/transactions?cursor=${nextToken} response:`, res);
-      if (res.cursor) {
-        setNextToken(res.cursor);
+      const res = await API.graphql(graphqlOperation(GetTransactions, { id, cursor: nextToken }));
+      if (res.data.getTransactions.cursor) {
+        setNextToken(res.data.getTransactions.cursor);
         setHasMorePages(true);
       }
       else {
         setHasMorePages(false);
       }
-      setTransactions([...transactions, ...res.transactions]);
+      setTransactions([...transactions, ...res.data.getTransactions.transactions]);
     } catch (err) {
       logger.error('unable to get transactions', err);
     }
@@ -86,13 +77,17 @@ export default function Transactions({ id, accounts = {} }) {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan="6">No transactions found</TableCell>
+                <TableCell colSpan="6">Waiting for transaction data...</TableCell>
               </TableRow>
             )
           )}
         </TableBody>
       </Table>
-      <Button isDisabled={!hasMorePages} onClick={handleLoadMore} size="small" variable="primary">Load More</Button>
+      {transactions.length ? (
+        <Button isDisabled={!hasMorePages} onClick={handleLoadMore} size="small" variable="primary">Load More</Button>
+        ) : (
+        <div/>
+      )}
     </View>
   )
 }

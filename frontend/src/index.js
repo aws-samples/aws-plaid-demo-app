@@ -12,6 +12,9 @@ const root = createRoot(container);
 Amplify.Logger.LOG_LEVEL = 'DEBUG';
 
 Amplify.configure({
+  aws_appsync_graphqlEndpoint: process.env.REACT_APP_GRAPHQL_URL,
+  aws_appsync_region: process.env.REACT_APP_REGION,
+  aws_appsync_authenticationType: 'AMAZON_COGNITO_USER_POOLS',
   Auth: {
     region: process.env.REACT_APP_REGION,
     userPoolId: process.env.REACT_APP_COGNTIO_USERPOOL_ID,
