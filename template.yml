@@ -57,7 +57,7 @@ Globals:
         TABLE_NAME: !Ref Table
     Handler: app.lambda_handler.handler
     Layers:
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPython:33"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPython:39"
       - !Ref DependencyLayer
     MemorySize: 128 # megabytes
     Runtime: python3.9
@@ -99,15 +99,20 @@ Resources:
     Type: "AWS::SQS::Queue"
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
     Properties:
       ContentBasedDeduplication: true
       DeduplicationScope: messageGroup
       DelaySeconds: 0
       FifoQueue: true
       FifoThroughputLimit: perMessageGroupId
-      KmsMasterKeyId: alias/aws/sqs
       MessageRetentionPeriod: 1209600 # 14 days
       ReceiveMessageWaitTimeSeconds: 20 # long polling
+      SqsManagedSseEnabled: true
       Tags:
         - Key: "aws-cloudformation:stack-name"
           Value: !Ref "AWS::StackName"
@@ -126,18 +131,23 @@ Resources:
     Type: "AWS::SQS::Queue"
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
     Properties:
       ContentBasedDeduplication: true
       DeduplicationScope: messageGroup
       DelaySeconds: 0
       FifoQueue: true
       FifoThroughputLimit: perMessageGroupId
-      KmsMasterKeyId: alias/aws/sqs
       MessageRetentionPeriod: 1209600 # 14 days
       ReceiveMessageWaitTimeSeconds: 20 # long polling
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt WebhookDeadLetterQueue.Arn
         maxReceiveCount: 5
+      SqsManagedSseEnabled: true
       Tags:
         - Key: "aws-cloudformation:stack-name"
           Value: !Ref "AWS::StackName"
@@ -158,6 +168,14 @@ Resources:
     Properties:
       PolicyDocument:
         Statement:
+          - Sid: Deny non-HTTPS access
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt WebhookQueue.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
           - Effect: Allow
             Principal:
               AWS: !GetAtt ApiFunctionRole.Arn
@@ -178,11 +196,16 @@ Resources:
     Type: "AWS::SQS::Queue"
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
     Properties:
       DelaySeconds: 0
-      KmsMasterKeyId: alias/aws/sqs
       MessageRetentionPeriod: 1209600 # 14 days
       ReceiveMessageWaitTimeSeconds: 20 # long polling
+      SqsManagedSseEnabled: true
       Tags:
         - Key: "aws-cloudformation:stack-name"
           Value: !Ref "AWS::StackName"
@@ -201,14 +224,19 @@ Resources:
     Type: "AWS::SQS::Queue"
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
     Properties:
       DelaySeconds: 0
-      KmsMasterKeyId: alias/aws/sqs
       MessageRetentionPeriod: 1209600 # 14 days
       ReceiveMessageWaitTimeSeconds: 20 # long polling
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt WriteDeadLetterQueue.Arn
         maxReceiveCount: 5
+      SqsManagedSseEnabled: true
       Tags:
         - Key: "aws-cloudformation:stack-name"
           Value: !Ref "AWS::StackName"
@@ -229,6 +257,14 @@ Resources:
     Properties:
       PolicyDocument:
         Statement:
+          - Sid: Deny non-HTTPS access
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt WriteQueue.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
           - Effect: Allow
             Principal:
               AWS: !GetAtt WebhookProcessorFunctionRole.Arn
@@ -631,6 +667,8 @@ Resources:
         - email
       UsernameConfiguration:
         CaseSensitive: false
+      UserPoolAddOns:
+        AdvancedSecurityMode: ENFORCED
       UserPoolTags:
         GITHUB_ORG: !Ref GitHubOrg
         GITHUB_REPO: !Ref GitHubRepo
