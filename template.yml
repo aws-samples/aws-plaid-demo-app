@@ -57,7 +57,7 @@ Globals:
         TABLE_NAME: !Ref Table
     Handler: app.lambda_handler.handler
     Layers:
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPython:39"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:11"
       - !Ref DependencyLayer
     MemorySize: 128 # megabytes
     Runtime: python3.9
