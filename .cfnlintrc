@@ -1,0 +1,4 @@
+templates:
+- template.yml
+include_checks:
+- I

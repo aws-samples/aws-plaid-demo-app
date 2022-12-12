@@ -1,0 +1,1271 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: Plaid Demo
+
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Tag
+    Default: dev
+  GitHubOrg:
+    Type: String
+    Description: GitHub User or Organization
+  GitHubRepo:
+    Type: String
+    Description: GitHub Repository
+    Default: aws-plaid-demo-app
+  PlaidClientId:
+    Type: String
+    Description: Plaid Client ID
+    NoEcho: true
+  PlaidSecretKey:
+    Type: String
+    Description: Plaid Secret Key
+    NoEcho: true
+  PlaidEnvironment:
+    Type: String
+    Description: Plaid Environment
+    Default: sandbox
+    AllowedValues:
+      - sandbox
+      - development
+      - production
+  GitHubAccessToken:
+    Type: String
+    Description: GitHub Personal Access Token
+    NoEcho: true
+  BranchName:
+    Type: String
+    Description: Git branch name
+    Default: main
+
+Globals:
+  Function:
+    Architectures:
+      - x86_64 # arm64 is not supported by dynamodb-encryption-sdk
+    Environment:
+      Variables:
+        LOG_LEVEL: DEBUG
+        POWERTOOLS_LOGGER_SAMPLE_RATE: 0.1
+        POWERTOOLS_LOGGER_LOG_EVENT: true
+        POWERTOOLS_METRICS_NAMESPACE: PlaidApi
+        ENVIRONMENT: !Ref Environment
+        TABLE_NAME: !Ref Table
+    Handler: app.lambda_handler.handler
+    Layers:
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:11"
+      - !Ref DependencyLayer
+    MemorySize: 128 # megabytes
+    Runtime: python3.9
+    Tags:
+      GITHUB_ORG: !Ref GitHubOrg
+      GITHUB_REPO: !Ref GitHubRepo
+      Environment: !Ref Environment
+    Timeout: 10 # seconds
+    Tracing: Active
+
+Resources:
+  PlaidCredential:
+    Type: "AWS::SecretsManager::Secret"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W77
+            reason: "Ignoring KMS key"
+    Properties:
+      Description: !Sub "Plaid Credential - ${PlaidEnvironment}"
+      Name: !Sub "plaid/${PlaidEnvironment}/credentials"
+      SecretString: !Sub |-
+        {
+          "client_id": "${PlaidClientId}",
+          "client_secret": "${PlaidSecretKey}",
+          "endpoint": "https://${PlaidEnvironment}.plaid.com"
+        }
+      Tags:
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  WebhookDeadLetterQueue:
+    Type: "AWS::SQS::Queue"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
+    Properties:
+      ContentBasedDeduplication: true
+      DeduplicationScope: messageGroup
+      DelaySeconds: 0
+      FifoQueue: true
+      FifoThroughputLimit: perMessageGroupId
+      MessageRetentionPeriod: 1209600 # 14 days
+      ReceiveMessageWaitTimeSeconds: 20 # long polling
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WebhookDeadLetterQueue
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  WebhookQueue:
+    Type: "AWS::SQS::Queue"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
+    Properties:
+      ContentBasedDeduplication: true
+      DeduplicationScope: messageGroup
+      DelaySeconds: 0
+      FifoQueue: true
+      FifoThroughputLimit: perMessageGroupId
+      MessageRetentionPeriod: 1209600 # 14 days
+      ReceiveMessageWaitTimeSeconds: 20 # long polling
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt WebhookDeadLetterQueue.Arn
+        maxReceiveCount: 5
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WebhookQueue
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+      VisibilityTimeout: 180 # 3 minutes in seconds (6x Lambda timeout)
+
+  WebhookQueuePolicy:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Sid: Deny non-HTTPS access
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt WebhookQueue.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt ApiFunctionRole.Arn
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt WebhookQueue.Arn
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt WebhookProcessorFunctionRole.Arn
+            Action:
+              - "sqs:DeleteMessage"
+              - "sqs:ReceiveMessage"
+              - "sqs:GetQueueAttributes"
+            Resource: !GetAtt WebhookQueue.Arn
+      Queues:
+        - !Ref WebhookQueue
+
+  WriteDeadLetterQueue:
+    Type: "AWS::SQS::Queue"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
+    Properties:
+      DelaySeconds: 0
+      MessageRetentionPeriod: 1209600 # 14 days
+      ReceiveMessageWaitTimeSeconds: 20 # long polling
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WriteDeadLetterQueue
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  WriteQueue:
+    Type: "AWS::SQS::Queue"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W48
+            reason: "Ignoring KMS key, uses SSE-SQS"
+    Properties:
+      DelaySeconds: 0
+      MessageRetentionPeriod: 1209600 # 14 days
+      ReceiveMessageWaitTimeSeconds: 20 # long polling
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt WriteDeadLetterQueue.Arn
+        maxReceiveCount: 5
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WriteQueue
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+      VisibilityTimeout: 180 # 3 minutes in seconds (6x Lambda timeout)
+
+  WriteQueuePolicy:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Sid: Deny non-HTTPS access
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt WriteQueue.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt WebhookProcessorFunctionRole.Arn
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt WriteQueue.Arn
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt BatchWriterFunctionRole.Arn
+            Action:
+              - "sqs:DeleteMessage"
+              - "sqs:ReceiveMessage"
+              - "sqs:GetQueueAttributes"
+            Resource: !GetAtt WriteQueue.Arn
+      Queues:
+        - !Ref WriteQueue
+
+  DependencyLayer:
+    Type: "AWS::Serverless::LayerVersion"
+    Metadata:
+      BuildMethod: python3.9
+    Properties:
+      LicenseInfo: MIT-0
+      CompatibleArchitectures:
+        - arm64
+      CompatibleRuntimes:
+        - python3.9
+      ContentUri: backend/dependencies
+      Description: !Sub "Plaid API - ${Environment} - Dependency Layer"
+      RetentionPolicy: Delete
+
+  EncryptionKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      Description: !Sub "Plaid API - ${Environment}"
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: Allow use of the key
+            Effect: Allow
+            Principal:
+              AWS:
+                - !GetAtt ApiFunctionRole.Arn
+                - !GetAtt WebhookProcessorFunctionRole.Arn
+            Action:
+              - "kms:Decrypt"
+              - "kms:DescribeKey"
+              - "kms:Encrypt"
+              - "kms:GenerateDataKey*"
+              - "kms:ReEncrypt*"
+            Resource: "*"
+      KeySpec: SYMMETRIC_DEFAULT
+      KeyUsage: ENCRYPT_DECRYPT
+      MultiRegion: true
+      PendingWindowInDays: 7
+      Tags:
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  Table:
+    Type: "AWS::DynamoDB::GlobalTable"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+        - AttributeName: gsi1pk
+          AttributeType: S
+        - AttributeName: gsi1sk
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: gsi1pk
+              KeyType: HASH
+            - AttributeName: gsi1sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      Replicas:
+        - PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+          Region: !Ref "AWS::Region"
+          TableClass: STANDARD
+          Tags:
+            - Key: GITHUB_ORG
+              Value: !Ref GitHubOrg
+            - Key: GITHUG_REPO
+              Value: !Ref GitHubRepo
+            - Key: Environment
+              Value: !Ref Environment
+      SSESpecification:
+        SSEEnabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TimeToLiveSpecification:
+        AttributeName: expire_at
+        Enabled: true
+
+  HttpApiRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: !Sub "apigateway.${AWS::URLSuffix}"
+            Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by API Gateway. Created by ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+      Policies:
+        - PolicyName: AllowLambdaInvoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "lambda:InvokeFunction"
+                Resource: !GetAtt ApiFunction.Arn
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: HttpApiRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  AppSyncRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: !Sub "appsync.${AWS::URLSuffix}"
+            Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by AppSync. Created by ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs"
+      Policies:
+        - PolicyName: AppSyncPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "dynamodb:Query"
+                Resource:
+                  - !GetAtt Table.Arn
+                  - !Sub "${Table.Arn}/index/*"
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: AppSyncRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  HttpApi:
+    Type: "AWS::ApiGatewayV2::Api" # used to avoid circular dependencies when using AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowCredentials: true
+        AllowHeaders:
+          - Content-Type
+          - Accept
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - DELETE
+          - OPTIONS
+        AllowOrigins:
+          - "http://localhost:3000"
+          - "https://*"
+        MaxAge: 300 # 5 minutes
+      Description: !Sub "Plaid API - ${Environment} (Plaid Env: ${PlaidEnvironment})"
+      Name: !Sub "Plaid API - ${Environment}"
+      ProtocolType: HTTP
+      Tags:
+        GITHUB_ORG: !Ref GitHubOrg
+        GITHUB_REPO: !Ref GitHubRepo
+        Environment: !Ref Environment
+
+  GraphQLApi:
+    Type: "AWS::AppSync::GraphQLApi"
+    Properties:
+      AdditionalAuthenticationProviders:
+        - AuthenticationType: AWS_IAM
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      LogConfig:
+        CloudWatchLogsRoleArn: !GetAtt AppSyncRole.Arn
+        ExcludeVerboseContent: true
+        FieldLogLevel: ERROR
+      Name: !Sub "Plaid GraphQL API - ${Environment}"
+      Tags:
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUB_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+      UserPoolConfig:
+        AppIdClientRegex: !Ref UserPoolClient
+        AwsRegion: !Ref "AWS::Region"
+        DefaultAction: ALLOW
+        UserPoolId: !Ref CognitoUserPool
+      XrayEnabled: true
+
+  DynamoDBDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DynamoDBConfig:
+        AwsRegion: !Ref "AWS::Region"
+        TableName: !Ref Table
+      Name: DynamoDB
+      ServiceRoleArn: !GetAtt AppSyncRole.Arn
+      Type: AMAZON_DYNAMODB
+
+  GraphQLSchema:
+    Type: "AWS::AppSync::GraphQLSchema"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DefinitionS3Location: backend/schema.graphql
+
+  GetItemsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getItems
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getItems.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getItems.res.vtl
+      TypeName: Query
+
+  GetAccountsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getAccounts
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.res.vtl
+      TypeName: Query
+
+  GetTransactionsResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      FieldName: getTransactions
+      Kind: UNIT
+      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getTransactions.req.vtl
+      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getTransactions.res.vtl
+      TypeName: Query
+
+  HttpApiAuthorizer:
+    Type: "AWS::ApiGatewayV2::Authorizer"
+    Properties:
+      ApiId: !Ref HttpApi
+      AuthorizerType: JWT
+      JwtConfiguration:
+        Audience:
+          - !Ref UserPoolClient
+        Issuer: !Sub "https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${CognitoUserPool}"
+      IdentitySource:
+        - "$request.header.Authorization"
+      Name: JwtAuthorizer
+
+  HttpApiIntegration:
+    Type: "AWS::ApiGatewayV2::Integration"
+    Properties:
+      ApiId: !Ref HttpApi
+      ConnectionType: INTERNET
+      CredentialsArn: !GetAtt HttpApiRole.Arn
+      IntegrationMethod: POST
+      IntegrationUri: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
+      IntegrationType: AWS_PROXY
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 10000 # 10 seconds (matches Plaid's webhook timeout)
+
+  HttpApiLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt ApiFunction.Arn
+      Principal: !Sub "apigateway.${AWS::URLSuffix}"
+      SourceAccount: !Ref "AWS::AccountId"
+      SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/*"
+
+  WebhookRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref HttpApi
+      AuthorizationType: NONE
+      RouteKey: "POST /v1/webhook"
+      Target: !Sub "integrations/${HttpApiIntegration}"
+
+  DefaultCorsRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref HttpApi
+      AuthorizationType: NONE
+      RouteKey: "OPTIONS /{proxy+}"
+      Target: !Sub "integrations/${HttpApiIntegration}"
+
+  ReadOnlyRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref HttpApi
+      #AuthorizationScopes:
+      #  - !Sub "${UserPoolResourceServer}/plaid.ro"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      RouteKey: "GET /{proxy+}"
+      Target: !Sub "integrations/${HttpApiIntegration}"
+
+  DefaultRoute:
+    Type: "AWS::ApiGatewayV2::Route"
+    Properties:
+      ApiId: !Ref HttpApi
+      #AuthorizationScopes:
+      #  - !Sub "${UserPoolResourceServer}/plaid.rw"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      RouteKey: "$default"
+      Target: !Sub "integrations/${HttpApiIntegration}"
+
+  HttpApiStage:
+    Type: "AWS::ApiGatewayV2::Stage"
+    Properties:
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogGroup.Arn
+        # @see https://www.alexdebrie.com/posts/api-gateway-access-logs/
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":$context.status,"responseLatency":$context.responseLatency,"integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent","principalId":"$context.authorizer.principalId"}'
+      ApiId: !Ref HttpApi
+      AutoDeploy: true
+      StageName: "$default"
+
+  CognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes:
+        - email
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      MfaConfiguration: "ON"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 3
+      UserAttributeUpdateSettings:
+        AttributesRequireVerificationBeforeUpdate:
+          - email
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      UserPoolAddOns:
+        AdvancedSecurityMode: ENFORCED
+      UserPoolTags:
+        GITHUB_ORG: !Ref GitHubOrg
+        GITHUB_REPO: !Ref GitHubRepo
+        Environment: !Ref Environment
+
+  UserPoolDomain:
+    Type: "AWS::Cognito::UserPoolDomain"
+    Properties:
+      Domain: !Select [2, !Split ["/", !Ref "AWS::StackId"]]
+      UserPoolId: !Ref CognitoUserPool
+
+  UserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      AccessTokenValidity: 1
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - !Sub "${UserPoolResourceServer}/plaid.rw"
+        - !Sub "${UserPoolResourceServer}/plaid.ro"
+      CallbackURLs:
+        - "http://localhost:3000"
+      EnableTokenRevocation: true
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      IdTokenValidity: 1
+      PreventUserExistenceErrors: ENABLED
+      ReadAttributes:
+        - email
+        - email_verified
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: hours
+        IdToken: hours
+        RefreshToken: days
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref CognitoUserPool
+      WriteAttributes:
+        - email
+
+  UserPoolResourceServer:
+    Type: "AWS::Cognito::UserPoolResourceServer"
+    Properties:
+      Identifier: !GetAtt HttpApi.ApiEndpoint
+      Name: !Ref "AWS::StackName"
+      Scopes:
+        - ScopeDescription: Read-only access
+          ScopeName: plaid.ro
+        - ScopeDescription: Read/write access
+          ScopeName: plaid.rw
+      UserPoolId: !Ref CognitoUserPool
+
+  ApiGatewayAccount:
+    Type: "AWS::ApiGateway::Account"
+    DependsOn: HttpApi
+    Properties:
+      CloudWatchRoleArn: !GetAtt HttpApiRole.Arn
+
+  AccessLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: "Ignoring KMS key"
+    Properties:
+      LogGroupName: !Sub "/aws/apigateway/${HttpApi}/access-logs"
+      RetentionInDays: 3
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: AccessLogGroup
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  ApiFunctionLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: "Ignoring KMS key"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ApiFunction}"
+      RetentionInDays: 3
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: ApiFunctionLogGroup
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  ApiFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub "lambda.${AWS::URLSuffix}"
+          Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: ApiFunctionRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  ApiFunctionPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: ApiPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "secretsmanager:GetSecretValue"
+            Resource: !Ref PlaidCredential
+          - Effect: Allow
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt WebhookQueue.Arn
+          - Effect: Allow
+            Action:
+              - "dynamodb:BatchWriteItem"
+              - "dynamodb:DeleteItem"
+              - "dynamodb:DescribeTable"
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+            Resource: !GetAtt Table.Arn
+          - Effect: Allow
+            Action:
+              - "kms:Decrypt"
+              - "kms:DescribeKey"
+              - "kms:Encrypt"
+              - "kms:GenerateDataKey*"
+              - "kms:ReEncrypt*"
+            Resource: !GetAtt EncryptionKey.Arn
+          - Effect: Allow
+            Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: !GetAtt ApiFunctionLogGroup.Arn
+      Roles:
+        - !Ref ApiFunctionRole
+
+  ApiFunction:
+    Type: "AWS::Serverless::Function"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: "Ignoring CloudWatch"
+          - id: W89
+            reason: "Ignoring VPC"
+          - id: W92
+            reason: "Ignoring Reserved Concurrency"
+    Properties:
+      CodeUri: backend/api
+      Description: !Sub "Plaid (${Environment}) - API"
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: api
+          PLAID_SECRET_ARN: !Ref PlaidCredential
+          WEBHOOK_QUEUE_URL: !Ref WebhookQueue
+          WEBHOOK_URL: !Sub "${HttpApi.ApiEndpoint}/v1/webhook"
+          KEY_ARN: !GetAtt EncryptionKey.Arn
+      MemorySize: 256 # megabytes
+      Role: !GetAtt ApiFunctionRole.Arn
+
+  WebhookProcessorFunctionLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: "Ignoring KMS key"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${WebhookProcessorFunction}"
+      RetentionInDays: 3
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WebhookProcessorFunctionLogGroup
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  WebhookProcessorFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub "lambda.${AWS::URLSuffix}"
+          Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
+      Policies:
+        - PolicyName: WebhookProcessorPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:DescribeStream"
+                  - "dynamodb:GetRecords"
+                  - "dynamodb:GetShardIterator"
+                  - "dynamodb:ListStreams"
+                Resource: !GetAtt Table.StreamArn
+              - Effect: Allow
+                Action:
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Query"
+                  - "dynamodb:UpdateItem"
+                Resource: !GetAtt Table.Arn
+              - Effect: Allow
+                Action: "sqs:SendMessage"
+                Resource: !GetAtt WriteQueue.Arn
+              - Effect: Allow
+                Action:
+                  - "sqs:DeleteMessage"
+                  - "sqs:ReceiveMessage"
+                  - "sqs:GetQueueAttributes"
+                Resource: !GetAtt WebhookQueue.Arn
+              - Effect: Allow
+                Action: "secretsmanager:GetSecretValue"
+                Resource: !Ref PlaidCredential
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: WebhookProcessorFunctionRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  WebhookProcessorFunctionPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: Additional
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "kms:Decrypt"
+              - "kms:DescribeKey"
+              - "kms:Encrypt"
+              - "kms:GenerateDataKey*"
+              - "kms:ReEncrypt*"
+            Resource: !GetAtt EncryptionKey.Arn
+          - Effect: Allow
+            Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: !GetAtt WebhookProcessorFunctionLogGroup.Arn
+      Roles:
+        - !Ref WebhookProcessorFunctionRole
+
+  WebhookProcessorFunction:
+    Type: "AWS::Serverless::Function"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: "Ignoring CloudWatch"
+          - id: W89
+            reason: "Ignoring VPC"
+          - id: W92
+            reason: "Ignoring Reserved Concurrency"
+    Properties:
+      CodeUri: backend/webhook_processor
+      Description: !Sub "Plaid (${Environment}) - WebhookProcessor"
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: webhook_processor
+          QUEUE_URL: !Ref WriteQueue
+          PLAID_SECRET_ARN: !Ref PlaidCredential
+          KEY_ARN: !GetAtt EncryptionKey.Arn
+      Events:
+        DynamoDBEvent:
+          Type: DynamoDB
+          Properties:
+            BatchSize: 1
+            BisectBatchOnFunctionError: true
+            Enabled: true
+            FilterCriteria:
+              Filters:
+                - Pattern: '{"eventName": ["INSERT"], "dynamodb": {"NewImage": {"pk": {"S": ["ITEMS"]}}}}'
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            StartingPosition: LATEST
+            Stream: !GetAtt Table.StreamArn
+        SQSEvent:
+          Type: SQS
+          Properties:
+            BatchSize: 1
+            Enabled: true
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            Queue: !GetAtt WebhookQueue.Arn
+      MemorySize: 1024
+      Role: !GetAtt WebhookProcessorFunctionRole.Arn
+      Timeout: 30 # seconds
+
+  BatchWriterFunctionLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: "Ignoring KMS key"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${BatchWriterFunction}"
+      RetentionInDays: 3
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: BatchWriterFunctionLogGroup
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  BatchWriterFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub "lambda.${AWS::URLSuffix}"
+          Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
+      Policies:
+        - PolicyName: BatchWriterPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "sqs:DeleteMessage"
+                  - "sqs:ReceiveMessage"
+                  - "sqs:GetQueueAttributes"
+                Resource: !GetAtt WriteQueue.Arn
+              - Effect: Allow
+                Action: "dynamodb:BatchWriteItem"
+                Resource: !GetAtt Table.Arn
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: BatchWriterFunctionRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  BatchWriterFunctionPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: CloudWatchLogs
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: !GetAtt BatchWriterFunctionLogGroup.Arn
+      Roles:
+        - !Ref BatchWriterFunctionRole
+
+  BatchWriterFunction:
+    Type: "AWS::Serverless::Function"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: "Ignoring CloudWatch"
+          - id: W89
+            reason: "Ignoring VPC"
+          - id: W92
+            reason: "Ignoring Reserved Concurrency"
+    Properties:
+      CodeUri: backend/batch_writer
+      Description: !Sub "Plaid (${Environment}) - BatchWriter"
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: batch_writer
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            BatchSize: 100
+            Enabled: true
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+            MaximumBatchingWindowInSeconds: 60
+            Queue: !GetAtt WriteQueue.Arn
+      Role: !GetAtt BatchWriterFunctionRole.Arn
+      Timeout: 30 # seconds
+
+  AmplifyRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub "amplify.${AWS::URLSuffix}"
+          Action: "sts:AssumeRole"
+          Condition:
+            ArnLike:
+              "aws:SourceArn": !Sub "arn:${AWS::Partition}:amplify:${AWS::Region}:${AWS::AccountId}:apps/*"
+            StringEquals:
+              "aws:SourceAccount": !Ref "AWS::AccountId"
+      Description: !Sub "DO NOT DELETE - Used by Amplify. Created by CloudFormation ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AdministratorAccess-Amplify"
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: AmplifyRole
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUG_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  FrontendApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      AccessToken: !Ref GitHubAccessToken
+      BuildSpec: |-
+        version: 1
+        frontend:
+          phases:
+            preBuild:
+              commands:
+                - cd frontend
+                - npm ci --no-fund --no-audit
+            build:
+              commands:
+                - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+                - REACT_APP_COGNITO_CLIENT_ID=${REACT_APP_COGNITO_CLIENT_ID}
+                - REACT_APP_COGNITO_DOMAIN=${REACT_APP_COGNITO_DOMAIN}
+                - REACT_APP_COGNTIO_USERPOOL_ID=${REACT_APP_COGNTIO_USERPOOL_ID}
+                - REACT_APP_GRAPHQL_URL=${REACT_APP_GRAPHQL_URL}
+                - REACT_APP_REGION=${REACT_APP_REGION}
+                - npm run-script build
+          artifacts:
+            baseDirectory: frontend/build
+            files:
+              - "**/*"
+          cache:
+            paths:
+              - "frontend/node_modules/**/*"
+      CustomHeaders: |-
+        customHeaders:
+          - pattern: '**/*'
+            headers:
+              - key: 'X-Frame-Options'
+                value: 'SAMEORIGIN'
+              - key: 'X-XSS-Protection'
+                value: '1; mode=block'
+              - key: 'X-Content-Type-Options'
+                value: 'nosniff'
+      CustomRules:
+        - Source: '</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>'
+          Status: 200
+          Target: "/index.html"
+      Description: !Sub "Plaid Demo - ${Environment} (Plaid Env: ${PlaidEnvironment})"
+      EnableBranchAutoDeletion: true
+      EnvironmentVariables:
+        - Name: REACT_APP_BACKEND_URL
+          Value: !GetAtt HttpApi.ApiEndpoint
+        - Name: REACT_APP_COGNITO_DOMAIN
+          Value: !Sub "${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com"
+        - Name: REACT_APP_COGNTIO_USERPOOL_ID
+          Value: !Ref CognitoUserPool
+        - Name: REACT_APP_COGNITO_CLIENT_ID
+          Value: !Ref UserPoolClient
+        - Name: REACT_APP_GRAPHQL_URL
+          Value: !GetAtt GraphQLApi.GraphQLUrl
+        - Name: REACT_APP_REGION
+          Value: !Ref "AWS::Region"
+      IAMServiceRole: !GetAtt AmplifyRole.Arn
+      Name: !Ref "AWS::StackName"
+      Repository: !Sub "https://github.com/${GitHubOrg}/${GitHubRepo}"
+      Tags:
+        - Key: GITHUB_ORG
+          Value: !Ref GitHubOrg
+        - Key: GITHUB_REPO
+          Value: !Ref GitHubRepo
+        - Key: Environment
+          Value: !Ref Environment
+
+  Branch:
+    Type: "AWS::Amplify::Branch"
+    Properties:
+      AppId: !GetAtt FrontendApp.AppId
+      BranchName: !Ref BranchName
+      EnableAutoBuild: true
+      EnablePullRequestPreview: false
+      PullRequestEnvironmentName: !Ref Environment
+      Stage: DEVELOPMENT
+
+Outputs:
+  BackendUrl:
+    Description: API URL
+    Value: !GetAtt HttpApi.ApiEndpoint
+  GraphQLUrl:
+    Description: GraphQL URL
+    Value: !GetAtt GraphQLApi.GraphQLUrl
+  FrontendUrl:
+    Description: Application URL
+    Value: !Sub "https://${BranchName}.${FrontendApp.DefaultDomain}"
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+  CognitoEndpoint:
+    Description: Cognito Endpoint URL
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+  ReadOnlyLogin:
+    Description: Read-only Login URL
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${UserPoolClient}&response_type=token&scope=email+openid+${UserPoolResourceServer}/plaid.ro&redirect_uri=http://localhost:3000
+  ReadWriteLogin:
+    Description: Read-write Login URL
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${UserPoolClient}&response_type=token&scope=email+openid+${UserPoolResourceServer}/plaid.rw&redirect_uri=http://localhost:3000

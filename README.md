@@ -1,211 +1,137 @@
-# AWS Plaid Demo App
+# AWS Plaid Demo
 
-This repo demonstrates how to build a Fintech app on AWS that uses Plaid Link to connect a user to his or her bank 
-account. The app allows users to sign up using Amazon Cognito, select their bank from a list, log in to the bank, and display the latest transactions. The app is built using AWS Amplify, Amazon API Gateway, Amazon Cognitio, AWS Secrets 
-Manager and Amazon DynamoDB. 
+### Table of contents
 
-## Pre-requisites
-Before building the app, you will need to get your API keys from Plaid. Go to https://plaid.com, click on the **Get API Keys** button, and create an account. You can create a free sandbox account, and use your sandbox API key to start.
+1. [Introduction](#introduction)
+2. [Architecture](#architecture)
+3. [Prerequisites](#prerequisites)
+4. [Tools and services](#tools-and-services)
+5. [Usage](#usage)
+6. [Clean up](#clean-up)
+7. [Reference](#reference)
+8. [Contributing](#contributing)
+9. [License](#license)
 
-Install AWS Amplify by following the instructions at https://docs.amplify.aws/cli/start/install/ 
+## Introduction
 
-If you have not already done so, create a default AWS configuration profile by running the **aws configure** command, as described at https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-config 
+This repo demonstrates how to build a Fintech app on AWS that uses [Plaid Link](https://plaid.com/plaid-link/) to connect a user to their bank account. The app allows users to sign up using [Amazon Cognito](https://aws.amazon.com/cognito/), select their bank from a list, log in to the bank, and display the accounts. The app is built using [AWS Amplify](https://aws.amazon.com/amplify/), [Amazon API Gateway](https://aws.amazon.com/api-gateway/), Amazon Cognito, [AWS Secrets
+Manager](https://aws.amazon.com/secrets-manager/), [Amazon Simple Queue Service](https://aws.amazon.com/sqs/) and [Amazon DynamoDB](https://aws.amazon.com/dynamodb/).
 
-## Building the app 
+## Architecture
 
-```
-$ git clone https://github.com/aws-samples/aws-plaid-demo-app
-$ cd aws-plaid-demo-app
-$ npm install
+![architecture](doc/architecture.png)
 
-```
+The architecture consists of a [React](https://reactjs.org/) application hosted on [Amplify Hosting](https://aws.amazon.com/amplify/hosting/). The API is an AWS Lambda function behind an Amazon API Gateway. The API stores and retrieves data from DynamoDB. When [webhooks](https://plaid.com/docs/api/webhooks/) are received from Plaid, those are stored in a FIFO SQS queue for processing.
 
-Then perform the following steps. 
+## Prerequisites
 
-1. Initialize a new amplify project.
+- [Python 3](https://www.python.org/downloads/), installed
+- [AWS Command Line Interface (AWS CLI)](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) version 2, installed. Please follow these instructions with how to [setup your AWS credentials](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-set-up-credentials.html).
+- [AWS Serverless Application Model (SAM)](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html), installed
+- [Docker Desktop](https://www.docker.com/products/docker-desktop), installed
+- [GitHub](https://github.com) account
+- [Plaid](https://plaid.com/) account
 
-### `amplify init`
+## Tools and services
 
-```
-? Enter a name for the project (awsplaiddemoapp)
-? Initialize the project with the above configuration? (Y/n) y
-? Select the authentication profile you want to use: AWS profile 
-? Please choose the profile you want to use: default
-```
-2. Add Authentication.
+- [AWS Lambda](https://aws.amazon.com/lambda/) - AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers, creating workload-aware cluster scaling logic, maintaining event integrations, or managing runtimes.
+- [Amazon Cognito](https://aws.amazon.com/cognito/) - Amazon Cognito lets you add user sign-up, sign-in, and access control to your web and mobile apps quickly and easily. Amazon Cognito scales to millions of users and supports sign-in with social identity providers, such as Apple, Facebook, Google, and Amazon, and enterprise identity providers via SAML 2.0 and OpenID Connect.
+- [Amazon API Gateway](https://aws.amazon.com/api-gateway/) - Amazon API Gateway is a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale.
+- [AWS Amplify](https://aws.amazon.com/amplify/) - AWS Amplify is a complete solution that lets frontend web and mobile developers easily build, ship, and host full-stack applications on AWS, with the flexibility to leverage the breadth of AWS services as use cases evolve.
+- [Amazon Simple Queue Service](https://aws.amazon.com/sqs/) - Amazon Simple Queue Service (SQS) is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications.
+- [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) - Amazon DynamoDB is a fully managed, serverless, key-value NoSQL database designed to run high-performance applications at any scale.
+- [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) - AWS Secrets Manager helps you manage, retrieve, and rotate database credentials, API keys, and other secrets throughout their lifecycles.
+- [AWS CloudFormation](https://aws.amazon.com/cloudformation/) - AWS CloudFormation lets you model, provision, and manage AWS and third-party resources by treating infrastructure as code.
 
-### `amplify add auth`
-```
-? Do you want to use the default authentication configuration? Default configuration 
-? How do you want users to be able to sign in? (Use arrow keys and space bar to select)
-•	Email
-•	Username
-? Do you want to configure advanced settings? No, I am done
-```
+## Usage
 
-3. Add the API.
+#### Parameters
 
-### `amplify add api`
+| Parameter         |  Type  |      Default       | Description                        |
+| ----------------- | :----: | :----------------: | ---------------------------------- |
+| Environment       | String |        dev         | Environment tag                    |
+| GitHubOrg         | String |    aws-samples     | Source code GitHub organization    |
+| GitHubRepo        | String | aws-plaid-demo-app | Source code GitHub repository      |
+| PlaidClientId     | String |                    | Plaid Client ID                    |
+| PlaidSecretKey    | String |                    | Plaid Secret Key                   |
+| PlaidEnvironment  | String |      sandbox       | Plaid Environment                  |
+| GitHubAccessToken | String |                    | GitHub Personal Access Token (PAT) |
 
-Follow these steps after for API creation
+#### Installation
 
-```
-? Please select from one of the below mentioned services: REST
-? Would you like to add a new path to an existing REST API: No
-? Provide a friendly name for your resource to be used as a label for this category in the project: plaidtestapi
-? Provide a path (e.g., /book/{isbn}): /v1
-? Choose a Lambda source Create a new Lambda function
-? Provide an AWS Lambda function name: plaidaws
-? Choose the runtime that you want to use: NodeJS
-? Choose the function template that you want to use: Serverless ExpressJS function (Integration with API Gateway)
-
-Available advanced settings:
-- Resource access permissions
-- Scheduled recurring invocation
-- Lambda layers configuration
-- Environment variables configuration
-- Secret values configuration
-
-? Do you want to configure advanced settings? Yes
-? Do you want to access other resources in this project from your Lambda function? No
-? Do you want to invoke this function on a recurring schedule? No
-? Do you want to enable Lambda layers for this function? No
-? Do you want to configure environment variables for this function? Yes
-? Enter the environment variable name: CLIENT_ID
-? Enter the environment variable value: [Enter your Plaid client ID]
-? Select what you want to do with environment variables: Add new environment variable
-? Enter the environment variable name: TABLE_NAME
-? Enter the environment variable value: plaidawsdb
-? Select what you want to do with environment variables: I'm done
-
-
-You can access the following resource attributes as environment variables from your Lambda function
-	ENV
-	REGION
-	CLIENT_ID
-	TABLE_NAME
-
-? Do you want to configure secret values this function can access? Yes
-? Enter a secret name (this is the key used to look up the secret value): PLAID_SECRET
-? Enter the value for PLAID_SECRET: [Enter your Plaid sandbox API key - hidden]
-? What do you want to do? I'm done
-? Do you want to edit the local lambda function now? No
-? Press enter to continue
-Successfully added resource plaidaws locally.
-? Restrict API access No
-? Do you want to add another path? No
-Successfully added resource plaidtestapi locally
-```
-
-Copy the lambda function file
-
-`cp lambda/plaidaws/app.js amplify/backend/function/plaidaws/src/app.js`
-
-Next `cd` into our lambda function's directory
-
-`cd amplify/backend/function/plaidaws/src`
-
-install some dependencies we're going to be using
-
-`npm i aws-sdk moment plaid@8.5.4`
-
-
-4. `amplify push`
-
-5. Add Storage. 
-
-### `amplify add storage`
+1. GitHub: [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the `repo` scope selected. The access token will be used by AWS Amplify to securely connect to your GitHub account to access the source code. Amplify will then build, deploy and host the application using [Amplify Hosting](https://aws.amazon.com/amplify/hosting/).
+2. GitHub: [Fork the repository to your personal account](https://docs.github.com/en/get-started/quickstart/fork-a-repo#forking-a-repository). This is required so Amplify can access the repository and download the source code.
+3. Plaid: Ensure you have both a `client_id` and `Sandbox Secret` available on the [Keys](https://dashboard.plaid.com/team/keys) page
 
 ```
-? Please select from one of the below mentioned services: NoSQL Database
-
-Welcome to the NoSQL DynamoDB database wizard
-This wizard asks you a series of questions to help determine how to set up your NoSQL database table.
-
-? Please provide a friendly name for your resource that will be used to label this category in the project: plaidawsdb
-
-The table name must be the same as the value of the TABLE_NAME environment variable above 
-
-? Please provide table name: plaidawsdb
-
-You can now add columns to the table.
-
-? What would you like to name this column: id
-? Please choose the data type: string
-? Would you like to add another column? Yes
-? What would you like to name this column: token
-? Please choose the data type: string
-? Would you like to add another column? No
-
-Before you create the database, you must specify how items in your table are uniquely organized. You do this by specifying a primary key. The primary key uniquely identifies each item in the table so that no two items can have the same key. This can be an individual column, or a combination that includes a primary key and a sort key.
-
-To learn more about primary keys, see:
-https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.PrimaryKey
-
-? Please choose partition key for the table: id
-? Do you want to add a sort key to your table? No
-
-You can optionally add global secondary indexes for this table. These are useful when you run queries defined in a different column than the primary key.
-To learn more about indexes, see:
-https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.SecondaryIndexes
-
-? Do you want to add global secondary indexes to your table? No
-? Do you want to add a Lambda Trigger for your Table? No
-Successfully added resource plaidawsdb locally
+git clone https://github.com/<GitHubUserName>/aws-plaid-demo-app
+cd aws-plaid-demo-app
+sam build --use-container --parallel --cached
+sam deploy \
+  --guided \
+  --tags "GITHUB_ORG=<GitHubUserName> GITHUB_REPO=aws-plaid-demo-app"
 ```
 
-6. Update our Lambda function to add permissions for database.
-
-### `amplify update function`
+SAM will then prompt you to provide values for the missing parameters listed above:
 
 ```
-? Select the Lambda function you want to update plaidaws
-General information
-- Name: plaidaws
-- Runtime: nodejs
-
-Resource access permission
-- Not configured
-
-Scheduled recurring invocation
-- Not configured
-
-Lambda layers
-- Not configured
-
-Environment variables:
-- CLIENT_ID: plaidclientid
-
-Secrets configuration
-- PLAID_SECRET
-
-? Which setting do you want to update? Resource access permissions
-? Select the categories you want this function to have access to. storage
-? Storage has 2 resources in this project. Select the one you would like your La
-mbda to access plaidtestdb
-? Select the operations you want to permit on plaidtestdb create, read, update,
-delete
-
-You can access the following resource attributes as environment variables from your Lambda function
-	STORAGE_PLAIDTESTDB_ARN
-	STORAGE_PLAIDTESTDB_NAME
-	STORAGE_PLAIDTESTDB_STREAMARN
-? Do you want to edit the local lambda function now? No
+Setting default arguments for 'sam deploy'
+=========================================
+Stack Name [sam-app]: aws-plaid-demo-app
+AWS Region [us-east-1]:
+Parameter Environment [dev]:
+Parameter GitHubOrg: <GitHubUserName>
+Parameter GitHubRepo [aws-plaid-demo-app]:
+Parameter PlaidClientId: *************
+Parameter PlaidSecretKey: *************
+Parameter PlaidEnvironment [sandbox]:
+Parameter GitHubAccessToken: *************
+#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+Confirm changes before deploy [y/N]:
+#SAM needs permission to be able to create roles to connect to the resources in your template
+Allow SAM CLI IAM role creation [Y/n]:
+Capabilities [['CAPABILITY_IAM']]: CAPABILITY_IAM CAPABILITY_AUTO_EXPAND
+#Preserves the state of previously provisioned resources when an operation fails
+Disable rollback [y/N]:
+Save arguments to configuration file [Y/n]:
+SAM configuration file [samconfig.toml]:
+SAM configuration environment [default]:
 ```
 
-7. Add Hosting to deploy the site.
+SAM will then monitor the CloudFormation stack as its being deployed. Once CloudFormation completes, you can access the application within the [Amplify Console](https://console.aws.amazon.com/amplify/home) to monitor the deployment progress.
 
-### `amplify add hosting`
+#### Testing the Application
 
-? Select the plugin module to execute: Hosting with Amplify Console (Managed hosting)
-? Choose a type: Manual deployment
+Click the `FrontendUrl` listed CloudFormation Outputs (or the `Domain` URL from the Amplify Console) to access the application. You should see a screen like this:
 
+![login_screen](doc/login_screen.png)
 
-8. Publish the site.
+Go through the process to create a new account providing your email address for the username. Cognito will send you a verification code to verify your email. Then click on the "Connect with Plaid" button to begin the linking process.
 
-### `amplify publish`
+![connect_with_plaid](doc/connect_with_plaid.png)
 
-## Testing the app
+Select "Bank of America" and use these demo credentials:
 
-Go to the URL displayed by the amplify publish command, and sign up as a new user. After logging in, select a bank from the list displayed. If you are using the sandbox environment, use the credentials **user_good / pass_good** to access the bank and display the transactions.
+- Username: `user_good`
+- Password: `pass_good`
+- Code: `1111`
 
+Continue through the Plaid Link process to have "Bank of America" and its accounts linked to the application.
+
+## Clean up
+
+Deleting the CloudFormation Stack will remove the Lambda functions, Amplify application, API Gateway and DynamoDB table.
+
+```
+sam delete
+```
+
+## Reference
+
+## Contributing
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.

@@ -1,0 +1,50 @@
+schema {
+  query: Query
+}
+
+type Query {
+  getItems(limit: Int, cursor: String): PaginatedItems!
+  getAccounts(id: ID!): [Account!]!
+  getTransactions(id: ID!, limit: Int, cursor: String): PaginatedTransactions!
+}
+
+type Item {
+  item_id: ID!
+  institution_id: ID!
+  institution_name: String!
+}
+
+type PaginatedItems {
+  cursor: String
+  items: [Item!]!
+}
+
+type Account {
+  account_id: ID!
+  type: String
+  name: String
+  subtype: String
+  balances: Balances
+  mask: String
+}
+
+type Balances {
+  current: String
+  iso_currency_code: String
+}
+
+type Transaction {
+  transaction_id: ID!
+  account_id: ID
+  amount: String
+  name: String
+  iso_currency_code: String
+  date: String
+  payment_channel: String
+  transaction_type: String
+}
+
+type PaginatedTransactions {
+  cursor: String
+  transactions: [Transaction!]!
+}

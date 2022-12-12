@@ -1,0 +1,15 @@
+{
+  "webhook_type": "LIABILITIES",
+  "webhook_code": "DEFAULT_UPDATE",
+  "item_id": "wz666MBjYWTp2PDzzggYhM6oWWmBb",
+  "error": null,
+  "account_ids_with_new_liabilities": [
+    "XMBvvyMGQ1UoLbKByoMqH3nXMj84ALSdE5B58",
+    "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp"
+  ],
+  "account_ids_with_updated_liabilities": {
+    "XMBvvyMGQ1UoLbKByoMqH3nXMj84ALSdE5B58": [
+      "past_amount_due"
+    ]
+  }
+}

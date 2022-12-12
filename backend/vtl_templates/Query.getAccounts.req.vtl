@@ -1,0 +1,16 @@
+{
+  "version": "2017-02-28",
+  "operation": "Query",
+  "query": {
+    "expression": "#pk = :pk AND begins_with(#sk, :sk)",
+    "expressionNames": {
+      "#pk": "pk",
+      "#sk": "sk"
+    },
+    "expressionValues": {
+      ":pk": $util.dynamodb.toDynamoDBJson("USER#${ctx.identity.username}#ITEM#${ctx.args.id}"),
+      ":sk": $util.dynamodb.toDynamoDBJson("ACCOUNT#")
+    }
+  },
+  "limit": 100
+}

@@ -1,0 +1,4 @@
+{
+  "transactions": $util.toJson($ctx.result.items),
+  "cursor": $util.toJson($util.defaultIfNullOrBlank($ctx.result.nextToken, null))
+}
