@@ -539,12 +539,35 @@ Resources:
     Type: "AWS::AppSync::Resolver"
     Properties:
       ApiId: !GetAtt GraphQLApi.ApiId
+      Code: |-
+        export function request(ctx) {
+          return {};
+        }
+
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
       DataSourceName: !GetAtt DynamoDBDataSource.Name
       FieldName: getAccounts
-      Kind: UNIT
-      RequestMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.req.vtl
-      ResponseMappingTemplateS3Location: backend/vtl_templates/Query.getAccounts.res.vtl
+      Kind: PIPELINE
+      PipelineConfig:
+        Functions:
+          - !GetAtt GetAccountsFunctionConfiguration.FunctionId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: "1.0.0"
       TypeName: Query
+
+  GetAccountsFunctionConfiguration:
+    Type: "AWS::AppSync::FunctionConfiguration"
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      CodeS3Location: backend/resolvers/Query.getAccounts.js
+      DataSourceName: !GetAtt DynamoDBDataSource.Name
+      Name: GET_ACCOUNTS
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: "1.0.0"
 
   GetTransactionsResolver:
     Type: "AWS::AppSync::Resolver"
@@ -835,7 +858,6 @@ Resources:
             Resource: !GetAtt Table.Arn
           - Effect: Allow
             Action:
-              - "kms:Decrypt"
               - "kms:DescribeKey"
               - "kms:Encrypt"
               - "kms:GenerateDataKey*"
@@ -966,9 +988,7 @@ Resources:
             Action:
               - "kms:Decrypt"
               - "kms:DescribeKey"
-              - "kms:Encrypt"
               - "kms:GenerateDataKey*"
-              - "kms:ReEncrypt*"
             Resource: !GetAtt EncryptionKey.Arn
           - Effect: Allow
             Action:
