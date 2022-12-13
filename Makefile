@@ -16,4 +16,4 @@ clean:
 	sam delete
 
 format:
-	.venv/bin/black --line-length 100 --target-version py39 --exclude '/\.venv|\.aws-sam/|frontend' .
+	.venv/bin/black .

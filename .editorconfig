@@ -9,6 +9,10 @@ insert_final_newline = true
 end_of_line = lf
 max_line_length = 120
 
+[*.js]
+indent_size = 2
+quote_type = single
+
 [*.json]
 indent_size = 2
 quote_type = double

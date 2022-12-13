@@ -23,7 +23,7 @@ TABLE_NAME = os.getenv("TABLE_NAME")
 WEBHOOK_QUEUE_URL = os.getenv("WEBHOOK_QUEUE_URL")
 
 tracer = Tracer()
-logger = Logger()
+logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 

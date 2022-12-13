@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: "pip"
+    directory: "/backend/dependencies"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: chore
+      include: scope

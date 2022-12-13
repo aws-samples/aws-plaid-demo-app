@@ -40,7 +40,7 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 KEY_ARN = os.getenv("KEY_ARN")
 
 tracer = Tracer()
-logger = Logger()
+logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 

@@ -29,7 +29,7 @@ PLAID_SECRET_ARN = os.getenv("PLAID_SECRET_ARN")
 WEBHOOK_QUEUE_URL = os.getenv("WEBHOOK_QUEUE_URL")
 
 tracer = Tracer()
-logger = Logger()
+logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 

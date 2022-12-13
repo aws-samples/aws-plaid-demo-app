@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/aws-cloudformation/cfn-lint
+    rev: v0.72.2
+    hooks:
+      - id: cfn-lint-rc
+  - repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+      - id: black

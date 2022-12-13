@@ -18,7 +18,7 @@ from mypy_boto3_dynamodb.service_resource import Table
 
 from app import constants, exceptions
 
-__all__ = ["get_user_by_item"]
+__all__ = ["get_user_by_item", "get_item"]
 
 
 TABLE_NAME = os.getenv("TABLE_NAME")
