@@ -57,7 +57,7 @@ Globals:
         TABLE_NAME: !Ref Table
     Handler: app.lambda_handler.handler
     Layers:
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:16"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:17"
       - !Ref DependencyLayer
     MemorySize: 128 # megabytes
     Runtime: python3.9
@@ -310,18 +310,23 @@ Resources:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
             Resource: "*"
-          - Sid: Allow use of the key
+          - Sid: Allow use of the key by API
             Effect: Allow
             Principal:
-              AWS:
-                - !GetAtt ApiFunctionRole.Arn
-                - !GetAtt WebhookProcessorFunctionRole.Arn
+              AWS: !GetAtt ApiFunctionRole.Arn
             Action:
-              - "kms:Decrypt"
               - "kms:DescribeKey"
               - "kms:Encrypt"
               - "kms:GenerateDataKey*"
               - "kms:ReEncrypt*"
+            Resource: "*"
+          - Sid: Allow use of the key by processor
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt WebhookProcessorFunctionRole.Arn
+            Action:
+              - "kms:Decrypt"
+              - "kms:DescribeKey"
             Resource: "*"
       KeySpec: SYMMETRIC_DEFAULT
       KeyUsage: ENCRYPT_DECRYPT
@@ -547,7 +552,6 @@ Resources:
         export function response(ctx) {
           return ctx.prev.result;
         }
-      DataSourceName: !GetAtt DynamoDBDataSource.Name
       FieldName: getAccounts
       Kind: PIPELINE
       PipelineConfig:
@@ -988,7 +992,6 @@ Resources:
             Action:
               - "kms:Decrypt"
               - "kms:DescribeKey"
-              - "kms:GenerateDataKey*"
             Resource: !GetAtt EncryptionKey.Arn
           - Effect: Allow
             Action:
