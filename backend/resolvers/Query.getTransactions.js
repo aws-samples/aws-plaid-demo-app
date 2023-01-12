@@ -12,7 +12,7 @@ export function request(ctx) {
   return {
     operation: 'Query',
     query: {
-      expression: '#pk = :pk AND BEGINS_WITH(#sk, :sk)',
+      expression: '#pk = :pk AND begins_with(#sk, :sk)',
       expressionNames: {
         '#pk': 'gsi1pk',
         '#sk': 'gsi1sk',
@@ -35,7 +35,12 @@ export function request(ctx) {
  * @param ctx the request context
  */
 export function response(ctx) {
-  const { items: transactions = [], nextToken: cursor } = ctx.result;
+  const { error, result } = ctx;
+  if (error) {
+    return util.appendError(error.message, error.type, result);
+  }
+
+  const { items: transactions = [], nextToken: cursor } = result;
 
   return {
     transactions,
