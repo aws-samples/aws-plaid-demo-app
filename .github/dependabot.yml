@@ -7,13 +7,6 @@ updates:
     commit-message:
       prefix: chore
       include: scope
-  - package-ecosystem: "pip"
-    directory: "/backend/dependencies"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: chore
-      include: scope
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
