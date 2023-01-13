@@ -1,0 +1,21 @@
+{
+    "root": true,
+    "env": {
+      "node": true,
+      "es6": true,
+      "jest": true,
+      "jest/globals": true
+    },
+    "extends": [
+      "airbnb-base",
+      "plugin:prettier/recommended",
+      "plugin:jest/recommended",
+      "plugin:@aws-appsync/recommended"
+    ],
+    "plugins": ["prettier", "jest"],
+    "rules": {
+      "no-console": "off",
+      "max-len": ["error", { "code": 100, "ignoreUrls": true }],
+      "comma-dangle": ["error", "always-multiline"]
+    }
+  }

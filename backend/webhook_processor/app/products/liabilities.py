@@ -164,7 +164,9 @@ class Liabilities(AbstractProduct):
 
         student_loans: List[StudentLoan] = liabilities.student
         if student_loans:
-            messages += [self.build_message(user_id, item_id, entity=loan) for loan in student_loans]
+            messages += [
+                self.build_message(user_id, item_id, entity=loan) for loan in student_loans
+            ]
 
         self.send_messages(messages)
 

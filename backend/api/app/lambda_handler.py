@@ -14,7 +14,7 @@ from app import routers
 ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 
 tracer = Tracer()
-logger = Logger()
+logger = Logger(use_rfc3339=True, utc=True)
 metrics = Metrics()
 metrics.set_default_dimensions(environment=ENVIRONMENT)
 

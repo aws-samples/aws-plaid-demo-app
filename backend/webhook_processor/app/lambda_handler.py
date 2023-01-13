@@ -19,7 +19,7 @@ from app import constants, products, datastore
 ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 
 tracer = Tracer()
-logger = Logger()
+logger = Logger(use_rfc3339=True, utc=True)
 metrics = Metrics()
 metrics.set_default_dimensions(environment=ENVIRONMENT)
 dynamodb_processor = BatchProcessor(event_type=EventType.DynamoDBStreams)
