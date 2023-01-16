@@ -288,7 +288,7 @@ Resources:
     Properties:
       LicenseInfo: MIT-0
       CompatibleArchitectures:
-        - arm64
+        - x86_64
       CompatibleRuntimes:
         - python3.9
       ContentUri: backend/dependencies
@@ -1198,6 +1198,8 @@ Resources:
               - ReportBatchItemFailures
             MaximumBatchingWindowInSeconds: 60
             Queue: !GetAtt WriteQueue.Arn
+            ScalingConfig:
+              MaximumConcurrency: 5
       Role: !GetAtt BatchWriterFunctionRole.Arn
       Timeout: 30 # seconds
 
