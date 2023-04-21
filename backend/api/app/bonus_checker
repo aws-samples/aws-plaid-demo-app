@@ -1,1 +1,248 @@
 
+
+CHECKER_DATA = {
+    "CitiBank": [
+        {
+            "account_type": {
+                "names": ["business checking account in-branch"]
+            },
+            "conditions": [{
+                "start": {
+                    "date": None,
+                },
+                "expiry": {
+                    "date": "2023-07-12"
+                },
+                "contraint_or": [{
+                    "amount_within_days": 30,
+                    "amount_greater": 5000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 15000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 25000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 50000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 100000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 200000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }],
+                "maintain": {
+                    "for_days": 60,
+                    "for_date": None,
+                    "minimum_balance": "same",
+                },
+                "bonuses": [{
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 200
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 500
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 700
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 1000
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 1500
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 2000
+                }],
+                "info": {
+                    "amount_credit": "within 90 days from the end of the month"
+                }
+            }
+            ]
+        },
+        {
+            "account_type": {
+                "names": ["Priority Account"]
+            },
+            "conditions": [{
+                "start": {
+                    "date": None,
+                },
+                "expiry": {
+                    "date": "2023-07-23"
+                },
+                "contraint_or": [{
+                    "amount_within_days": 20,
+                    "amount_greater": 10000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 30000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 75000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 200000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 300000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }],
+                "maintain": {
+                    "for_days": 60,
+                    "after_days": 21,
+                    "for_date": None,
+                    "minimum_balance": "same",
+                },
+                "bonuses": [{
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 200
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 500
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 1000
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 1500
+                }, {
+                    "credit_after_days": "info",
+                    "credit_after_date": "info",
+                    "amount": 2000
+                }],
+                "info": {
+                    "amount_credit": "within 30 calendar days after completing the requirements"
+                }
+            }
+            ]
+        }
+    ],
+    "U.S. Bank": [
+        {
+            "account_type": {
+                "name": ["Business Checking"]
+            },
+            "conditions": [{
+                "start": {
+                    "date": None,
+                },
+                "expiry": {
+                    "date": "2023-04-23"
+                },
+                "contraint_or": [{
+                    "amount_within_days": 60,
+                    "amount_greater": 3000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }],
+                "maintain": {
+                    "for_days": 60,
+                    "after_days": None,
+                    "for_date": None,
+                    "minimum_balance": "same",
+                },
+                "bonuses": [{
+                    "credit_after_days": 45,
+                    "credit_after_date": None,
+                    "amount": 500
+                }]
+            }]
+        },
+        {
+            "account_type": {
+                "name": ["Standard Savings Account"]
+            },
+            "conditions": [{
+                "start": {
+                    "date": None,
+                },
+                "expiry": {
+                    "date": "2023-05-02"
+                },
+                "contraint_or": [{
+                    "amount_within_days": None,
+                    "amount_within_date": "2023-05-31",
+                    "amount_greater": 15000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }],
+                "maintain": {
+                    "for_days": None,
+                    "after_days": None,
+                    "for_date": "2023-08-31",
+                    "minimum_balance": 25000,
+                },
+                "bonuses": [{
+                    "credit_after_days": 30,
+                    "credit_after_date": None,
+                    "amount": 200
+                }]
+            }]
+        }, {
+            "account_type": {
+                "name": ["Smartly checking account"]
+            },
+            "conditions": [{
+                "start": {
+                    "date": None,
+                },
+                "expiry": {
+                    "date": "2023-05-02"
+                },
+                "contraint_or": [{
+                    "amount_within_days": 90,
+                    "amount_within_date": None,
+                    "amount_greater": 5000,
+                    "no_of_recurring_deposits": 2,
+                    "amount_less": None,
+                    "amount_equals": None
+                }],
+                "maintain": {
+                    "for_days": None,
+                    "after_days": None,
+                    "for_date": None,
+                    "minimum_balance": None,
+                },
+                "bonuses": [{
+                    "credit_after_days": 60,
+                    "credit_after_date": None,
+                    "amount": 200
+                }]
+            }]
+        },
+    ]
+}
