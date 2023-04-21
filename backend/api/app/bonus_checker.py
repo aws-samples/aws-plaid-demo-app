@@ -2,7 +2,7 @@ import boto3
 import botocore
 from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
 from mypy_boto3_dynamodb.service_resource import Table
-from datetime import datetime
+from datetime import datetime, timedelta
 from .config import TABLE_NAME, AWS_SERVER_PUBLIC_KEY, AWS_SERVER_SECRET_KEY
 from app import constants
 from logging import Logger
@@ -515,35 +515,46 @@ CHECKER_DATA = {
 #                  'Plaid Platinum Standard 1.85% Interest Money Market', 'Plaid Silver Standard 0.1% Interest Saving']
 
 
-class BankCheck:
+class UserAccountBankCheck:
     def __init__(self, transactions, conditions):
         self.transactions = transactions
         self.conditions = conditions
+        self.amount_to_check = -1
 
     def check_maintain_conditions(self):
-        maintain_data = self.condition.get("maintain")
-        return True
+        maintain_data = self.conditions.get("maintain")
+        account_open_date = self.transactions[0].get("updated_at")
+        till_date = datetime.strptime(
+            account_open_date, "%Y-%m-%dT%H:%M:%SZ") + timedelta(days=maintain_data.get("for_days"))
+        for transaction in self.transactions:
+            if maintain_data.get("minimum_balance") == "same" and till_date >= datetime.strptime(
+                    transaction.get("updated_at"), "%Y-%m-%dT%H:%M:%SZ"):
+                return True
+            elif maintain_data.get("minimum_balance") <= self.amount_to_check:
+                return True
+        return False
 
     def check_start_conditions(self):
-        start_date = self.condition.get("start").get('date', None)
+        start_date = self.conditions.get("start").get('date', None)
         if start_date:
             return datetime.strptime(start_date, "%Y-%m-%d") < datetime.now()
         return True
 
     def check_expiry_conditions(self):
-        expiry_date = self.condition.get("expiry").get('date', None)
+        expiry_date = self.conditions.get("expiry").get('date', None)
         if expiry_date:
             return datetime.strptime(expiry_date, "%Y-%m-%d") > datetime.now()
         return True
 
     def check_constraint_conditions(self):
-        contraint_or = self.condition.get("contraint_or")
+        contraint_or = self.conditions.get("contraint_or")
         for transaction in self.transactions:
             index = -1
             for contraint in contraint_or:
                 balance = transaction.get("balances")
                 current_balance = balance.get("current")
                 if current_balance >= contraint.get("amount_greater"):
+                    self.amount_to_check = contraint.get("amount_greater")
                     index += 1
                 else:
                     break
@@ -601,7 +612,7 @@ def bonus_checker():
                     sorted_account_data = format_data.sort_transaction_by_date(
                         account_data)
                     # print(sorted_account_data)
-                    bank_check = BankCheck(
+                    bank_check = UserAccountBankCheck(
                         sorted_account_data, bank_condition.get("conditions")[0])
                     start_condition = bank_check.check_start_conditions()
                     expiry_condition = bank_check.check_expiry_conditions()
