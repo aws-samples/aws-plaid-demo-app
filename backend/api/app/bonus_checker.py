@@ -1,10 +1,20 @@
+import boto3
+import botocore
+from datetime import datetime, timedelta
+from .config import TABLE_NAME, AWS_SERVER_PUBLIC_KEY, AWS_SERVER_SECRET_KEY
+
+dynamodb = boto3.resource("dynamodb", region_name='us-west-1',
+                          aws_access_key_id=AWS_SERVER_PUBLIC_KEY, aws_secret_access_key=AWS_SERVER_SECRET_KEY)
+table = dynamodb.Table(TABLE_NAME)
+dynamodb_client = dynamodb.meta.client
 
 
+# Bank Conditions for citi and US bank
 CHECKER_DATA = {
     "CitiBank": [
         {
             "account_type": {
-                "names": ["business checking account in-branch"]
+                "names": ["Plaid Bronze Standard 0.2% Interest CD"]
             },
             "conditions": [{
                 "start": {
@@ -15,32 +25,32 @@ CHECKER_DATA = {
                 },
                 "contraint_or": [{
                     "amount_within_days": 30,
+                    "amount_greater": 500,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 1500,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
+                    "amount_greater": 2500,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 30,
                     "amount_greater": 5000,
                     "amount_less": None,
                     "amount_equals": None
                 }, {
                     "amount_within_days": 30,
-                    "amount_greater": 15000,
+                    "amount_greater": 10000,
                     "amount_less": None,
                     "amount_equals": None
                 }, {
                     "amount_within_days": 30,
-                    "amount_greater": 25000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 30,
-                    "amount_greater": 50000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 30,
-                    "amount_greater": 100000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 30,
-                    "amount_greater": 200000,
+                    "amount_greater": 20000,
                     "amount_less": None,
                     "amount_equals": None
                 }],
@@ -82,7 +92,7 @@ CHECKER_DATA = {
         },
         {
             "account_type": {
-                "names": ["Priority Account"]
+                "names": ["Plaid Diamond 12.5% APR Interest Credit Card"]
             },
             "conditions": [{
                 "start": {
@@ -93,27 +103,27 @@ CHECKER_DATA = {
                 },
                 "contraint_or": [{
                     "amount_within_days": 20,
-                    "amount_greater": 10000,
+                    "amount_greater": 1000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 3000,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 7500,
+                    "amount_less": None,
+                    "amount_equals": None
+                }, {
+                    "amount_within_days": 20,
+                    "amount_greater": 20000,
                     "amount_less": None,
                     "amount_equals": None
                 }, {
                     "amount_within_days": 20,
                     "amount_greater": 30000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 20,
-                    "amount_greater": 75000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 20,
-                    "amount_greater": 200000,
-                    "amount_less": None,
-                    "amount_equals": None
-                }, {
-                    "amount_within_days": 20,
-                    "amount_greater": 300000,
                     "amount_less": None,
                     "amount_equals": None
                 }],
@@ -154,7 +164,7 @@ CHECKER_DATA = {
     "U.S. Bank": [
         {
             "account_type": {
-                "name": ["Business Checking"]
+                "names": ["Plaid Gold Standard 0% Interest Checking"]
             },
             "conditions": [{
                 "start": {
@@ -165,7 +175,7 @@ CHECKER_DATA = {
                 },
                 "contraint_or": [{
                     "amount_within_days": 60,
-                    "amount_greater": 3000,
+                    "amount_greater": 300,
                     "amount_less": None,
                     "amount_equals": None
                 }],
@@ -184,7 +194,7 @@ CHECKER_DATA = {
         },
         {
             "account_type": {
-                "name": ["Standard Savings Account"]
+                "names": ["Plaid Platinum Standard 1.85% Interest Money Market"]
             },
             "conditions": [{
                 "start": {
@@ -196,7 +206,7 @@ CHECKER_DATA = {
                 "contraint_or": [{
                     "amount_within_days": None,
                     "amount_within_date": "2023-05-31",
-                    "amount_greater": 15000,
+                    "amount_greater": 1500,
                     "amount_less": None,
                     "amount_equals": None
                 }],
@@ -204,7 +214,7 @@ CHECKER_DATA = {
                     "for_days": None,
                     "after_days": None,
                     "for_date": "2023-08-31",
-                    "minimum_balance": 25000,
+                    "minimum_balance": 2500,
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
@@ -212,9 +222,10 @@ CHECKER_DATA = {
                     "amount": 200
                 }]
             }]
-        }, {
+        },
+        {
             "account_type": {
-                "name": ["Smartly checking account"]
+                "names": ["Plaid Silver Standard 0.1% Interest Saving"]
             },
             "conditions": [{
                 "start": {
@@ -226,7 +237,7 @@ CHECKER_DATA = {
                 "contraint_or": [{
                     "amount_within_days": 90,
                     "amount_within_date": None,
-                    "amount_greater": 5000,
+                    "amount_greater": 500,
                     "no_of_recurring_deposits": 2,
                     "amount_less": None,
                     "amount_equals": None
@@ -246,3 +257,142 @@ CHECKER_DATA = {
         },
     ]
 }
+
+# ACCOUNT_TYPES = ['Plaid Bronze Standard 0.2% Interest CD', 'Plaid Diamond 12.5% APR Interest Credit Card', 'Plaid Gold Standard 0% Interest Checking',
+#                  'Plaid Platinum Standard 1.85% Interest Money Market', 'Plaid Silver Standard 0.1% Interest Saving']
+
+
+# Main User Bank account conditions matcher
+class UserBankAccountCheck:
+    def __init__(self, transactions, conditions):
+        self.transactions = transactions
+        self.conditions = conditions
+        self.amount_to_check = -1
+
+    def check_maintain_conditions(self):
+        maintain_data = self.conditions.get("maintain")
+        account_open_date = self.transactions[0].get("updated_at")
+        if maintain_data.get("for_days"):
+            till_date = datetime.strptime(
+                account_open_date, "%Y-%m-%dT%H:%M:%SZ") + timedelta(days=maintain_data.get("for_days"))
+        elif maintain_data.get("for_date"):
+            till_date = datetime.strptime(
+                maintain_data.get("for_date"), "%Y-%m-%d")
+        else:
+            till_date = datetime.strptime(
+                "2050-04-18", "%Y-%m-%d")
+        for transaction in self.transactions:
+            if maintain_data.get("minimum_balance"):
+                if maintain_data.get("minimum_balance") == "same" and till_date >= datetime.strptime(
+                        transaction.get("updated_at"), "%Y-%m-%dT%H:%M:%SZ"):
+                    return True
+                elif maintain_data.get("minimum_balance") <= self.amount_to_check:
+                    return True
+            else:
+                return True
+        return False
+
+    def check_start_conditions(self):
+        start_date = self.conditions.get("start").get('date', None)
+        if start_date:
+            return datetime.strptime(start_date, "%Y-%m-%d") < datetime.now()
+        return True
+
+    def check_expiry_conditions(self):
+        expiry_date = self.conditions.get("expiry").get('date', None)
+        if expiry_date:
+            return datetime.strptime(expiry_date, "%Y-%m-%d") > datetime.now()
+        return True
+
+    def check_constraint_conditions(self):
+        contraint_or = self.conditions.get("contraint_or")
+        for transaction in self.transactions:
+            index = -1
+            for contraint in contraint_or:
+                balance = transaction.get("balances")
+                current_balance = balance.get("current")
+                if current_balance >= contraint.get("amount_greater"):
+                    self.amount_to_check = contraint.get("amount_greater")
+                    index += 1
+                else:
+                    break
+            if index != -1:
+                return index
+        return -1
+
+    def get_bonus(self, index):
+        return self.conditions.get("bonuses")[index]
+
+
+# Sort and filter different transactions based on user account
+class FormatAccountData:
+    def __init__(self):
+        self.transaction_data = None
+
+    def get_all_accounts_type(self, data, key):
+        self.transaction_data = list(filter(lambda d: d.get('official_name') ==
+                                            key, data))
+
+    def get_unique_accounts(self):
+        unique_accounts = set()
+        for account in self.transaction_data:
+            unique_accounts.add(account.get('account_id'))
+        return list(unique_accounts)
+
+    def sort_transaction_by_date(self, data):
+        data.sort(key=lambda x: datetime.strptime(
+            x['updated_at'], "%Y-%m-%dT%H:%M:%SZ"))
+        return data
+
+    def get_all_account_data(self, account):
+        return list(filter(lambda d: d.get('account_id') ==
+                           account, self.transaction_data))
+
+
+# Fetch all data from DynamoDB
+def fetch_transactions_data():
+    response = table.scan()
+    data = response['Items']
+    return data
+
+
+# Main function to call to identify accounts
+def bonus_checker():
+    try:
+        all_transactions_data = fetch_transactions_data()
+
+        # Loop for bank
+        for bank in CHECKER_DATA.keys():
+            bank_conditions = CHECKER_DATA.get(bank)
+
+            # Loop for bank conditions based on different account types
+            for bank_condition in bank_conditions:
+                print("Running for account type: ", bank_condition.get(
+                    "account_type").get("names")[0])
+                format_data = FormatAccountData()
+                format_data.get_all_accounts_type(all_transactions_data, bank_condition.get(
+                    "account_type").get("names")[0])
+                unique_accounts = format_data.get_unique_accounts()
+                print("All unique accounts; ", unique_accounts)
+
+                # Loop on accounts
+                for account in unique_accounts:
+                    account_data = format_data.get_all_account_data(account)
+                    sorted_account_data = format_data.sort_transaction_by_date(
+                        account_data)
+
+                    # User Bank account transactions matched with bank conditions
+                    bank_check = UserBankAccountCheck(
+                        sorted_account_data, bank_condition.get("conditions")[0])
+                    start_condition = bank_check.check_start_conditions()
+                    expiry_condition = bank_check.check_expiry_conditions()
+                    constraint_condition_index = bank_check.check_constraint_conditions()
+                    maintain_condition = bank_check.check_maintain_conditions()
+
+                    # Condition checker for all the functions
+                    if start_condition and expiry_condition and maintain_condition and constraint_condition_index != -1:
+                        print(account, "won bonus", bank_check.get_bonus(
+                            constraint_condition_index).get("amount"))
+
+    except botocore.exceptions.ClientError:
+        raise

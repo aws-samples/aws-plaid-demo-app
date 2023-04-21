@@ -20,7 +20,8 @@ TABLE_NAME = os.getenv("TABLE_NAME")
 
 logger = Logger(child=True)
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+dynamodb: DynamoDBServiceResource = boto3.resource(
+    "dynamodb", config=constants.BOTO3_CONFIG)
 table: Table = dynamodb.Table(TABLE_NAME)
 dynamodb_client: DynamoDBClient = dynamodb.meta.client
 
