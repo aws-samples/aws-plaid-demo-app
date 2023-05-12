@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "d749ce0d-60de-4538-951a-83e599484651",
+    "colId": "history",
+    "containerId": "",
+    "name": "https://www.thunderclient.com/welcome",
+    "url": "https://www.thunderclient.com/welcome",
+    "method": "GET",
+    "sortNum": 0,
+    "created": "2023-05-12T06:23:48.914Z",
+    "modified": "2023-05-12T06:23:48.914Z",
+    "headers": [],
+    "params": [],
+    "auth": {
+      "type": "oauth2",
+      "oauth2": {
+        "grantType": "authorization_code",
+        "tokenUrl": "",
+        "clientId": "",
+        "clientSecret": "",
+        "clientAuth": "in-header"
+      }
+    },
+    "tests": []
+  }
+]
