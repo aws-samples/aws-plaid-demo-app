@@ -1,7 +1,7 @@
 {
   "name": "plaidaws",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "3.5.4",
     "@fontsource/inter": "4.5.12",
