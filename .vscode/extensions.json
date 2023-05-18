@@ -1,3 +1,5 @@
 {
-    "recommendations": []
+    "recommendations": [
+        "vscjava.vscode-java-pack"
+    ]
 }
