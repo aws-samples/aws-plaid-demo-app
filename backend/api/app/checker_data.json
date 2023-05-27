@@ -1,7 +1,4 @@
-import json
-
-
-CHECKER_DATA = {
+{
     "CitiBank": [
         {
             "account_type": {
@@ -9,7 +6,7 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-12"
@@ -17,38 +14,38 @@ CHECKER_DATA = {
                 "constraint_or": [{
                     "amount_within_days": 30,
                     "amount_greater": 5000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 30,
                     "amount_greater": 15000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 30,
                     "amount_greater": 25000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 30,
                     "amount_greater": 50000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 30,
                     "amount_greater": 100000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 30,
                     "amount_greater": 200000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
                     "for_days": 60,
-                    "for_date": None,
-                    "minimum_balance": "same",
+                    "for_date": null,
+                    "minimum_balance": "same"
                 },
                 "bonuses": [{
                     "credit_after_days": "info",
@@ -87,7 +84,7 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-23"
@@ -95,34 +92,34 @@ CHECKER_DATA = {
                 "constraint_or": [{
                     "amount_within_days": 20,
                     "amount_greater": 10000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 20,
                     "amount_greater": 30000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 20,
                     "amount_greater": 75000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 20,
                     "amount_greater": 200000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }, {
                     "amount_within_days": 20,
                     "amount_greater": 300000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
                     "for_days": 60,
                     "after_days": 21,
-                    "for_date": None,
-                    "minimum_balance": "same",
+                    "for_date": null,
+                    "minimum_balance": "same"
                 },
                 "bonuses": [{
                     "credit_after_days": "info",
@@ -152,6 +149,7 @@ CHECKER_DATA = {
             ]
         }
     ],
+
     "U.S. Bank": [
         {
             "account_type": {
@@ -159,7 +157,7 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-04-23"
@@ -167,18 +165,18 @@ CHECKER_DATA = {
                 "constraint_or": [{
                     "amount_within_days": 60,
                     "amount_greater": 3000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
-                    "minimum_balance": "same",
+                    "after_days": null,
+                    "for_date": null,
+                    "minimum_balance": "same"
                 },
                 "bonuses": [{
                     "credit_after_days": 45,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 500
                 }]
             }]
@@ -189,27 +187,27 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-02"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
+                    "amount_within_days": null,
                     "amount_within_date": "2023-05-31",
                     "amount_greater": 15000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
-                    "for_days": None,
-                    "after_days": None,
+                    "for_days": null,
+                    "after_days": null,
                     "for_date": "2023-08-31",
-                    "minimum_balance": 25000,
+                    "minimum_balance": 25000
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
                 }]
             }]
@@ -219,32 +217,32 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-02"
                 },
                 "constraint_or": [{
                     "amount_within_days": 90,
-                    "amount_within_date": None,
+                    "amount_within_date": null,
                     "amount_greater": 5000,
                     "no_of_recurring_deposits": 2,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
-                    "for_days": None,
-                    "after_days": None,
-                    "for_date": None,
-                    "minimum_balance": None,
+                    "for_days": null,
+                    "after_days": null,
+                    "for_date": null,
+                    "minimum_balance": null
                 },
                 "bonuses": [{
                     "credit_after_days": 60,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
                 }]
             }]
-        },
+        }
     ],
     "Chase": [
         {
@@ -253,7 +251,7 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-19"
@@ -262,44 +260,44 @@ CHECKER_DATA = {
                 {
                     "amount_within_days": 45,
                     "amount_greater": 150000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 },
                 {
                     "amount_within_days": 45,
                     "amount_greater": 250000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 },
                 {
                     "amount_within_days": 45,
                     "amount_greater": 500000,
-                    "amount_less": None,
-                    "amount_equals": None
-                },
+                    "amount_less": null,
+                    "amount_equals": null
+                }
                 ],
                 "maintain": {
                     "for_days": 90,
-                    "after_days": None,
-                    "for_date": None,
-                    "minimum_balance": "same",
+                    "after_days": null,
+                    "for_date": null,
+                    "minimum_balance": "same"
                 },
                 "bonuses": [
                 {
                     "credit_after_days": 45,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 1000
                 },
                 {
                     "credit_after_days": 45,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 2000
                 },
                 {
                     "credit_after_days": 45,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 3000
-                },
+                }
                 ]
             }]
         },
@@ -309,42 +307,42 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-08-03"
                 },
                 "constraint_or": [
                 {
-                    "amount_within_days": None,
+                    "amount_within_days": null,
                     "amount_greater": 2000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 },
                 {
-                    "amount_within_days": None,
+                    "amount_within_days": null,
                     "amount_greater": 15000,
-                    "amount_less": None,
-                    "amount_equals": None
-                },
+                    "amount_less": null,
+                    "amount_equals": null
+                }
                 ],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
+                    "after_days": null,
                     "for_date": "2023-08-3",
-                    "minimum_balance": 2000,
+                    "minimum_balance": 2000
                 },
                 "bonuses": [
                 {
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 300
                 },
                 {
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 500
-                },
+                }
                 ]
             }]
         },
@@ -354,14 +352,14 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-19"
                 },
                 "bonuses": [{
                     "credit_after_days": 90,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
                 }]
             }]
@@ -373,28 +371,28 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-19"
                 },
                "constraint_or": [
                 {
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "minimum_balance": "same",
-                    "transactions": 10,
+                    "transactions": 10
                 },
                 "bonuses": [{
                     "credit_after_days": 15,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 100
                 }]
             }]
@@ -405,14 +403,14 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-19"
                 },
                 "bonuses": [{
                     "credit_after_days": 15,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 100
                 }]
             }]
@@ -425,21 +423,21 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-07-19"
                 },
                 "maintain": {
                     "for_days": 90,
-                    "after_days": None,
-                    "for_date": None
+                    "after_days": null,
+                    "for_date": null
                 },
                 "bonuses": [{
                     "credit_after_days": 60,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 100
-                },]
+                }]
             }]
         },
         {
@@ -448,27 +446,27 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 5000,
-                },],
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 5000
+                }],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
+                    "after_days": null,
                     "for_date": "2023-08-3",
-                    "minimum_balance": 5000,
+                    "minimum_balance": 5000
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 300
                 }]
             }],
@@ -484,41 +482,41 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-12-31"
                 },
                 "constraint_or": [{
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 1000,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 1000
                 },
                 {
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 5000,
-                },
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 5000
+                }
                 ],
                 "maintain": {
                     "for_days": 90,
-                    "after_days": None,
-                    "for_date": None
+                    "after_days": null,
+                    "for_date": null
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 50
                 },
                 {
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 250
-                },
+                }
                 ],
                 "info": {
                     "amount_credit": "Complete at least 1 direct deposit during the promotion period."
@@ -531,27 +529,27 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 14,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 10,
-                },],
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 10
+                }],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
+                    "after_days": null,
                     "for_date": "2023-08-3",
-                    "minimum_balance": 5000,
+                    "minimum_balance": 5000
                 },
                 "bonuses": [{
                     "credit_after_days": 14,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 75
                 }]
             }],
@@ -568,38 +566,38 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-12-31"
                 },
                 "constraint_or": [{
                     "amount_within_days": 14,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 2500,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 2500
                 },
                 {
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 5000,
-                },
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 5000
+                }
                 ],
                 "maintain": {
                     "for_days": 30,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 100
                 }
-                ],
+                ]
             }]
         }
     ],
@@ -610,25 +608,25 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 90,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
                     "deposit": 1500
-                },
+                }
                 ],
                 "bonuses": [{
                     "credit_after_days": 10,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 100
                 }
-                ],
+                ]
             }],
             "info": {
                 "amount_credit": "Open a new Rewards Checking account with promo code RC100 and fund it within 60 days of account opening."
@@ -640,30 +638,30 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 60,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": None
-                },],
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": null
+                }],
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 5,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
-                }],
-            }],
+                }]
+            }]
         },
         {
             "account_type": {
@@ -671,22 +669,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 5,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
-                }],
+                }]
             }],
             "info": {
                 "amount_credit": "Open a new Basic Business checking account from Axos Bank with promo code NEWBIZ200 (or NEWAXOSBIZ for older companies)."
@@ -698,22 +696,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 5,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
-                }],
+                }]
             }],
             "info": {
                 "amount_credit": "Open a new Business Premium Savings account from Axos Bank with promo code NEWBIZ200 for businesses incorporated after 06/01/2020 (or NEWAXOSBIZ for older companies)."
@@ -725,22 +723,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 5,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
-                }],
+                }]
             }],
             "info": {
                 "amount_credit": "Open a new Business Savings account using the link below. If you incorporated after June 1, 2020, use promo code NEWBIZ200 for the $200 bonus, otherwise use promo code NEWAXOSBIZ for a $100 bonus."
@@ -752,22 +750,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 60,
-                    "after_days": None,
-                    "for_date": None,
+                    "after_days": null,
+                    "for_date": null,
                     "balance_above": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 5,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
-                }],
+                }]
             }],
             "info": {
                 "amount_credit": "Open a new Business Money Market Account using promocode NEWBIZ200 ($200) or NEWAXOSBIZ ($100)."
@@ -781,38 +779,38 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-15"
                 },
                 "constraint_or": [{
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 15000,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 15000
                 },
                 {
                     "amount_within_days": 30,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "deposit": 25000,
-                },
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "deposit": 25000
+                }
                 ],
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 150
                 },
                 {
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 200
                 }
-                ],
-            }],
+                ]
+            }]
         },
          {
             "account_type": {
@@ -820,16 +818,16 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-15"
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
-                    "credit_after_date": None,
+                    "credit_after_date": null,
                     "amount": 360
-                },],
+                }]
             }],
             "info": {
                 "amount_credit": "Use your debit card to earn cashback up to $30 can be earned per month "
@@ -843,7 +841,7 @@ CHECKER_DATA = {
         },
         "conditions": [{
             "start": {
-                "date": None,
+                "date": null
             },
             "expiry": {
                 "date": "2023-05-27"
@@ -851,19 +849,19 @@ CHECKER_DATA = {
             "constraint_or": [{
                 "amount_within_days": 30,
                 "amount_greater": 1000,
-                "amount_less": None,
+                "amount_less": null,
                 "amount_equals": 1000
-            },],
+            }],
             "maintain": {
                 "for_days": 90,
-                "for_date": None,
-                "minimum_balance": "same",
+                "for_date": null,
+                "minimum_balance": "same"
             },
             "bonuses": [{
                 "credit_after_days": 30,
                 "credit_after_date": "info",
                 "amount": 100
-            }],
+            }]
         }]},
     {
         "account_type": {
@@ -871,23 +869,23 @@ CHECKER_DATA = {
         },
         "conditions": [{
             "start": {
-                "date": None,
+                "date": null
             },
             "expiry": {
                 "date": "2023-12-31"
             },
             "maintain": {
                 "for_days": 360,
-                "for_date": None,
-                "minimum_balance": 100,
+                "for_date": null,
+                "minimum_balance": 100
             },
             "bonuses": [{
                 "credit_after_days": "info",
                 "credit_after_date": "info",
                 "amount": 100
-            }],
+            }]
         }]
-    },
+    }
     ],
     "PNC Bank": [
         {
@@ -896,7 +894,7 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
@@ -904,13 +902,13 @@ CHECKER_DATA = {
                 "constraint_or": [{
                     "amount_within_days": 60,
                     "amount_greater": 5000,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": "same",
                     "deposit": 5000
                 },
@@ -918,7 +916,7 @@ CHECKER_DATA = {
                     "credit_after_days": 60,
                     "credit_after_date": "info",
                     "amount": 400
-                }],
+                }]
             }]
         },
         {
@@ -927,21 +925,21 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 60,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": "same",
                     "deposit": 2000
                 },
@@ -949,7 +947,7 @@ CHECKER_DATA = {
                     "credit_after_days": 60,
                     "credit_after_date": "info",
                     "amount": 200
-                }],
+                }]
             }]
         },
         {
@@ -958,21 +956,21 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 60,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": "same",
                     "deposit": 2000
                 },
@@ -992,15 +990,15 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 30,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": "same",
                     "deposit": 500
                 },
@@ -1020,17 +1018,17 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 90,
-                    "within_days": None,
-                    "for_date": None,
+                    "within_days": null,
+                    "for_date": null,
                     "minimum_balance": 30000,
-                    "deposit": None,
+                    "deposit": null
                 },
                 "bonuses": [{
                     "credit_after_days": 90,
@@ -1048,21 +1046,21 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "maintain": {
                     "for_days": 90,
-                    "within_days": None,
-                    "for_date": None,
+                    "within_days": null,
+                    "for_date": null,
                     "minimum_balance": 5000,
-                    "deposit": None,
+                    "deposit": null
                 },
                 "Cycles": {
-                    "statement_cycles": 90, # 3 statement cycles
-                    "transactions": 20,
+                    "statement_cycles": 90,
+                    "transactions": 20
                 },
                 "bonuses": [{
                     "credit_after_days": 90,
@@ -1073,7 +1071,7 @@ CHECKER_DATA = {
                     "amount_credit": "Open a new Business Checking or Business Checking Plus account."
                 }
             }]
-        },
+        }
     ],
     "Upgrade": [
         {
@@ -1082,22 +1080,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-30"
                 },
                 "constraint_or": [{
                     "amount_within_days": 60,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
                     "purchases": 3
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": "same",
                     "deposit": 5000
                 },
@@ -1105,7 +1103,7 @@ CHECKER_DATA = {
                     "credit_after_days": 60,
                     "credit_after_date": "info",
                     "amount": 200
-                }],
+                }]
             }]
         }
     ],
@@ -1116,22 +1114,22 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-13"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "purchases": None,
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "purchases": null
                 }],
                 "maintain": {
                     "for_days": 90,
                     "within_days": 45,
-                    "for_date": None,
+                    "for_date": null,
                     "minimum_balance": 250000,
                     "deposit": 250000
                 },
@@ -1139,7 +1137,7 @@ CHECKER_DATA = {
                     "credit_after_days": 30,
                     "credit_after_date": "info",
                     "amount": 2500
-                }],
+                }]
             }]
         },
         {
@@ -1148,31 +1146,31 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-22"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "purchases": None,
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "purchases": null
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 90,
-                    "for_date": None,
-                    "minimum_balance": None,
+                    "for_date": null,
+                    "minimum_balance": null,
                     "deposit": 25,
-                    "direct_deposits": 1000,
+                    "direct_deposits": 1000
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
                     "credit_after_date": "info",
                     "amount": 325
-                }],
+                }]
             }]
         },
         {
@@ -1181,31 +1179,31 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-23"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
-                    "amount_equals": None,
-                    "purchases": None,
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
+                    "amount_equals": null,
+                    "purchases": null
                 }],
                 "maintain": {
                     "for_days": 90,
                     "within_days": 30,
-                    "for_date": None,
-                    "minimum_balance": None,
+                    "for_date": null,
+                    "minimum_balance": null,
                     "deposit": 25000,
-                    "direct_deposits": None,
+                    "direct_deposits": null
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
                     "credit_after_date": "info",
                     "amount": 525
-                }],
+                }]
             }]
         }
     ],
@@ -1216,33 +1214,33 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-31"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
                     "amount_equals": 25,
-                    "purchases": 5,
+                    "purchases": 5
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
-                    "minimum_balance": None,
-                    "deposit": None,
+                    "for_date": null,
+                    "minimum_balance": null,
+                    "deposit": null,
                     "direct_deposits": 600
                 },
                 "bonuses": [{
                     "credit_after_days": 30,
                     "credit_after_date": "info",
                     "amount": 300
-                }],
+                }]
             }]
-        },
+        }
     ],
     "Thrivent Federal Credit Union": [
         {
@@ -1251,34 +1249,34 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-06-09"
                 },
                 "constraint_or": [{
-                    "amount_within_days": None,
-                    "amount_greater": None,
-                    "amount_less": None,
+                    "amount_within_days": null,
+                    "amount_greater": null,
+                    "amount_less": null,
                     "amount_equals": 25,
-                    "purchases": None,
-                    "purchases_amount": 500,
+                    "purchases": null,
+                    "purchases_amount": 500
                 }],
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 90,
-                    "for_date": None,
-                    "minimum_balance": None,
-                    "deposit": None,
+                    "for_date": null,
+                    "minimum_balance": null,
+                    "deposit": null,
                     "direct_deposits": 2500
                 },
                 "bonuses": [{
                     "credit_after_days": 90,
                     "credit_after_date": "info",
                     "amount": 200
-                }],
+                }]
             }]
-        },
+        }
     ],
     "Andrews Federal Credit Union": [
         {
@@ -1287,28 +1285,25 @@ CHECKER_DATA = {
             },
             "conditions": [{
                 "start": {
-                    "date": None,
+                    "date": null
                 },
                 "expiry": {
                     "date": "2023-05-31"
                 },
                 "maintain": {
-                    "for_days": None,
+                    "for_days": null,
                     "within_days": 60,
-                    "for_date": None,
-                    "minimum_balance": None,
-                    "deposit": None,
+                    "for_date": null,
+                    "minimum_balance": null,
+                    "deposit": null,
                     "direct_deposits": 500
                 },
                 "bonuses": [{
                     "credit_after_days": 90,
                     "credit_after_date": "info",
                     "amount": 125
-                }],
+                }]
             }]
-        },
-    ],
+        }
+    ]
 }
-
-with open('CHECKER_DATA.json', 'w') as file:
-    json.dump(CHECKER_DATA, file)
