@@ -4,4 +4,4 @@ mypy-boto3-sqs==1.26.129
 plaid-python==14.0.0
 python-jose[cryptography]==3.3.0
 requests==2.29.0
-urllib3[secure]==1.26.15
+urllib3[secure]==1.26.16
