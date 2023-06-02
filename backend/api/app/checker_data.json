@@ -153,7 +153,7 @@
     "U.S. Bank": [
         {
             "account_type": {
-                "name": ["Business Checking"]
+                "names": ["Business Checking"]
             },
             "conditions": [{
                 "start": {
@@ -183,7 +183,7 @@
         },
         {
             "account_type": {
-                "name": ["Standard Savings Account"]
+                "names": ["Standard Savings Account"]
             },
             "conditions": [{
                 "start": {
@@ -213,7 +213,7 @@
             }]
         }, {
             "account_type": {
-                "name": ["Smartly checking account"]
+                "names": ["Smartly checking account"]
             },
             "conditions": [{
                 "start": {
@@ -247,7 +247,7 @@
     "Chase": [
         {
             "account_type": {
-                "name": ["Chase Private Client Checking"]
+                "names": ["Chase Private Client Checking"]
             },
             "conditions": [{
                 "start": {
@@ -303,7 +303,7 @@
         },
         {
             "account_type": {
-                "name": ["Chase Business Complete Banking"]
+                "names": ["Chase Business Complete Banking"]
             },
             "conditions": [{
                 "start": {
@@ -348,7 +348,7 @@
         },
         {
             "account_type": {
-                "name": ["Chase total checking"]
+                "names": ["Chase total checking"]
             },
             "conditions": [{
                 "start": {
@@ -367,7 +367,7 @@
 
         {
             "account_type": {
-                "name": ["Chase College Checking"]
+                "names": ["Chase College Checking"]
             },
             "conditions": [{
                 "start": {
@@ -399,7 +399,7 @@
         },
         {
             "account_type": {
-                "name": ["Chase Secure Banking"]
+                "names": ["Chase Secure Banking"]
             },
             "conditions": [{
                 "start": {
@@ -419,7 +419,7 @@
     "Bank of America": [
         {
             "account_type": {
-                "name": ["Advantage Banking Account"]
+                "names": ["Advantage Banking Account"]
             },
             "conditions": [{
                 "start": {
@@ -442,7 +442,7 @@
         },
         {
             "account_type": {
-                "name": ["Bank of America Business Advantage Checking Bonus Offer"]
+                "names": ["Bank of America Business Advantage Checking Bonus Offer"]
             },
             "conditions": [{
                 "start": {
@@ -478,7 +478,7 @@
     "SoFi": [
         {
             "account_type": {
-                "name": ["SoFi Checking and Savings"]
+                "names": ["SoFi Checking and Savings"]
             },
             "conditions": [{
                 "start": {
@@ -525,7 +525,7 @@
         },
         {
             "account_type": {
-                "name": ["SoFi Checking and Savings - 75"]
+                "names": ["SoFi Checking and Savings - 75"]
             },
             "conditions": [{
                 "start": {
@@ -562,7 +562,7 @@
     "M1 FINANCE": [
         {
             "account_type": {
-                "name": ["M1 Spend"]
+                "names": ["M1 Spend"]
             },
             "conditions": [{
                 "start": {
@@ -604,7 +604,7 @@
     "Axos Bank": [
         {
             "account_type": {
-                "name": ["Rewards Checking"]
+                "names": ["Rewards Checking"]
             },
             "conditions": [{
                 "start": {
@@ -634,7 +634,7 @@
         },
         {
             "account_type": {
-                "name": ["Business Interest Checking"]
+                "names": ["Business Interest Checking"]
             },
             "conditions": [{
                 "start": {
@@ -665,7 +665,7 @@
         },
         {
             "account_type": {
-                "name": ["Basic Business Checking"]
+                "names": ["Basic Business Checking"]
             },
             "conditions": [{
                 "start": {
@@ -692,7 +692,7 @@
         },
          {
             "account_type": {
-                "name": ["Business Premium Savings"]
+                "names": ["Business Premium Savings"]
             },
             "conditions": [{
                 "start": {
@@ -719,7 +719,7 @@
         },
         {
             "account_type": {
-                "name": ["Business Savings"]
+                "names": ["Business Savings"]
             },
             "conditions": [{
                 "start": {
@@ -746,7 +746,7 @@
         },
         {
             "account_type": {
-                "name": ["Business Money Market"]
+                "names": ["Business Money Market"]
             },
             "conditions": [{
                 "start": {
@@ -775,7 +775,7 @@
     "Discover": [
         {
             "account_type": {
-                "name": ["Online savings account"]
+                "names": ["Online savings account"]
             },
             "conditions": [{
                 "start": {
@@ -814,7 +814,7 @@
         },
          {
             "account_type": {
-                "name": ["Cashback debit"]
+                "names": ["Cashback debit"]
             },
             "conditions": [{
                 "start": {
