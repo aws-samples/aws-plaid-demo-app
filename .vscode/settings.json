@@ -6,16 +6,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "python.testing.unittestArgs": [
-    "-v",
-    "-s",
-    "./frontend",
-    "-p",
-    "*_test.py"
-  ],
+  "python.testing.unittestArgs": ["-v", "-s", "./frontend", "-p", "*_test.py"],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
-  "python.testing.pytestArgs": [
-    "backend"
-  ],
+  "python.testing.pytestArgs": ["backend"],
+  "svn.ignoreMissingSvnWarning": true
 }
