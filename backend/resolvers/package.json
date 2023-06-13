@@ -6,7 +6,7 @@
     },
     "devDependencies": {
         "@aws-appsync/eslint-plugin": "1.0.1",
-        "@aws-sdk/client-appsync": "3.226.0",
+        "@aws-sdk/client-appsync": "3.350.0",
         "eslint": "8.29.0",
         "eslint-config-airbnb-base": "15.0.0",
         "eslint-config-prettier": "8.5.0",
