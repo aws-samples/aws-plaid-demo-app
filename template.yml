@@ -90,7 +90,7 @@ Resources:
       Tags:
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -122,7 +122,7 @@ Resources:
           Value: WebhookDeadLetterQueue
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -157,7 +157,7 @@ Resources:
           Value: WebhookQueue
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -215,7 +215,7 @@ Resources:
           Value: WriteDeadLetterQueue
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -246,7 +246,7 @@ Resources:
           Value: WriteQueue
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -335,7 +335,7 @@ Resources:
       Tags:
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -377,7 +377,7 @@ Resources:
           Tags:
             - Key: GITHUB_ORG
               Value: !Ref GitHubOrg
-            - Key: GITHUG_REPO
+            - Key: GITHUB_REPO
               Value: !Ref GitHubRepo
             - Key: Environment
               Value: !Ref Environment
@@ -419,7 +419,7 @@ Resources:
           Value: HttpApiRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -456,7 +456,7 @@ Resources:
           Value: AppSyncRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -827,7 +827,7 @@ Resources:
           Value: AccessLogGroup
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -853,7 +853,7 @@ Resources:
           Value: ApiFunctionLogGroup
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -878,7 +878,7 @@ Resources:
           Value: ApiFunctionRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -964,7 +964,7 @@ Resources:
           Value: WebhookProcessorFunctionLogGroup
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -1020,7 +1020,7 @@ Resources:
           Value: WebhookProcessorFunctionRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -1112,7 +1112,7 @@ Resources:
           Value: BatchWriterFunctionLogGroup
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -1151,7 +1151,7 @@ Resources:
           Value: BatchWriterFunctionRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
@@ -1230,7 +1230,7 @@ Resources:
           Value: AmplifyRole
         - Key: GITHUB_ORG
           Value: !Ref GitHubOrg
-        - Key: GITHUG_REPO
+        - Key: GITHUB_REPO
           Value: !Ref GitHubRepo
         - Key: Environment
           Value: !Ref Environment
