@@ -1,18 +1,13 @@
 import boto3
 import botocore
 from datetime import datetime, timedelta
-# from .config import TABLE_NAME, AWS_SERVER_PUBLIC_KEY, AWS_SERVER_SECRET_KEY
+from .config import TABLE_NAME, AWS_SERVER_PUBLIC_KEY, AWS_SERVER_SECRET_KEY
 import json
 
 with open('CHECKER_DATA.json', 'r') as file:
     banks = json.load(file)
 
-# dynamodb = boto3.resource("dynamodb", region_name='us-west-1',aws_access_key_id=AWS_SERVER_PUBLIC_KEY, aws_secret_access_key=AWS_SERVER_SECRET_KEY)
-# table = dynamodb.Table(TABLE_NAME)
-TABLE_NAME = 'aws-plaid-demo-app-Table-1XR3R6NLWD0B6'
-AWS_ACCESS_KEY_ID = 'AKIAQ76F6KJL7CHXEM4Q'
-AWS_SECRET_ACCESS_KEY = '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'
-dynamodb = boto3.resource("dynamodb")
+dynamodb = boto3.resource("dynamodb", region_name='us-west-1',aws_access_key_id=AWS_SERVER_PUBLIC_KEY, aws_secret_access_key=AWS_SERVER_SECRET_KEY)
 table = dynamodb.Table(TABLE_NAME)
 dynamodb_client = dynamodb.meta.client
 
