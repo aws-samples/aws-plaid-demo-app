@@ -53,15 +53,12 @@ dynamodb: DynamoDBServiceResource = boto3.resource(
 @router.get("/")
 @tracer.capture_method(capture_response=False)
 def create_link_token() -> Dict[str, str]:
-        
 
     user_id: str = utils.authorize_request(router)
 
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
     logger.info('Creating link token for ' + user_id)
-
-    send_email("eric@caseswift.io", "jordan@caseswift.io")
 
     request = LinkTokenCreateRequest(
         products=[Products("transactions")],
@@ -74,11 +71,7 @@ def create_link_token() -> Dict[str, str]:
 
     client = utils.get_plaid_client()
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
-    try:
+   try:
         response: LinkTokenCreateResponse = client.link_token_create(request)
     except plaid.ApiException:
         logger.exception("Unable to create link token")
@@ -118,7 +111,6 @@ def exchange_token() -> Dict[str, str]:
         "item_id": response.item_id
     }
 
-<<<<<<< Updated upstream
 
 @router.post("/payroll")
 @tracer.capture_method(capture_response=False)
@@ -152,37 +144,3 @@ def get_payroll_income() -> Dict[str, str]:
     return {
         "response": response.request_id
     }
-=======
-def send_email(sender, recipient):
-    AWS_REGION = "us-east-2"
-    client = boto3.client('ses',region_name=AWS_REGION)
-
-    msg = MIMEMultipart()
-    msg['Subject'] = 'Your Requested Documents from CaseSwift'
-    msg['From'] = sender
-    msg['To'] = recipient
-
-    # what a recipient sees if they don't use an email reader
-    msg.preamble = 'Your CaseSwift Documents.\n'
-
-    # the message body
-    part = MIMEText('Howdy -- here are your requested Documents')
-    msg.attach(part)
-
-    my_canvas = canvas.Canvas(recipient + '_caseswift_documents.pdf')
-    my_canvas.drawString(100, 750, "Here are your requested Documents, courtesy of CaseSwif!")
-    my_canvas.save()
-
-    # the attachment
-    part = MIMEApplication(open(recipient + '_caseswift_documents.pdf', 'rb').read())
-    part.add_header('Content-Disposition', 'attachment', filename=recipient + '_caseswift_documents.pdf')
-    msg.attach(part)
-
-
-    response = client.send_raw_email(
-        Source=msg['From'],
-        Destinations=[msg['To']],
-        RawMessage={
-        'Data': msg.as_string()
-    },)
->>>>>>> Stashed changes
