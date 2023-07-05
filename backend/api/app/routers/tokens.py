@@ -78,7 +78,7 @@ def create_link_token() -> Dict[str, str]:
 
 @router.post("/")
 @tracer.capture_method(capture_response=False)
-def exchange_token() -> Response:
+def exchange_token() -> Dict[str, str]:
     user_id: str = utils.authorize_request(router)
 
     logger.append_keys(user_id=user_id)
