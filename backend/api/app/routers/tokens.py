@@ -123,7 +123,9 @@ def get_payroll_income() -> Dict[str, str]:
     if not user_token:
         raise BadRequestError("Public token not found in request")
 
+    logger.info('User token: ' + user_token)
     request = CreditPayrollIncomeGetRequest(user_token=user_token)
+    logger.info('Request created')
 
     client = utils.get_plaid_client()
 
@@ -134,6 +136,7 @@ def get_payroll_income() -> Dict[str, str]:
             request)
     except plaid.ApiException:
         logger.exception("Unable to get payroll information")
+        logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to get payroll information")
 
     return {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { API, Logger } from 'aws-amplify';
 import { Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
@@ -37,19 +37,23 @@ export default function Plaid({ getItems }) {
       logger.error('unable to exchange public token', err);
     }
 
-    try {
-      const res = await API.post(apiName, '/v1/tokens/payroll', {
-        body: {
-          user_token: access_token,
-        },
-      });
-      logger.debug('POST /v1/tokens response:', res);
-    } catch (err) {
-      logger.error('unable to get payroll information', err);
-    }
-
     setConnecting(false);
   };
+
+  useEffect(() => {
+    if (access_token) {
+      try {
+        const res = await API.post(apiName, '/v1/tokens/payroll', {
+          body: {
+            user_token: access_token,
+          },
+        });
+        logger.debug('POST /v1/tokens response:', res);
+      } catch (err) {
+        logger.error('unable to get payroll information', err);
+      }
+    }
+  }, [access_token]);
 
   return (
     <Flex>
