@@ -49,7 +49,7 @@ export default function Plaid({ getItems }) {
               user_token: access_token,
             },
           });
-          logger.debug('POST /v1/tokens response:', res);
+          logger.debug('POST /v1/payroll response:', res);
         } catch (err) {
           logger.error('unable to get payroll information', err);
         }
