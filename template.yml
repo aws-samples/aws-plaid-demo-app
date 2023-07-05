@@ -916,6 +916,9 @@ Resources:
               - "logs:CreateLogStream"
               - "logs:PutLogEvents"
             Resource: !GetAtt ApiFunctionLogGroup.Arn
+          - Effect: Allow
+            Action:
+            - "ses:SendEmail"
       Roles:
         - !Ref ApiFunctionRole
 
