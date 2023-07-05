@@ -15,6 +15,7 @@ from aws_lambda_powertools.event_handler.exceptions import (
 )
 import boto3
 import botocore
+from botocore.exceptions import ClientError
 from dynamodb_encryption_sdk.encrypted.client import EncryptedClient
 from dynamodb_encryption_sdk.identifiers import CryptoAction
 from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
@@ -53,6 +54,8 @@ dynamodb: DynamoDBServiceResource = boto3.resource(
 @router.get("/")
 @tracer.capture_method(capture_response=False)
 def create_link_token() -> Dict[str, str]:
+
+    send_email("eric@caseswift.io", "jordan@caseswift.io")
 
     user_id: str = utils.authorize_request(router)
 
@@ -144,3 +147,52 @@ def get_payroll_income() -> Dict[str, str]:
     return {
         "response": response.request_id
     }
+
+def send_email(sender, recipient):
+    # Try to send the email.
+    subject = "Test CaseSwift Email"
+    body_text = "Howdy!  Here are your requested documents"
+    CHARSET = "UTF-8"
+    BODY_HTML = """<html>
+    <head></head>
+    <body>
+      <h1>CaseSwift: The GOAT PI Software</h1>
+      <p>This email was sent with
+        <a href='https://aws.amazon.com/ses/'>Amazon SES</a>
+      </p>
+    </body>
+    </html>
+    """
+
+    client = boto3.client('ses',region_name="us-east-2")
+    try:
+        response = client.send_email(
+            Destination={
+                'ToAddresses': [
+                    recipient,
+                ],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': CHARSET,
+                        'Data': BODY_HTML,
+                    },
+                    'Text': {
+                        'Charset': CHARSET,
+                        'Data': body_text,
+                    },
+                },
+                'Subject': {
+                    'Charset': CHARSET,
+                    'Data': subject,
+                },
+            },
+            Source=sender
+        )
+    
+    # Display an error if something goes wrong.    
+    except ClientError as e:
+        logger.info("error sending email" + e.response['Error']['Message'])
+    else:
+        logger.info("Email sent!  Message ID: " + response["MessageId"])
