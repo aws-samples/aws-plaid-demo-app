@@ -3,20 +3,21 @@ import { API, Logger } from 'aws-amplify';
 import { Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
 
-const logger = new Logger("Plaid");
+const logger = new Logger('Plaid');
 
-const apiName = "plaidapi";
+const apiName = 'plaidapi';
 
 export default function Plaid({ getItems }) {
   const [connecting, setConnecting] = useState(false);
-  const [token, setToken] = useState(null);
+  const [public_token, setPublicToken] = useState(null);
+  const [access_token, setAccessToken] = useState(null);
 
   const handleGetToken = async () => {
     setConnecting(true);
     try {
       const res = await API.get(apiName, '/v1/tokens');
       logger.debug('GET /v1/tokens response:', res);
-      setToken(res.link_token);
+      setPublicToken(res.link_token);
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
@@ -27,31 +28,36 @@ export default function Plaid({ getItems }) {
       const res = await API.post(apiName, '/v1/tokens', {
         body: {
           public_token,
-          metadata
-        }
+          metadata,
+        },
       });
       logger.debug('POST /v1/tokens response:', res);
-      setConnecting(false);
+      setAccessToken(res.access_token);
     } catch (err) {
       logger.error('unable to exchange public token', err);
     }
+
+    try {
+      const res = await API.post(apiName, '/v1/tokens/payroll', {
+        body: {
+          user_token: access_token,
+        },
+      });
+      logger.debug('POST /v1/tokens response:', res);
+    } catch (err) {
+      logger.error('unable to get payroll information', err);
+    }
+
+    setConnecting(false);
   };
 
   return (
     <Flex>
-      <Button
-        variation="primary"
-        isLoading={connecting}
-        onClick={handleGetToken}
-      >
+      <Button variation="primary" isLoading={connecting} onClick={handleGetToken}>
         CONNECT WITH PLAID
       </Button>
-      {token ? (
-        <PlaidLink
-          token={token}
-          onSuccess={handleSuccess}
-          onExit={() => setConnecting(false)}
-        />
+      {public_token ? (
+        <PlaidLink token={public_token} onSuccess={handleSuccess} onExit={() => setConnecting(false)} />
       ) : null}
     </Flex>
   );

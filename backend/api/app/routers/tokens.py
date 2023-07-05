@@ -28,6 +28,8 @@ from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUse
 from plaid.model.link_token_create_response import LinkTokenCreateResponse
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.item_public_token_exchange_response import ItemPublicTokenExchangeResponse
+from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
+from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
@@ -89,11 +91,6 @@ def exchange_token() -> Dict[str, str]:
     if not public_token:
         raise BadRequestError("Public token not found in request")
 
-    metadata: Dict[str, str] = router.current_event.json_body.get(
-        "metadata", {})
-    if not metadata:
-        raise BadRequestError("Metadata not found in request")
-
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
 
     client = utils.get_plaid_client()
@@ -110,4 +107,35 @@ def exchange_token() -> Dict[str, str]:
     return {
         "access_token": response.access_token,
         "item_id": response.item_id
+    }
+
+
+@router.post("/payroll")
+@tracer.capture_method(capture_response=False)
+def get_payroll_income() -> Dict[str, str]:
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    user_token: Union[None, str] = router.current_event.json_body.get(
+        "user_token")
+    if not user_token:
+        raise BadRequestError("Public token not found in request")
+
+    request = CreditPayrollIncomeGetRequest(user_token=user_token)
+
+    client = utils.get_plaid_client()
+
+    logger.info('Getting payroll info for ' + user_id)
+
+    try:
+        response: CreditPayrollIncomeGetResponse = client.credit_payroll_income_get(
+            request)
+    except plaid.ApiException:
+        logger.exception("Unable to get payroll information")
+        raise InternalServerError("Unable to get payroll information")
+
+    return {
+        "response": response.request_id
     }
