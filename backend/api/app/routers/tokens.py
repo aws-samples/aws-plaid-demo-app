@@ -72,6 +72,8 @@ def create_link_token() -> Dict[str, str]:
         logger.exception("Unable to create link token")
         raise InternalServerError("Failed to create link token")
 
+    return {"Hello": "World"}
+    
     return {"link_token": response.link_token}
 
 

@@ -16,6 +16,8 @@ export default function Plaid({ getItems }) {
     try {
       const res = await API.get(apiName, '/v1/tokens');
       logger.debug('GET /v1/tokens response:', res);
+      console.log('Test!')
+      console.log(res);
       setToken(res.link_token);
     } catch (err) {
       logger.error('unable to create link token:', err);
