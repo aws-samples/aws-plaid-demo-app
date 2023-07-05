@@ -42,16 +42,19 @@ export default function Plaid({ getItems }) {
 
   useEffect(() => {
     if (access_token) {
-      try {
-        const res = await API.post(apiName, '/v1/tokens/payroll', {
-          body: {
-            user_token: access_token,
-          },
-        });
-        logger.debug('POST /v1/tokens response:', res);
-      } catch (err) {
-        logger.error('unable to get payroll information', err);
+      const getPayrollData = async() => {
+        try {
+          const res = await API.post(apiName, '/v1/tokens/payroll', {
+            body: {
+              user_token: access_token,
+            },
+          });
+          logger.debug('POST /v1/tokens response:', res);
+        } catch (err) {
+          logger.error('unable to get payroll information', err);
+        }
       }
+      getPayrollData()
     }
   }, [access_token]);
 
