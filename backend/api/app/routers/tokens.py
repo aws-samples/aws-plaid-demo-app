@@ -44,7 +44,8 @@ logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+dynamodb: DynamoDBServiceResource = boto3.resource(
+    "dynamodb", config=constants.BOTO3_CONFIG)
 
 
 @router.get("/")
@@ -85,11 +86,13 @@ def exchange_token() -> Response:
 
     # TODO: validate against METADATA_SCHEMA
 
-    public_token: Union[None, str] = router.current_event.json_body.get("public_token")
+    public_token: Union[None, str] = router.current_event.json_body.get(
+        "public_token")
     if not public_token:
         raise BadRequestError("Public token not found in request")
 
-    metadata: Dict[str, str] = router.current_event.json_body.get("metadata", {})
+    metadata: Dict[str, str] = router.current_event.json_body.get(
+        "metadata", {})
     if not metadata:
         raise BadRequestError("Metadata not found in request")
 
@@ -99,26 +102,21 @@ def exchange_token() -> Response:
         raise BadRequestError("Institution ID not found in request")
 
     if datastore.check_institution(user_id, institution_id):
-        raise exceptions.ConflictError("User has already linked to this institution")
+        raise exceptions.ConflictError(
+            "User has already linked to this institution")
 
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
 
     client = utils.get_plaid_client()
 
     try:
-        response: ItemPublicTokenExchangeResponse = client.item_public_token_exchange(request)
+        response: ItemPublicTokenExchangeResponse = client.item_public_token_exchange(
+            request)
     except plaid.ApiException:
         logger.exception("Unable to exchange public token")
         raise InternalServerError("Failed to exchange public token")
 
-    item_id: str = response.item_id
-    access_token: str = response.access_token
-
-    
-    headers = {"Location": f"/v1/items/{item_id}"}
-
-    response = Response(
-        status_code=202, content_type=content_types.APPLICATION_JSON, body="", headers=headers
-    )
-
-    return response
+    return {
+        "access_token": response.access_token,
+        "item_id": response.item_id
+    }
