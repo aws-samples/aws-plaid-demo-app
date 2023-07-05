@@ -55,7 +55,7 @@ def create_link_token() -> Dict[str, str]:
 
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
-
+    logger.info('Creating link token for ' + user_id)
     request = LinkTokenCreateRequest(
         products=[Products("transactions")],
         client_name="plaidaws",
@@ -84,8 +84,6 @@ def exchange_token() -> Response:
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
 
-    # TODO: validate against METADATA_SCHEMA
-
     public_token: Union[None, str] = router.current_event.json_body.get(
         "public_token")
     if not public_token:
@@ -96,18 +94,11 @@ def exchange_token() -> Response:
     if not metadata:
         raise BadRequestError("Metadata not found in request")
 
-    institution = metadata.get("institution", {})
-    institution_id = institution.get("institution_id")
-    if not institution_id:
-        raise BadRequestError("Institution ID not found in request")
-
-    if datastore.check_institution(user_id, institution_id):
-        raise exceptions.ConflictError(
-            "User has already linked to this institution")
-
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
 
     client = utils.get_plaid_client()
+
+    logger.info('Exchanged info for ' + user_id)
 
     try:
         response: ItemPublicTokenExchangeResponse = client.item_public_token_exchange(
