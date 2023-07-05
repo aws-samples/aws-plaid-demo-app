@@ -35,8 +35,6 @@ from plaid.model.country_code import CountryCode
 
 from app import utils, constants, datastore, exceptions
 
-from app.email import send
-
 __all__ = ["router"]
 
 TABLE_NAME = os.getenv("TABLE_NAME")
@@ -70,8 +68,6 @@ def create_link_token() -> Dict[str, str]:
     )
 
     client = utils.get_plaid_client()
-
-    send.send_email("eric@caseswift.io", "jordan@caseswift.io")
 
     try:
         response: LinkTokenCreateResponse = client.link_token_create(request)
