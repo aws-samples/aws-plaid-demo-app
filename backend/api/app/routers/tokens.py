@@ -72,8 +72,6 @@ def create_link_token() -> Dict[str, str]:
         logger.exception("Unable to create link token")
         raise InternalServerError("Failed to create link token")
 
-    return {"Hello": "World"}
-    
     return {"link_token": response.link_token}
 
 
@@ -116,114 +114,7 @@ def exchange_token() -> Response:
     item_id: str = response.item_id
     access_token: str = response.access_token
 
-    now = utils.now_iso8601()
-
-    aws_kms_cmp = AwsKmsCryptographicMaterialsProvider(key_id=KEY_ARN)
-    actions = AttributeActions(
-        default_action=CryptoAction.DO_NOTHING,
-        attribute_actions={"access_token": CryptoAction.ENCRYPT_AND_SIGN},
-    )
-    encrypted_client = EncryptedClient(
-        client=dynamodb.meta.client,
-        materials_provider=aws_kms_cmp,
-        attribute_actions=actions,
-        expect_standard_dictionaries=True,
-    )
-
-    item = {
-        "pk": f"USER#{user_id}#ITEM#{item_id}",
-        "sk": "v0",
-        "access_token": access_token,
-        "institution_id": institution_id,
-        "institution_name": institution.get("name"),
-        "link_session_id": metadata.get("link_session_id"),
-        "created_at": now,
-    }
-
-    def mock_write_method(**kwargs):
-        return kwargs.get("Item")
-
-    encrypt_item = partial(
-        encrypt_put_item,
-        encrypted_client._encrypt_item,
-        encrypted_client._item_crypto_config,
-        mock_write_method,
-    )
-    encrypted_item = encrypt_item(TableName=TABLE_NAME, Item=item)
-
-    items = [
-        {
-            "Put": {  # primary item record
-                "TableName": TABLE_NAME,
-                "Item": encrypted_item,
-                "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-            }
-        },
-        {
-            "Put": {  # used to prevent duplicate institutions
-                "TableName": TABLE_NAME,
-                "Item": {
-                    "pk": f"USER#{user_id}#INSTITUTIONS",
-                    "sk": f"INSTITUTION#{institution_id}",
-                    "item_id": item_id,
-                },
-                "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-            }
-        },
-        {
-            "Put": {  # get all of the items across all users or a single user
-                "TableName": TABLE_NAME,
-                "Item": {
-                    "pk": "ITEMS",
-                    "sk": f"USER#{user_id}#ITEM#{item_id}",
-                    "institution_id": institution_id,
-                    "institution_name": institution.get("name"),
-                },
-                "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-            }
-        },
-        {
-            "Put": {  # get the user for an item
-                "TableName": TABLE_NAME,
-                "Item": {
-                    "pk": f"ITEM#{item_id}",
-                    "sk": f"USER#{user_id}",
-                },
-                "ConditionExpression": "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-            }
-        },
-    ]
-
-    metrics.add_metric(name="AddItem", unit=MetricUnit.Count, value=1)
-    logger.debug(items)
-
-    dynamodb_client: DynamoDBClient = dynamodb.meta.client
-
-    try:
-        dynamodb_client.transact_write_items(TransactItems=items)
-        logger.debug("Added items to DynamoDB")
-        metrics.add_metric(name="AddItemSuccess", unit=MetricUnit.Count, value=1)
-    except botocore.exceptions.ClientError:
-        logger.exception("Failed to add items to DynamoDB")
-        metrics.add_metric(name="AddItemFailed", unit=MetricUnit.Count, value=1)
-        raise
-
-    table: Table = dynamodb.Table(TABLE_NAME)
-
-    with table.batch_writer(overwrite_by_pkeys=["pk", "sk"]) as batch:
-        for account in metadata.get("accounts", []):
-            account_id = account["id"]
-            item = {
-                "pk": f"USER#{user_id}#ITEM#{item_id}",
-                "sk": f"ACCOUNT#{account_id}",
-                "account_id": account_id,
-                "mask": account["mask"],
-                "name": account["name"],
-                "subtype": account["subtype"],
-                "type": account["type"],
-            }
-            batch.put_item(Item=item)
-
+    
     headers = {"Location": f"/v1/items/{item_id}"}
 
     response = Response(

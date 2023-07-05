@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API, graphqlOperation, Logger } from 'aws-amplify';
 import { View, Heading, Flex } from '@aws-amplify/ui-react';
-import { getItems as GetItems } from '../graphql/queries';
 import Plaid from '../components/Plaid';
 import Institutions from '../components/Institutions';
 
@@ -26,7 +25,7 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
-      <Plaid getItems={getItems}/>
+      <Plaid/>
       {(items && items.length) ? (
         <View>
           <Heading>Institutions</Heading>
