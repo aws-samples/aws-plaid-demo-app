@@ -12,9 +12,10 @@ export default function Plaid() {
   const [connecting, setConnecting] = useState(false);
   const [user_id, setUserId] = useState(null);
   const [user_token, setUserToken] = useState(null);
-  const [public_token, setPublicToken] = useState(null);
+  const [employment_verification_token, setEmploymentVerificationToken] = useState(null);
+  const [payroll_income_token, setPayrollIncomeToken] = useState(null);
 
-  const handleGetToken = async () => {
+  const handleGetEmploymentVerificationToken = async () => {
     setConnecting(true);
     // TODO: Make the async chained.
     var userId;
@@ -35,22 +36,38 @@ export default function Plaid() {
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
-    // Create the link.
+    // Create the employment verification link.
     try {
-      const res = await API.post(apiName, '/v1/tokens/link', {
+      const res = await API.post(apiName, '/v1/tokens/link-employment', {
         body: {
           client_user_id: TEST_CLIENT_USER_ID,
           user_token: userToken
         },
       });
-      logger.debug('POST /v1/tokens/link response:', res);
-      setPublicToken(res.link_token);
+      logger.debug('POST /v1/tokens/link-employment response:', res);
+      setEmploymentVerificationToken(res.link_token);
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
   };
 
-  const handleSuccess = async () => {
+  const handleEmploymentVerificationSuccess = async () => {
+    // Create the employment verification link.
+    try {
+      const res = await API.post(apiName, '/v1/tokens/link-payroll', {
+        body: {
+          client_user_id: TEST_CLIENT_USER_ID,
+          user_token: userToken
+        },
+      });
+      logger.debug('POST /v1/tokens/link-payroll response:', res);
+      setPayrollIncomeToken(res.link_token);
+    } catch (err) {
+      logger.error('unable to create link token:', err);
+    }
+  }
+
+  const handlePayrollIncomeSuccess = async () => {
       try {
         const res = await API.post(apiName, '/v1/tokens/payroll', {
           body: {
@@ -66,11 +83,14 @@ export default function Plaid() {
 
   return (
     <Flex>
-      <Button variation="primary" isLoading={connecting} onClick={handleGetToken}>
+      <Button variation="primary" isLoading={connecting} onClick={handleGetEmploymentVerificationToken}>
         CONNECT WITH PLAID
       </Button>
-      {public_token ? (
-        <PlaidLink token={public_token} onSuccess={handleSuccess} onExit={() => setConnecting(false)} />
+      {employment_verification_token ? (
+        <PlaidLink token={employment_verification_token} onSuccess={handleEmploymentVerificationSuccess} onExit={() => setConnecting(false)} />
+      ) : null}
+      {payroll_income_token ? (
+        <PlaidLink token={payroll_income_token} onSuccess={handlePayrollIncomeSuccess} onExit={() => setConnecting(false)} />
       ) : null}
     </Flex>
   );

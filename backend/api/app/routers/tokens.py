@@ -99,7 +99,7 @@ def create_user_token() -> Dict[str, str]:
     }
 
 
-@ router.post("/link")
+@ router.post("/link-payroll")
 @ tracer.capture_method(capture_response=False)
 def create_link_token() -> Dict[str, str]:
 
@@ -142,6 +142,43 @@ def create_link_token() -> Dict[str, str]:
     return {"link_token": response.link_token}
 
 
+@ router.post("/link-employment")
+@ tracer.capture_method(capture_response=False)
+def create_link_token() -> Dict[str, str]:
+
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    client_user_id: Union[None, str] = router.current_event.json_body.get(
+        "client_user_id")
+    client_user_id = "test24"
+
+    user_token: Union[None, str] = router.current_event.json_body.get(
+        "user_token")
+
+    request = LinkTokenCreateRequest(
+        products=[Products("employment")],
+        client_name="plaidaws",
+        country_codes=[CountryCode("US")],
+        language="en",
+        webhook=WEBHOOK_URL,
+        user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
+        user_token=user_token
+    )
+
+    client = utils.get_plaid_client()
+
+    try:
+        response: LinkTokenCreateResponse = client.link_token_create(request)
+    except plaid.ApiException:
+        logger.exception("Unable to create link token")
+        raise InternalServerError("Failed to create link token")
+
+    return {"link_token": response.link_token}
+
+
 @ router.post("/payroll")
 @ tracer.capture_method(capture_response=False)
 def get_payroll_income() -> Dict[str, PayrollItem]:
@@ -162,7 +199,7 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
     payroll_request = CreditPayrollIncomeGetRequest(user_token=user_token)
     try:
         payroll_response: CreditPayrollIncomeGetResponse = client.credit_payroll_income_get(
-            request)
+            payroll_request)
     except plaid.ApiException:
         logger.exception("Unable to get payroll information")
         logger.exception(plaid.ApiException)
@@ -173,14 +210,14 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
     employment_request = CreditEmploymentGetRequest(user_token=user_token)
     try:
         employment_response: CreditEmploymentGetResponse = client.credit_employment_get(
-            request)
+            employment_request)
     except plaid.ApiException:
         logger.exception("Unable to verify emploment")
         logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to verify emploment")
 
-    send_email('jordan@caseswift.io', 'jordan@caseswift.io',
-               parse_payroll_income(payroll_response), employment_response)
+    send_email('eric@caseswift.io', 'eric@caseswift.io',
+               payroll_response, employment_response)
 
     return {
         "response": "true"
@@ -204,17 +241,15 @@ def parse_payroll_income(payroll_data):
     return parsedPayrollIncomes
 
 
-def send_email(sender, recipient, text):
+def send_email(sender, recipient, payroll_response, employment_response):
     # Try to send the email.
     subject = "CaseSwift Documents Test"
-    body_text = str(text)
+    body_text = str(payroll_response) + '\n' + str(employment_response)
     CHARSET = "UTF-8"
     BODY_HTML = """<html>
     <head></head>
     <body>
       <h1>CaseSwift: The GOAT PI Software</h1>
-      <p>{}
-      </p>
     </body>
     </html>
     """.format(str(text))
