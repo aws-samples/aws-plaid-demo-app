@@ -42,6 +42,9 @@ from plaid.model.payroll_income_rate_of_pay import PayrollIncomeRateOfPay
 
 from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
 from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
+from plaid.model.credit_employment_get_request import CreditEmploymentGetRequest
+from plaid.model.credit_employment_get_response import CreditEmploymentGetResponse
+
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
@@ -152,33 +155,42 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
     if not user_token:
         raise BadRequestError("Public token not found in request")
 
-    logger.info('User token: ' + user_token)
-    request = CreditPayrollIncomeGetRequest(user_token=user_token)
-    logger.info('Request created')
-
     client = utils.get_plaid_client()
 
+    # Handle payroll information.
     logger.info('Getting payroll info for ' + user_id)
-
+    payroll_request = CreditPayrollIncomeGetRequest(user_token=user_token)
     try:
-        response: CreditPayrollIncomeGetResponse = client.credit_payroll_income_get(
+        payroll_response: CreditPayrollIncomeGetResponse = client.credit_payroll_income_get(
             request)
     except plaid.ApiException:
         logger.exception("Unable to get payroll information")
         logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to get payroll information")
 
+    # Handle employment verification.
+    logger.info('Verifying employment for ' + user_id)
+    employment_request = CreditEmploymentGetRequest(user_token=user_token)
+    try:
+        employment_response: CreditEmploymentGetResponse = client.credit_employment_get(
+            request)
+    except plaid.ApiException:
+        logger.exception("Unable to verify emploment")
+        logger.exception(plaid.ApiException)
+        raise InternalServerError("Unable to verify emploment")
+
     send_email('jordan@caseswift.io', 'jordan@caseswift.io',
-               parse_payroll_income(response))
+               parse_payroll_income(payroll_response), employment_response)
+
     return {
         "response": "true"
     }
+
 
 def parse_payroll_income(payroll_data):
     parsedPayrollIncomes = []
     for item in payroll_data.items:
         payrollIncomeItem = {}
-        payrollIncomeItem["itemId"] = item.item_id
         payrollIncomeItem["institutionName"] = item.institution_name
         payrollIncomeItem["accounts"] = item.accounts
         payrollIncomeItem["payStubs"] = []
