@@ -37,7 +37,7 @@ export default function Plaid({ getItems }) {
     }
     // Create the link.
     try {
-      const res = await API.get(apiName, '/v1/tokens/link', {
+      const res = await API.post(apiName, '/v1/tokens/link', {
         body: {
           client_user_id: TEST_CLIENT_USER_ID,
           user_token: user_token
