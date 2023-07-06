@@ -57,7 +57,7 @@ export default function Plaid() {
       const res = await API.post(apiName, '/v1/tokens/link-payroll', {
         body: {
           client_user_id: TEST_CLIENT_USER_ID,
-          user_token: userToken
+          user_token: user_token
         },
       });
       logger.debug('POST /v1/tokens/link-payroll response:', res);
