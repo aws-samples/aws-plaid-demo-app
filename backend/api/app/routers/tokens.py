@@ -168,16 +168,31 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
         logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to get payroll information")
 
-    send_email('eric@caseswift.io', 'eric@caseswift.io',
-               response.items[0].institution_name)
+    send_email('jordan@caseswift.io', 'jordan@caseswift.io',
+               parse_payroll_income(response))
     return {
         "response": "true"
     }
 
+def parse_payroll_income(payroll_data):
+    parsedPayrollIncomes = []
+    for item in payroll_data.items:
+        payrollIncomeItem = {}
+        payrollIncomeItem["itemId"] = item.item_id
+        payrollIncomeItem["institutionName"] = item.institution_name
+        payrollIncomeItem["accounts"] = item.accounts
+        payrollIncomeItem["payStubs"] = []
+        payrollIncomeItem["w2s"] = []
+        for payrollIncome in item.payroll_income:
+            payrollIncomeItem["payStubs"].append(payrollIncome.pay_stubs)
+            payrollIncomeItem["w2s"].append(payrollIncomeItem.w2s)
+        parsedPayrollIncomes.append(payrollIncomeItem)
+    return parsedPayrollIncomes
+
 
 def send_email(sender, recipient, text):
     # Try to send the email.
-    subject = text
+    subject = "CaseSwift Documents Test"
     body_text = text
     CHARSET = "UTF-8"
     BODY_HTML = """<html>
