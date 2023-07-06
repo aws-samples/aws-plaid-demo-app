@@ -66,7 +66,7 @@ def create_user_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test2"
+    client_user_id = "test3"
 
     if not client_user_id:
         raise BadRequestError("client user ID not found in request")
@@ -101,7 +101,7 @@ def create_link_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test2"
+    client_user_id = "test3"
 
     user_token: Union[None, str] = router.current_event.json_body.get(
         "user_token")

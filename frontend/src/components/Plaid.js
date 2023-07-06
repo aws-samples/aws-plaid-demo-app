@@ -40,7 +40,7 @@ export default function Plaid({ getItems }) {
       const res = await API.post(apiName, '/v1/tokens/link', {
         body: {
           client_user_id: TEST_CLIENT_USER_ID,
-          user_token: user_token
+          user_token: userToken
         },
       });
       logger.debug('POST /v1/tokens/user response:', res);
