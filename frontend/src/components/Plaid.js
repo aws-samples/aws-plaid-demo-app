@@ -8,7 +8,7 @@ const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 const TEST_CLIENT_USER_ID = 'test1';
 
-export default function Plaid({ getItems }) {
+export default function Plaid() {
   const [connecting, setConnecting] = useState(false);
   const [user_id, setUserId] = useState(null);
   const [user_token, setUserToken] = useState(null);

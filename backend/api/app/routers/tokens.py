@@ -4,6 +4,8 @@
 from plaid.model.link_token_create_response import LinkTokenCreateResponse
 from functools import partial
 import os
+import json
+from json import JSONEncoder
 from typing import Dict, Union
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
@@ -33,6 +35,10 @@ from plaid.model.link_token_create_request_income_verification import LinkTokenC
 from plaid.model.income_verification_source_type import IncomeVerificationSourceType
 from plaid.model.link_token_create_request_income_verification_payroll_income import LinkTokenCreateRequestIncomeVerificationPayrollIncome
 from plaid.model.income_verification_payroll_flow_type import IncomeVerificationPayrollFlowType
+from plaid.model.payroll_item import PayrollItem
+from plaid.model.payroll_income_account_data import PayrollIncomeAccountData
+from plaid.model.payroll_income_object import PayrollIncomeObject
+from plaid.model.payroll_income_rate_of_pay import PayrollIncomeRateOfPay
 
 from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
 from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
@@ -66,7 +72,7 @@ def create_user_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test4"
+    client_user_id = "test24"
 
     if not client_user_id:
         raise BadRequestError("client user ID not found in request")
@@ -101,7 +107,7 @@ def create_link_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test4"
+    client_user_id = "test24"
 
     user_token: Union[None, str] = router.current_event.json_body.get(
         "user_token")
@@ -135,7 +141,7 @@ def create_link_token() -> Dict[str, str]:
 
 @ router.post("/payroll")
 @ tracer.capture_method(capture_response=False)
-def get_payroll_income() -> Dict[str, str]:
+def get_payroll_income() -> Dict[str, PayrollItem]:
     user_id: str = utils.authorize_request(router)
 
     logger.append_keys(user_id=user_id)
@@ -162,15 +168,17 @@ def get_payroll_income() -> Dict[str, str]:
         logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to get payroll information")
 
+    send_email('eric@caseswift.io', 'eric@caseswift.io',
+               response.items[0].institution_name)
     return {
-        "response": response.request_id
+        "response": "true"
     }
 
 
-def send_email(sender, recipient):
+def send_email(sender, recipient, text):
     # Try to send the email.
-    subject = "Test CaseSwift Email"
-    body_text = "Howdy!  Here are your requested documents"
+    subject = text
+    body_text = text
     CHARSET = "UTF-8"
     BODY_HTML = """<html>
     <head></head>
