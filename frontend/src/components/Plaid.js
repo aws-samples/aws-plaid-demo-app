@@ -43,50 +43,28 @@ export default function Plaid({ getItems }) {
           user_token: userToken
         },
       });
-      logger.debug('POST /v1/tokens/user response:', res);
-      setUserId(res.user_id);
-      userId = res.user_id;
-      setUserToken(res.user_token);
-      userToken = res.userToken;
+      logger.debug('POST /v1/tokens/link response:', res);
+      setPublicToken(res.link_token);
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
   };
 
-  const handleSuccess = async (public_token, metadata) => {
-    try {
-      const res = await API.post(apiName, '/v1/tokens', {
-        body: {
-          public_token,
-          metadata,
-        },
-      });
-      logger.debug('POST /v1/tokens response:', res);
-      setUserToken(res.access_token);
-    } catch (err) {
-      logger.error('unable to exchange public token', err);
-    }
+  const handleSuccess = async () => {
+      try {
+        const res = await API.post(apiName, '/v1/tokens/payroll', {
+          body: {
+            user_token: user_token,
+          },
+        });
+        logger.debug('POST /v1/payroll response:', res);
+      } catch (err) {
+        logger.error('unable to get payroll information', err);
+      }
+    };
 
     setConnecting(false);
   };
-
-  useEffect(() => {
-    if (user_token) {
-      const getPayrollData = async () => {
-        try {
-          const res = await API.post(apiName, '/v1/tokens/payroll', {
-            body: {
-              user_token: user_token,
-            },
-          });
-          logger.debug('POST /v1/payroll response:', res);
-        } catch (err) {
-          logger.error('unable to get payroll information', err);
-        }
-      };
-      getPayrollData();
-    }
-  }, [user_token]);
 
   return (
     <Flex>
