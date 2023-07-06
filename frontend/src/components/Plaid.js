@@ -61,10 +61,8 @@ export default function Plaid({ getItems }) {
       } catch (err) {
         logger.error('unable to get payroll information', err);
       }
+      setConnecting(false);
     };
-
-    setConnecting(false);
-  };
 
   return (
     <Flex>
