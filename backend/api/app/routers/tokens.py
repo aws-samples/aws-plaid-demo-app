@@ -184,8 +184,10 @@ def parse_payroll_income(payroll_data):
         payrollIncomeItem["payStubs"] = []
         payrollIncomeItem["w2s"] = []
         for payrollIncome in item.payroll_income:
-            payrollIncomeItem["payStubs"].append(payrollIncome.pay_stubs)
-            payrollIncomeItem["w2s"].append(payrollIncomeItem.w2s)
+            if "w2s" in payrollIncome:
+                payrollIncomeItem["w2s"].append(payrollIncomeItem.w2s)
+            if "payStubs" in payrollIncomeItem:
+                payrollIncomeItem["payStubs"].append(payrollIncome.pay_stubs)
         parsedPayrollIncomes.append(payrollIncomeItem)
     return parsedPayrollIncomes
 
