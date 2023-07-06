@@ -185,7 +185,7 @@ def parse_payroll_income(payroll_data):
         payrollIncomeItem["w2s"] = []
         for payrollIncome in item.payroll_income:
             if "w2s" in payrollIncome:
-                payrollIncomeItem["w2s"].append(payrollIncomeItem.w2s)
+                payrollIncomeItem["w2s"].append(payrollIncome.w2s)
             if "payStubs" in payrollIncomeItem:
                 payrollIncomeItem["payStubs"].append(payrollIncome.pay_stubs)
         parsedPayrollIncomes.append(payrollIncomeItem)
@@ -195,18 +195,17 @@ def parse_payroll_income(payroll_data):
 def send_email(sender, recipient, text):
     # Try to send the email.
     subject = "CaseSwift Documents Test"
-    body_text = text
+    body_text = str(text)
     CHARSET = "UTF-8"
     BODY_HTML = """<html>
     <head></head>
     <body>
       <h1>CaseSwift: The GOAT PI Software</h1>
-      <p>This email was sent with
-        <a href='https://aws.amazon.com/ses/'>Amazon SES</a>
+      <p>{}
       </p>
     </body>
     </html>
-    """
+    """.format(str(text))
 
     client = boto3.client('ses', region_name="us-east-2")
     try:
