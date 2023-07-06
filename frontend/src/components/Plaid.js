@@ -31,7 +31,7 @@ export default function Plaid({ getItems }) {
       setUserId(res.user_id);
       userId = res.user_id;
       setUserToken(res.user_token);
-      userToken = res.userToken;
+      userToken = res.user_token;
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
