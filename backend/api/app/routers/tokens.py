@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from plaid.model.link_token_create_response import LinkTokenCreateResponse
 from functools import partial
 import os
 from typing import Dict, Union
@@ -24,11 +25,15 @@ from dynamodb_encryption_sdk.internal.utils import encrypt_put_item
 from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
 from mypy_boto3_dynamodb.service_resource import Table
 import plaid
+from plaid.model.user_create_request import UserCreateRequest
+from plaid.model.user_create_response import UserCreateResponse
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
-from plaid.model.link_token_create_response import LinkTokenCreateResponse
-from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-from plaid.model.item_public_token_exchange_response import ItemPublicTokenExchangeResponse
+from plaid.model.link_token_create_request_income_verification import LinkTokenCreateRequestIncomeVerification
+from plaid.model.income_verification_source_type import IncomeVerificationSourceType
+from plaid.model.link_token_create_request_income_verification_payroll_income import LinkTokenCreateRequestIncomeVerificationPayrollIncome
+from plaid.model.income_verification_payroll_flow_type import IncomeVerificationPayrollFlowType
+
 from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
 from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
 from plaid.model.products import Products
@@ -51,30 +56,72 @@ dynamodb: DynamoDBServiceResource = boto3.resource(
     "dynamodb", config=constants.BOTO3_CONFIG)
 
 
-@router.get("/")
-@tracer.capture_method(capture_response=False)
-def create_link_token() -> Dict[str, str]:
+@ router.post("/user")
+@ tracer.capture_method(capture_response=False)
+def create_user_token() -> Dict[str, str]:
+    user_id: str = utils.authorize_request(router)
 
-    send_email("eric@caseswift.io", "jordan@caseswift.io")
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    client_user_id: Union[None, str] = router.current_event.json_body.get(
+        "client_user_id")
+    if not client_user_id:
+        raise BadRequestError("client user ID not found in request")
+
+    request = UserCreateRequest(client_user_id=client_user_id)
+
+    client = utils.get_plaid_client()
+
+    logger.info('Creating user for ' + client_user_id)
+
+    try:
+        response: UserCreateResponse = client.user_create(request)
+    except plaid.ApiException:
+        logger.exception("Unable to create user")
+        raise InternalServerError("Failed to create user")
+
+    return {
+        "user_token": response.user_token,
+        "user_id": response.user_id,
+        "request_id": response.request_id
+    }
+
+
+@ router.post("/link")
+@ tracer.capture_method(capture_response=False)
+def create_link_token() -> Dict[str, str]:
 
     user_id: str = utils.authorize_request(router)
 
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
-    logger.info('Creating link token for ' + user_id)
+
+    client_user_id: Union[None, str] = router.current_event.json_body.get(
+        "client_user_id")
+
+    user_token: Union[None, str] = router.current_event.json_body.get(
+        "user_token")
 
     request = LinkTokenCreateRequest(
-        products=[Products("transactions")],
+        products=[Products("income_verification")],
         client_name="plaidaws",
         country_codes=[CountryCode("US")],
         language="en",
         webhook=WEBHOOK_URL,
-        user=LinkTokenCreateRequestUser(client_user_id=user_id),
+        user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
+        user_token=user_token,
+        income_verification=LinkTokenCreateRequestIncomeVerification(
+            income_source_types=[IncomeVerificationSourceType('payroll')],
+            payroll_income=LinkTokenCreateRequestIncomeVerificationPayrollIncome(
+                flow_types=[IncomeVerificationPayrollFlowType(
+                    'payroll_digital_income')]
+            ))
     )
 
     client = utils.get_plaid_client()
 
-   try:
+    try:
         response: LinkTokenCreateResponse = client.link_token_create(request)
     except plaid.ApiException:
         logger.exception("Unable to create link token")
@@ -83,40 +130,8 @@ def create_link_token() -> Dict[str, str]:
     return {"link_token": response.link_token}
 
 
-@router.post("/")
-@tracer.capture_method(capture_response=False)
-def exchange_token() -> Dict[str, str]:
-    user_id: str = utils.authorize_request(router)
-
-    logger.append_keys(user_id=user_id)
-    tracer.put_annotation(key="UserId", value=user_id)
-
-    public_token: Union[None, str] = router.current_event.json_body.get(
-        "public_token")
-    if not public_token:
-        raise BadRequestError("Public token not found in request")
-
-    request = ItemPublicTokenExchangeRequest(public_token=public_token)
-
-    client = utils.get_plaid_client()
-
-    logger.info('Exchanged info for ' + user_id)
-
-    try:
-        response: ItemPublicTokenExchangeResponse = client.item_public_token_exchange(
-            request)
-    except plaid.ApiException:
-        logger.exception("Unable to exchange public token")
-        raise InternalServerError("Failed to exchange public token")
-
-    return {
-        "access_token": response.access_token,
-        "item_id": response.item_id
-    }
-
-
-@router.post("/payroll")
-@tracer.capture_method(capture_response=False)
+@ router.post("/payroll")
+@ tracer.capture_method(capture_response=False)
 def get_payroll_income() -> Dict[str, str]:
     user_id: str = utils.authorize_request(router)
 
@@ -148,51 +163,52 @@ def get_payroll_income() -> Dict[str, str]:
         "response": response.request_id
     }
 
-def send_email(sender, recipient):
-    # Try to send the email.
-    subject = "Test CaseSwift Email"
-    body_text = "Howdy!  Here are your requested documents"
-    CHARSET = "UTF-8"
-    BODY_HTML = """<html>
-    <head></head>
-    <body>
-      <h1>CaseSwift: The GOAT PI Software</h1>
-      <p>This email was sent with
-        <a href='https://aws.amazon.com/ses/'>Amazon SES</a>
-      </p>
-    </body>
-    </html>
-    """
 
-    client = boto3.client('ses',region_name="us-east-2")
-    try:
-        response = client.send_email(
-            Destination={
-                'ToAddresses': [
-                    recipient,
-                ],
-            },
-            Message={
-                'Body': {
-                    'Html': {
-                        'Charset': CHARSET,
-                        'Data': BODY_HTML,
-                    },
-                    'Text': {
-                        'Charset': CHARSET,
-                        'Data': body_text,
-                    },
-                },
-                'Subject': {
-                    'Charset': CHARSET,
-                    'Data': subject,
-                },
-            },
-            Source=sender
-        )
-    
-    # Display an error if something goes wrong.    
-    except ClientError as e:
-        logger.info("error sending email" + e.response['Error']['Message'])
-    else:
-        logger.info("Email sent!  Message ID: " + response["MessageId"])
+def send_email(sender, recipient):
+    # Try to send the email.
+    subject = "Test CaseSwift Email"
+    body_text = "Howdy!  Here are your requested documents"
+    CHARSET = "UTF-8"
+    BODY_HTML = """<html>
+    <head></head>
+    <body>
+      <h1>CaseSwift: The GOAT PI Software</h1>
+      <p>This email was sent with
+        <a href='https://aws.amazon.com/ses/'>Amazon SES</a>
+      </p>
+    </body>
+    </html>
+    """
+
+    client = boto3.client('ses', region_name="us-east-2")
+    try:
+        response = client.send_email(
+            Destination={
+                'ToAddresses': [
+                    recipient,
+                ],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': CHARSET,
+                        'Data': BODY_HTML,
+                    },
+                    'Text': {
+                        'Charset': CHARSET,
+                        'Data': body_text,
+                    },
+                },
+                'Subject': {
+                    'Charset': CHARSET,
+                    'Data': subject,
+                },
+            },
+            Source=sender
+        )
+
+    # Display an error if something goes wrong.
+    except ClientError as e:
+        logger.info("error sending email" + e.response['Error']['Message'])
+    else:
+        logger.info("Email sent!  Message ID: " + response["MessageId"])

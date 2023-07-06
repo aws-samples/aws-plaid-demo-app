@@ -6,18 +6,48 @@ import PlaidLink from './PlaidLink';
 const logger = new Logger('Plaid');
 
 const apiName = 'plaidapi';
+const TEST_CLIENT_USER_ID = 'test1';
 
 export default function Plaid({ getItems }) {
   const [connecting, setConnecting] = useState(false);
+  const [user_id, setUserId] = useState(null);
+  const [user_token, setUserToken] = useState(null);
   const [public_token, setPublicToken] = useState(null);
-  const [access_token, setAccessToken] = useState(null);
 
   const handleGetToken = async () => {
     setConnecting(true);
+    // TODO: Make the async chained.
+    var userId;
+    var userToken;
+
+    // Create the user token.
     try {
-      const res = await API.get(apiName, '/v1/tokens');
-      logger.debug('GET /v1/tokens response:', res);
-      setPublicToken(res.link_token);
+      const res = await API.post(apiName, '/v1/tokens/user', {
+        body: {
+          client_user_id: TEST_CLIENT_USER_ID,
+        },
+      });
+      logger.debug('POST /v1/tokens/user response:', res);
+      setUserId(res.user_id);
+      userId = res.user_id;
+      setUserToken(res.user_token);
+      userToken = res.userToken;
+    } catch (err) {
+      logger.error('unable to create link token:', err);
+    }
+    // Create the link.
+    try {
+      const res = await API.get(apiName, '/v1/tokens/link', {
+        body: {
+          client_user_id: TEST_CLIENT_USER_ID,
+          user_token: user_token
+        },
+      });
+      logger.debug('POST /v1/tokens/user response:', res);
+      setUserId(res.user_id);
+      userId = res.user_id;
+      setUserToken(res.user_token);
+      userToken = res.userToken;
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
@@ -32,7 +62,7 @@ export default function Plaid({ getItems }) {
         },
       });
       logger.debug('POST /v1/tokens response:', res);
-      setAccessToken(res.access_token);
+      setUserToken(res.access_token);
     } catch (err) {
       logger.error('unable to exchange public token', err);
     }
@@ -41,22 +71,22 @@ export default function Plaid({ getItems }) {
   };
 
   useEffect(() => {
-    if (access_token) {
-      const getPayrollData = async() => {
+    if (user_token) {
+      const getPayrollData = async () => {
         try {
           const res = await API.post(apiName, '/v1/tokens/payroll', {
             body: {
-              user_token: access_token,
+              user_token: user_token,
             },
           });
           logger.debug('POST /v1/payroll response:', res);
         } catch (err) {
           logger.error('unable to get payroll information', err);
         }
-      }
-      getPayrollData()
+      };
+      getPayrollData();
     }
-  }, [access_token]);
+  }, [user_token]);
 
   return (
     <Flex>
