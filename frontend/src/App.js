@@ -23,14 +23,6 @@ function App() {
                 </RequireAuth>
               }
             />
-            <Route
-              path="/institution/:id"
-              element={
-                <RequireAuth>
-                  <Institution />
-                </RequireAuth>
-              }
-            />
             <Route path="/login" element={<Login />} />
           </Route>
         </Routes>

@@ -2,6 +2,7 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { useAuthenticator, View } from '@aws-amplify/ui-react';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
+import CovieLink from '../components/CovieLink';
 
 export default function Login() {
   const { route } = useAuthenticator((context) => [context.route]);
@@ -36,7 +37,7 @@ export default function Login() {
 
   return (
     <View className="auth-wrapper">
-      <Authenticator components={components}/>
+      <CovieLink/>
     </View>
   );
 }
