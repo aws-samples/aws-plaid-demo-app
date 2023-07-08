@@ -13,7 +13,6 @@ export default function Protected() {
   return (
     <Flex direction="column">
       <Plaid/>
-      <Covie/>
     </Flex>
   );
 }
