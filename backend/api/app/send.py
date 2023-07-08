@@ -43,29 +43,29 @@ def createPdf(pdf, width, height, item):
     ytdSalary = 0
     for breakdown in item.payroll_income[0].pay_stubs[0].earnings.breakdown:
         if breakdown.canonical_description == "REGULAR_PAY":
-            currentSalary = breakdown.ytd_amount
+            ytdSalary = breakdown.ytd_amount
     currentSupplementalBonus = 0
     for breakdown in item.payroll_income[0].pay_stubs[0].earnings.breakdown:
         if breakdown.canonical_description == "BONUS":
-            currentSalary = breakdown.current_amount
+            currentSupplementalBonus = breakdown.current_amount
     ytdSupplementalBonus = 0
     for breakdown in item.payroll_income[0].pay_stubs[0].earnings.breakdown:
         if breakdown.canonical_description == "BONUS":
-            currentSalary = breakdown.ytd_amount
+            ytdSupplementalBonus = breakdown.ytd_amount
     currentTotalEarnings = currentSalary + currentSupplementalBonus
     ytdTotalEarnings = ytdSalary + ytdSupplementalBonus
 
     # taxes withheld info
-    currentFederalIncomeTax = item.payroll_income[0].pay_stubs[0].federal_income_tax_withheld
-    currentSocialSecurity = item.payroll_income[0].pay_stubs[0].social_security_wages
-    currentMedicare = item.payroll_income[0].pay_stubs[0].medicare_tax_withheld
-    currentStateTax = item.payroll_income[0].pay_stubs[0].state_and_local_wages.state_income_tax
+    currentFederalIncomeTax = item.payroll_income[0].w2s[0].federal_income_tax_withheld
+    currentSocialSecurity = item.payroll_income[0].w2s[0].social_security_wages
+    currentMedicare = item.payroll_income[0].w2s[0].medicare_tax_withheld
+    currentStateTax = item.payroll_income[0].w2s[0].state_and_local_wages[0].state_income_tax
     currentTotalTaxWithheld = item.payroll_income[0].pay_stubs[0].deductions.total.current_amount
     ytdTotalTaxWithheld = item.payroll_income[0].pay_stubs[0].deductions.total.ytd_amount
 
     format_plaid_income(pdf, width, height, employerName, employerStreet, employerTownAndZip,
                         employeeName, employeeStreet, employeeTownAndZip,
-                        payPeriodStart, payPeriodEnd, payDate,
+                        str(payPeriodStart), str(payPeriodEnd), str(payDate),
                         str(grossEarnings), str(totalTaxesAndDeductions), str(netPay), bankName, str(bankMask),
                         str(currentSalary), str(ytdSalary), str(currentSupplementalBonus), str(ytdSupplementalBonus), str(currentTotalEarnings), str(ytdTotalEarnings),
                         str(currentFederalIncomeTax), str(currentSocialSecurity), str(currentMedicare), str(currentStateTax), str(currentTotalTaxWithheld), str(ytdTotalTaxWithheld))
@@ -249,10 +249,10 @@ def send_email(sender, recipient, plaidResponseObject):
     counter = 1
     for item in plaidResponseObject.items:
         pdfName = "plaid_income_verification" + str(counter) + ".pdf"
-        plaidFinancialInformationPdf = canvas.Canvas(pdfName, pagesize=letter)
+        plaidFinancialInformationPdf = canvas.Canvas("/tmp/" + pdfName, pagesize=letter)
         width, height = letter
         createPdf(plaidFinancialInformationPdf, width, height, item)
-        part = MIMEApplication(open(pdfName, 'rb').read())
+        part = MIMEApplication(open("/tmp/"+ pdfName, 'rb').read())
         part.add_header('Content-Disposition', 'attachment', filename=pdfName)
         msg.attach(part)
         counter+=1
@@ -272,5 +272,3 @@ def send_email(sender, recipient, plaidResponseObject):
     else:
         print("Email sent! Message ID:"),
         print(response['MessageId'])
-
-
