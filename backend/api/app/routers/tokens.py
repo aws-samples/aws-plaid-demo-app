@@ -39,6 +39,7 @@ from app import utils, constants, datastore, exceptions, send
 __all__ = ["router"]
 
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+EMAIL_SENDER = "info@caseswift.io"
 
 tracer = Tracer()
 logger = Logger(child=True)
@@ -54,7 +55,7 @@ def create_user_token() -> Dict[str, str]:
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
 
-    client_user_id: str = uuid.uuid4()
+    client_user_id: str = str(uuid.uuid4())
 
     request = UserCreateRequest(client_user_id=client_user_id)
 
@@ -87,7 +88,9 @@ def create_link_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test24"
+
+    if not client_user_id:
+        raise BadRequestError("Client User ID not found in request")
 
     user_token: Union[None, str] = router.current_event.json_body.get(
         "user_token")
@@ -130,7 +133,9 @@ def create_link_token() -> Dict[str, str]:
 
     client_user_id: Union[None, str] = router.current_event.json_body.get(
         "client_user_id")
-    client_user_id = "test24"
+
+    if not client_user_id:
+        raise BadRequestError("Client User ID not found in request")
 
     user_token: Union[None, str] = router.current_event.json_body.get(
         "user_token")
@@ -189,7 +194,7 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
     if not email:
         raise BadRequestError("Email not found in request")
 
-    send.send_email(email, email,
+    send.send_email(EMAIL_SENDER, email,
                     payroll_response)
 
     return {
