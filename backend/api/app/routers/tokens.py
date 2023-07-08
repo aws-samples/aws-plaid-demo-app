@@ -184,7 +184,12 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
 
     logger.info('Payroll Data: ', payroll_response)
 
-    send.send_email('eric@caseswift.io', 'eric@caseswift.io',
+    email: Union[None, str] = router.current_event.json_body.get(
+        "email")
+    if not email:
+        raise BadRequestError("Email not found in request")
+
+    send.send_email(email, email,
                     payroll_response)
 
     return {
