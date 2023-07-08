@@ -233,9 +233,6 @@ def format_plaid_income(pdf, width, height, employerName, employerStreet, employ
     currentStringWidth = stringWidth("Current", "Helvetica-Bold", 10)
     pdf.drawString((width-footerLength)/2, height-(10.5*inch), footerMessage)
 
-    return pdf   
-    
-
 def send_email(sender, recipient, plaidResponseObject):
     msg = MIMEMultipart()
     msg['Subject'] = 'Your Requested Documents from CaseSwift'
