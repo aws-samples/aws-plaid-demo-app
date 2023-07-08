@@ -29,7 +29,7 @@ export default function Plaid() {
     try {
       const res = await API.get(apiName, '/v1/tokens/user');
       logger.debug('POST /v1/tokens/user response:', res);
-      clientUserId = res.client_user_id;
+      var clientUserId = res.client_user_id;
       setUserId(res.user_id);
       userId = res.user_id;
       setUserToken(res.user_token);
