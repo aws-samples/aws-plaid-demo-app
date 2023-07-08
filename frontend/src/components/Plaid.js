@@ -15,7 +15,7 @@ export default function Plaid() {
   const [employment_verification_token, setEmploymentVerificationToken] = useState(null);
   const [payroll_income_token, setPayrollIncomeToken] = useState(null);
 
-  const handleGetEmploymentVerificationToken = async () => {
+  const handleGetPayrollIncomeToken = async () => {
     setConnecting(true);
     // TODO: Make the async chained.
     var userId;
@@ -36,28 +36,12 @@ export default function Plaid() {
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
-    // Create the employment verification link.
-    try {
-      const res = await API.post(apiName, '/v1/tokens/link-employment', {
-        body: {
-          client_user_id: TEST_CLIENT_USER_ID,
-          user_token: userToken
-        },
-      });
-      logger.debug('POST /v1/tokens/link-employment response:', res);
-      setEmploymentVerificationToken(res.link_token);
-    } catch (err) {
-      logger.error('unable to create link token:', err);
-    }
-  };
-
-  const handleEmploymentVerificationSuccess = async () => {
-    // Create the employment verification link.
+    // Create the payroll income link.
     try {
       const res = await API.post(apiName, '/v1/tokens/link-payroll', {
         body: {
           client_user_id: TEST_CLIENT_USER_ID,
-          user_token: user_token
+          user_token: userToken
         },
       });
       logger.debug('POST /v1/tokens/link-payroll response:', res);
@@ -65,7 +49,7 @@ export default function Plaid() {
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
-  }
+  };
 
   const handlePayrollIncomeSuccess = async () => {
       try {
@@ -83,15 +67,44 @@ export default function Plaid() {
 
   return (
     <Flex>
-      <Button variation="primary" isLoading={connecting} onClick={handleGetEmploymentVerificationToken}>
+      <Button variation="primary" isLoading={connecting} onClick={handleGetPayrollIncomeToken}>
         CONNECT WITH PLAID
       </Button>
-      {employment_verification_token ? (
-        <PlaidLink token={employment_verification_token} onSuccess={handleEmploymentVerificationSuccess} onExit={() => setConnecting(false)} />
-      ) : null}
+
       {payroll_income_token ? (
         <PlaidLink token={payroll_income_token} onSuccess={handlePayrollIncomeSuccess} onExit={() => setConnecting(false)} />
       ) : null}
     </Flex>
   );
 }
+
+  /*
+  *
+  * EMPLOYMENT VERIFICATION - STILL IN BETA. 
+  
+  TO DYNAMICALLY RENDER THE LINK
+
+    {employment_verification_token ? (
+      <PlaidLink token={employment_verification_token} onSuccess={handleEmploymentVerificationSuccess} onExit={() => setConnecting(false)} />
+    ) : null}
+
+
+  const handleEmploymentVerificationSuccess = async () => {
+    // Create the employment verification link.
+    try {
+      const res = await API.post(apiName, '/v1/tokens/link-employment', {
+        body: {
+          client_user_id: TEST_CLIENT_USER_ID,
+          user_token: user_token
+        },
+      });
+      logger.debug('POST /v1/tokens/link-payroll response:', res);
+      setPayrollIncomeToken(res.link_token);
+    } catch (err) {
+      logger.error('unable to create link token:', err);
+    }
+  }
+  * 
+  **/
+
+ 
