@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { API, Logger } from 'aws-amplify';
-import { Button, Flex } from '@aws-amplify/ui-react';
+import { useAuthenticator, Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
 
 const logger = new Logger('Plaid');
 
 const apiName = 'plaidapi';
-const TEST_CLIENT_USER_ID = 'test1';
 
 export default function Plaid() {
+
+  const { user } = useAuthenticator((context) => [
+    context.user
+  ]);
+
   const [connecting, setConnecting] = useState(false);
   const [user_id, setUserId] = useState(null);
   const [user_token, setUserToken] = useState(null);
@@ -23,12 +27,9 @@ export default function Plaid() {
 
     // Create the user token.
     try {
-      const res = await API.post(apiName, '/v1/tokens/user', {
-        body: {
-          client_user_id: TEST_CLIENT_USER_ID,
-        },
-      });
+      const res = await API.get(apiName, '/v1/tokens/user');
       logger.debug('POST /v1/tokens/user response:', res);
+      clientUserId = res.client_user_id;
       setUserId(res.user_id);
       userId = res.user_id;
       setUserToken(res.user_token);
@@ -40,7 +41,7 @@ export default function Plaid() {
     try {
       const res = await API.post(apiName, '/v1/tokens/link-payroll', {
         body: {
-          client_user_id: TEST_CLIENT_USER_ID,
+          client_user_id: clientUserId,
           user_token: userToken
         },
       });
@@ -56,6 +57,7 @@ export default function Plaid() {
         const res = await API.post(apiName, '/v1/tokens/payroll', {
           body: {
             user_token: user_token,
+            email: user.signInUserSession.idToken.payload.email
           },
         });
         logger.debug('POST /v1/payroll response:', res);
@@ -77,34 +79,3 @@ export default function Plaid() {
     </Flex>
   );
 }
-
-  /*
-  *
-  * EMPLOYMENT VERIFICATION - STILL IN BETA. 
-  
-  TO DYNAMICALLY RENDER THE LINK
-
-    {employment_verification_token ? (
-      <PlaidLink token={employment_verification_token} onSuccess={handleEmploymentVerificationSuccess} onExit={() => setConnecting(false)} />
-    ) : null}
-
-
-  const handleEmploymentVerificationSuccess = async () => {
-    // Create the employment verification link.
-    try {
-      const res = await API.post(apiName, '/v1/tokens/link-employment', {
-        body: {
-          client_user_id: TEST_CLIENT_USER_ID,
-          user_token: user_token
-        },
-      });
-      logger.debug('POST /v1/tokens/link-payroll response:', res);
-      setPayrollIncomeToken(res.link_token);
-    } catch (err) {
-      logger.error('unable to create link token:', err);
-    }
-  }
-  * 
-  **/
-
- 

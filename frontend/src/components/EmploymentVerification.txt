@@ -1,0 +1,32 @@
+    {employment_verification_token ? (
+      <PlaidLink token={employment_verification_token} onSuccess={handleEmploymentVerificationSuccess} onExit={() => setConnecting(false)} />
+    ) : null}
+
+
+  const handleEmploymentVerificationSuccess = async () => {
+    // Create the employment verification link.
+    try {
+      const res = await API.post(apiName, '/v1/tokens/link-employment', {
+        body: {
+          client_user_id: TEST_CLIENT_USER_ID,
+          user_token: user_token
+        },
+      });
+      logger.debug('POST /v1/tokens/link-payroll response:', res);
+      setPayrollIncomeToken(res.link_token);
+    } catch (err) {
+      logger.error('unable to create link token:', err);
+    }
+  }
+
+  
+  # Handle employment verification.
+    logger.info('Verifying employment for ' + user_id)
+    employment_request = CreditEmploymentGetRequest(user_token=user_token)
+    try:
+        employment_response: CreditEmploymentGetResponse = client.credit_employment_get(
+            employment_request)
+    except plaid.ApiException:
+        logger.exception("Unable to verify emploment")
+        logger.exception(plaid.ApiException)
+        raise InternalServerError("Unable to verify emploment")

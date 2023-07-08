@@ -1,34 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from plaid.model.link_token_create_response import LinkTokenCreateResponse
-from functools import partial
+# Import Python Dependencies
 import os
-import json
-from json import JSONEncoder
 from typing import Dict, Union
+import uuid
+
+# Import AWS Power Tools
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
-from aws_lambda_powertools.metrics import MetricUnit
-from aws_lambda_powertools.event_handler.api_gateway import Router, Response
-from aws_lambda_powertools.event_handler import content_types
+from aws_lambda_powertools.event_handler.api_gateway import Router
 from aws_lambda_powertools.event_handler.exceptions import (
     InternalServerError,
     BadRequestError,
 )
-import boto3
-import botocore
-from botocore.exceptions import ClientError
-from dynamodb_encryption_sdk.encrypted.client import EncryptedClient
-from dynamodb_encryption_sdk.identifiers import CryptoAction
-from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
-from dynamodb_encryption_sdk.structures import AttributeActions
-from dynamodb_encryption_sdk.internal.utils import encrypt_put_item
-from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
-from mypy_boto3_dynamodb.service_resource import Table
+
+# Import Plaid
+
 import plaid
 from plaid.model.user_create_request import UserCreateRequest
 from plaid.model.user_create_response import UserCreateResponse
+from plaid.model.link_token_create_response import LinkTokenCreateResponse
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
 from plaid.model.link_token_create_request_income_verification import LinkTokenCreateRequestIncomeVerification
@@ -36,36 +28,25 @@ from plaid.model.income_verification_source_type import IncomeVerificationSource
 from plaid.model.link_token_create_request_income_verification_payroll_income import LinkTokenCreateRequestIncomeVerificationPayrollIncome
 from plaid.model.income_verification_payroll_flow_type import IncomeVerificationPayrollFlowType
 from plaid.model.payroll_item import PayrollItem
-from plaid.model.payroll_income_account_data import PayrollIncomeAccountData
-from plaid.model.payroll_income_object import PayrollIncomeObject
-from plaid.model.payroll_income_rate_of_pay import PayrollIncomeRateOfPay
-
 from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
 from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
-from plaid.model.credit_employment_get_request import CreditEmploymentGetRequest
-from plaid.model.credit_employment_get_response import CreditEmploymentGetResponse
-
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
-from app import utils, constants, datastore, exceptions
+# Import Modules
+from app import utils, constants, datastore, exceptions, send
 
 __all__ = ["router"]
 
-TABLE_NAME = os.getenv("TABLE_NAME")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-KEY_ARN = os.getenv("KEY_ARN")
 
 tracer = Tracer()
 logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 
-dynamodb: DynamoDBServiceResource = boto3.resource(
-    "dynamodb", config=constants.BOTO3_CONFIG)
 
-
-@ router.post("/user")
+@ router.get("/user")
 @ tracer.capture_method(capture_response=False)
 def create_user_token() -> Dict[str, str]:
     user_id: str = utils.authorize_request(router)
@@ -73,12 +54,7 @@ def create_user_token() -> Dict[str, str]:
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
 
-    client_user_id: Union[None, str] = router.current_event.json_body.get(
-        "client_user_id")
-    client_user_id = "test24"
-
-    if not client_user_id:
-        raise BadRequestError("client user ID not found in request")
+    client_user_id: str = uuid.uuid4()
 
     request = UserCreateRequest(client_user_id=client_user_id)
 
@@ -93,6 +69,7 @@ def create_user_token() -> Dict[str, str]:
         raise InternalServerError("Failed to create user")
 
     return {
+        "client_user_id": client_user_id,
         "user_token": response.user_token,
         "user_id": response.user_id,
         "request_id": response.request_id
@@ -205,84 +182,11 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
         logger.exception(plaid.ApiException)
         raise InternalServerError("Unable to get payroll information")
 
-    # Handle employment verification.
-    logger.info('Verifying employment for ' + user_id)
-    employment_request = CreditEmploymentGetRequest(user_token=user_token)
-    try:
-        employment_response: CreditEmploymentGetResponse = client.credit_employment_get(
-            employment_request)
-    except plaid.ApiException:
-        logger.exception("Unable to verify emploment")
-        logger.exception(plaid.ApiException)
-        raise InternalServerError("Unable to verify emploment")
+    logger.info('Payroll Data: ', payroll_response)
 
-    send_email('eric@caseswift.io', 'eric@caseswift.io',
-               payroll_response, employment_response)
+    send.send_email('eric@caseswift.io', 'eric@caseswift.io',
+                    payroll_response)
 
     return {
         "response": "true"
     }
-
-
-def parse_payroll_income(payroll_data):
-    parsedPayrollIncomes = []
-    for item in payroll_data.items:
-        payrollIncomeItem = {}
-        payrollIncomeItem["institutionName"] = item.institution_name
-        payrollIncomeItem["accounts"] = item.accounts
-        payrollIncomeItem["payStubs"] = []
-        payrollIncomeItem["w2s"] = []
-        for payrollIncome in item.payroll_income:
-            if "w2s" in payrollIncome:
-                payrollIncomeItem["w2s"].append(payrollIncome.w2s)
-            if "payStubs" in payrollIncomeItem:
-                payrollIncomeItem["payStubs"].append(payrollIncome.pay_stubs)
-        parsedPayrollIncomes.append(payrollIncomeItem)
-    return parsedPayrollIncomes
-
-
-def send_email(sender, recipient, payroll_response, employment_response):
-    # Try to send the email.
-    subject = "CaseSwift Documents Test"
-    body_text = str(payroll_response) + '\n' + str(employment_response)
-    CHARSET = "UTF-8"
-    BODY_HTML = """<html>
-    <head></head>
-    <body>
-      <h1>CaseSwift: The GOAT PI Software</h1>
-    </body>
-    </html>
-    """.format(str(text))
-
-    client = boto3.client('ses', region_name="us-east-2")
-    try:
-        response = client.send_email(
-            Destination={
-                'ToAddresses': [
-                    recipient,
-                ],
-            },
-            Message={
-                'Body': {
-                    'Html': {
-                        'Charset': CHARSET,
-                        'Data': BODY_HTML,
-                    },
-                    'Text': {
-                        'Charset': CHARSET,
-                        'Data': body_text,
-                    },
-                },
-                'Subject': {
-                    'Charset': CHARSET,
-                    'Data': subject,
-                },
-            },
-            Source=sender
-        )
-
-    # Display an error if something goes wrong.
-    except ClientError as e:
-        logger.info("error sending email" + e.response['Error']['Message'])
-    else:
-        logger.info("Email sent!  Message ID: " + response["MessageId"])
