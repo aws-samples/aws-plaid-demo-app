@@ -15,7 +15,30 @@
   ],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
+<<<<<<< Updated upstream
   "python.testing.pytestArgs": [
     "backend"
   ],
 }
+=======
+  "python.testing.pytestArgs": ["backend"],
+  "svn.ignoreMissingSvnWarning": true,
+  "files.autoSave": "onFocusChange",
+  "editor.wordWrap": "on",
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.defaultColorDecorators": true,
+  "editor.definitionLinkOpensInPeek": true,
+  "editor.experimental.asyncTokenization": true,
+  "editor.experimental.asyncTokenizationLogging": true,
+  "editor.experimental.asyncTokenizationVerification": true,
+  "editor.experimental.pasteActions.enabled": true,
+  "debug.openExplorerOnEnd": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.showSubSessionsInToolBar": true,
+  "debug.terminal.clearBeforeReusing": true,
+  "testing.alwaysRevealTestOnStateChange": true,
+  "testing.automaticallyOpenPeekViewDuringAutoRun": true,
+  "scm.alwaysShowActions": true,
+  "scm.alwaysShowRepositories": true
+}
+>>>>>>> Stashed changes
