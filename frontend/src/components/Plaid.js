@@ -120,7 +120,7 @@ export default function Plaid() {
     return (
       <div>
         <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
-          CONNECT WITH PLAID
+          CONNECT ANOTHER ACCOUNT WITH PLAID
         </Button>
         <Button variation="primary" isLoading={connecting} onClick={() => setPayrollRequest(true)}>
           SEND EMAIL
