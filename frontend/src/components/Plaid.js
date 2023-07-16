@@ -84,6 +84,8 @@ export default function Plaid() {
   const sendPayrollRequest = async () => {
     setConnecting(true);
     try {
+      console.log('test')
+      console.log(email);
       const res = await API.post(apiName, '/v1/tokens/payroll', {
         body: {
           user_token: userToken,
