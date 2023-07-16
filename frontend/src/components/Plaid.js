@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { API, Logger } from 'aws-amplify';
 import { useAuthenticator, Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
@@ -9,66 +9,77 @@ const apiName = 'plaidapi';
 export default function Plaid() {
   const { userEmail } = useAuthenticator((context) => [context.user.signInUserSession.idToken.payload.email]);
 
-  // State to manipulate UI.
+  // State to manipulate UI look.
   const [connecting, setConnecting] = useState(false);
   const [showLink, setShowLink] = useState(false);
-  const [showButtons, setShowButtons] = useState(false);
+  const [connectedAccount, setConnectedAccount] = useState(false);
 
-  // State to maintain Plaid variables.  
+  // State to track Plaid variables.  
   const [clientUserId, setClientUserId] = useState(null);
   const [userToken, setUserToken] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
 
-  // Gets new instance of a Plaid link. 
-  const getNewLink = () => {
-    return <PlaidLink token={linkToken} onSuccess={() => setShowButtons(true)}/>;
-  };
+  // State to trigge Plaid requests.
+  const [userRequest, setUserRequest] = useState(false);
+  const [linkRequest, setLinkRequest] = useState(false);
+  const [payrollRequest, setPayrollRequest] = useState(false);
+
+  // Send Plaid requests depending on the values in state.
+  useEffect(() => {
+    if (userRequest) sendUserRequest();
+  }, [userRequest]);
+
+  useEffect(() => {
+    if (linkRequest && userToken && clientUserId) sendLinkRequest();
+  }, [linkRequest, userToken, clientUserId]);
+
+  useEffect(() => {
+    if (payrollRequest && userToken) sendPayrollRequest();
+  }, [payrollRequest, userToken]);
 
   // Starts the Plaid connection.
   // Gets the user token and then opens a Plaid Link.
-  const startLink = async () => {
+  const sendUserRequest = async () => {
     // Disable the button.
     setConnecting(true);
-
     // Create the user token.
     try {
       // Get the POST response and log it.
       const res = await API.get(apiName, '/v1/tokens/user');
       logger.debug('POST /v1/tokens/user response:', res);
       // Set user ID and token values asynchronously.
-      console.log('test1')
-      setUserToken(res.user_token,
-        () => {
-          console.log('test2')
-          setClientUserId(res.client_user_id,
-            () => {
-              openLink();
-            });
-        });
+      setUserToken(res.user_token);
+      setClientUserId(res.client_user_id);
     } catch (err) {
-      logger.error('unable to create link token:', err);
+      logger.error('Unable to create link token:', err);
     }
+    setUserRequest(false);
+    setConnecting(false);
   };
 
   // Opens a new Plaid link.
-  const openLink = async () => {
+  const sendLinkRequest = async () => {
+    setConnecting(true);
     try {
       const res = await API.post(apiName, '/v1/tokens/link-payroll', {
         body: {
-          client_user_id: clientUserId,
           user_token: userToken,
+          client_user_id: clientUserId,
         },
       });
       logger.debug('POST /v1/tokens/link-payroll response:', res);
-      setLinkToken(res.link_token, () => {
-        setShowLink(true);
-      });
+      setLinkToken(res.link_token);
+      setShowLink(true);
     } catch (err) {
-      logger.error('unable to create link token:', err);
+      logger.error('Unable to create link token:', err);
     }
+    setLinkRequest(false);
+    setConnecting(false);
   };
 
-  const sendPayrollData = async () => {
+  // Fetches plaid data on the remote server and sends it via email.
+  const sendPayrollRequest = async () => {
+    setConnecting(true);
     try {
       const res = await API.post(apiName, '/v1/tokens/payroll', {
         body: {
@@ -78,18 +89,38 @@ export default function Plaid() {
       });
       logger.debug('POST /v1/payroll response:', res);
     } catch (err) {
-      logger.error('unable to get payroll information', err);
+      logger.error('Unable to get payroll information', err);
     }
+    setPayrollRequest(false);
     setConnecting(false);
   };
 
-  const getButtons = async () => {
+  const initialButtonClick = async () => {
+    setUserRequest(true);
+    setLinkRequest(true);
+
+  }
+
+  const subsequentButtonClick = async () => {
+    setLinkRequest(true);
+  }
+
+  const getInitialButton = async () => {
+    return (
+      <Button variation="primary" isLoading={connecting} onClick={initialButtonClick}>
+        CONNECT WITH PLAID
+      </Button>
+    )
+  }
+
+  // Gets buttons
+  const getSubsequentButtons = async () => {
     return (
       <div>
-          <Button variation="primary" onClick={openLink}>
+          <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
             CONNECT WITH PLAID
           </Button>
-          <Button variation="primary" onClick={sendPayrollData}>
+          <Button variation="primary" isLoading={connecting} onClick={sendPayrollRequest}>
             SEND EMAIL
           </Button>
       </div>
@@ -98,12 +129,8 @@ export default function Plaid() {
 
   return (
     <Flex>
-      <Button variation="primary" isLoading={connecting} onClick={startLink}>
-        CONNECT WITH PLAID
-      </Button>
-
-      {showLink ? getNewLink() : null}
-      {showButtons ? getButtons() : null}
+      {connectedAccount ? getSubsequentButtons() : getInitialButton() }
+      {showLink ? <PlaidLink token={linkToken} onSuccess={() => setConnectedAccount(true)}/> : null}
     </Flex>
   );
 }
