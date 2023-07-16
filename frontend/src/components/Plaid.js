@@ -85,14 +85,14 @@ export default function Plaid() {
     setConnecting(true);
     try {
       console.log('test')
-      console.log(email);
+      console.log(userEmail);
       const res = await API.post(apiName, '/v1/tokens/payroll', {
         body: {
           user_token: userToken,
           email: userEmail,
         },
       });
-      console.log(email);
+      console.log(userEmail);
       logger.debug('POST /v1/payroll response:', res);
     } catch (err) {
       logger.error('Unable to get payroll information', err);
