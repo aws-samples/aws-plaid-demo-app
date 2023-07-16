@@ -90,6 +90,7 @@ export default function Plaid() {
           email: userEmail,
         },
       });
+      console.log(email);
       logger.debug('POST /v1/payroll response:', res);
     } catch (err) {
       logger.error('Unable to get payroll information', err);
