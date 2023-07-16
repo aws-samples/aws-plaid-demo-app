@@ -8,6 +8,7 @@ const apiName = 'plaidapi';
 
 export default function Plaid() {
   // Get lawyer's email to send data to.
+  console.log(useAuthenticator((context) => context.user.signInUserSession.idToken.payload.email));
   const { userEmail } = useAuthenticator((context) => context.user.signInUserSession.idToken.payload.email);
   
   // State to manipulate UI look.
