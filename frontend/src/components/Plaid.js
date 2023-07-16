@@ -7,14 +7,12 @@ const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
 export default function Plaid() {
-  const { userEmail } = useAuthenticator((context) => [context.user.signInUserSession.idToken.payload.email]);
-
   // State to manipulate UI look.
   const [connecting, setConnecting] = useState(false);
   const [showLink, setShowLink] = useState(false);
   const [connectedAccount, setConnectedAccount] = useState(false);
 
-  // State to track Plaid variables.  
+  // State to track Plaid variables.
   const [clientUserId, setClientUserId] = useState(null);
   const [userToken, setUserToken] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
@@ -26,7 +24,9 @@ export default function Plaid() {
 
   // Send Plaid requests depending on the values in state.
   useEffect(() => {
-    if (userRequest) sendUserRequest();
+    if (userRequest) {
+      sendUserRequest();
+    }
   }, [userRequest]);
 
   useEffect(() => {
@@ -98,39 +98,38 @@ export default function Plaid() {
   const initialButtonClick = async () => {
     setUserRequest(true);
     setLinkRequest(true);
-
-  }
+  };
 
   const subsequentButtonClick = async () => {
     setLinkRequest(true);
-  }
+  };
 
-  const getInitialButton = async () => {
+  const getInitialButton = () => {
     return (
       <Button variation="primary" isLoading={connecting} onClick={initialButtonClick}>
         CONNECT WITH PLAID
       </Button>
-    )
-  }
+    );
+  };
 
   // Gets buttons
-  const getSubsequentButtons = async () => {
+  const getSubsequentButtons = () => {
     return (
       <div>
-          <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
-            CONNECT WITH PLAID
-          </Button>
-          <Button variation="primary" isLoading={connecting} onClick={sendPayrollRequest}>
-            SEND EMAIL
-          </Button>
+        <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
+          CONNECT WITH PLAID
+        </Button>
+        <Button variation="primary" isLoading={connecting} onClick={() => setPayrollRequest(true)}>
+          SEND EMAIL
+        </Button>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <Flex>
-      {connectedAccount ? getSubsequentButtons() : getInitialButton() }
-      {showLink ? <PlaidLink token={linkToken} onSuccess={() => setConnectedAccount(true)}/> : null}
+      {connectedAccount ? getSubsequentButtons() : getInitialButton()}
+      {showLink ? <PlaidLink token={linkToken} onSuccess={() => setConnectedAccount(true)} /> : null}
     </Flex>
   );
 }
