@@ -7,6 +7,9 @@ const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
 export default function Plaid() {
+  // Get lawyer's email to send data to.
+  const { userEmail } = useAuthenticator((context) => [context.user.signInUserSession.idToken.payload.email]);
+
   // State to manipulate UI look.
   const [connecting, setConnecting] = useState(false);
   const [showLink, setShowLink] = useState(false);
