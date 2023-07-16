@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { API, Logger } from 'aws-amplify';
 import { useAuthenticator, Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
 
 const logger = new Logger('Plaid');
-
 const apiName = 'plaidapi';
 
 export default function Plaid() {
@@ -37,8 +36,10 @@ export default function Plaid() {
       const res = await API.get(apiName, '/v1/tokens/user');
       logger.debug('POST /v1/tokens/user response:', res);
       // Set user ID and token values asynchronously.
+      console.log('test1')
       setUserToken(res.user_token,
         () => {
+          console.log('test2')
           setClientUserId(res.client_user_id,
             () => {
               openLink();
