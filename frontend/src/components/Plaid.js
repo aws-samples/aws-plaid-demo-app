@@ -20,13 +20,9 @@ export default function Plaid() {
   const [userToken, setUserToken] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
 
-  const handleExit = async () => {
-    // Check if the user token has been created.
-  }
-
   // Gets new instance of a Plaid link. 
   const getNewLink = () => {
-    return <PlaidLink token={linkToken} onSuccess={() => setShowButtons(true)} onExit={onExit} />;
+    return <PlaidLink token={linkToken} onSuccess={() => setShowButtons(true)}/>;
   };
 
   // Starts the Plaid connection.
@@ -41,13 +37,13 @@ export default function Plaid() {
       const res = await API.get(apiName, '/v1/tokens/user');
       logger.debug('POST /v1/tokens/user response:', res);
       // Set user ID and token values asynchronously.
-      setUserToken(res.user_token),
+      setUserToken(res.user_token,
         () => {
-          setClientUserId(res.client_user_id),
+          setClientUserId(res.client_user_id,
             () => {
               openLink();
-            };
-        };
+            });
+        });
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
@@ -90,7 +86,7 @@ export default function Plaid() {
     return (
       <div>
           <Button variation="primary" onClick={openLink}>
-            CONNECT AGAIN WITH PLAID
+            CONNECT WITH PLAID
           </Button>
           <Button variation="primary" onClick={sendPayrollData}>
             SEND EMAIL
@@ -98,15 +94,15 @@ export default function Plaid() {
       </div>
     )
   }
+
   return (
     <Flex>
-      <Button variation="primary" isLoading={connecting} onClick={openLink}>
+      <Button variation="primary" isLoading={connecting} onClick={startLink}>
         CONNECT WITH PLAID
       </Button>
 
       {showLink ? getNewLink() : null}
       {showButtons ? getButtons() : null}
-
     </Flex>
   );
 }
