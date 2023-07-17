@@ -10,7 +10,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import navy, black
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
-client = boto3.client('ses',region_name="us-east-2")
+client = boto3.client('ses',region_name="us-east-1")
 
 def createPlaidPayrollPdf(pdf, width, height, item):
     # employer info
@@ -114,7 +114,8 @@ def format_plaid_income(pdf, width, height, employerName, employerStreet, employ
 
     # Box Employer/Employee
     pdf.setFont("Helvetica-Bold", 10)
-    pdf.rect(0.9*inch, height-(heightTracker*inch), width-(1.8*inch), inch*1.1)
+    heightTracker += 0.1
+    pdf.rect(0.9*inch, height-(heightTracker*inch), width-(1.8*inch), inch*1.3)
 
     # Draw Pay Period Information
     pdf.setFont("Helvetica-Bold", 10)
