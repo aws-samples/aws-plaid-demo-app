@@ -206,7 +206,7 @@ def format_plaid_income(pdf, width, height, employerName, employerStreet, employ
     pdf.drawRightString((width-(inch*1.1)), height-(heightTracker*inch), ytdOvertime)
 
     heightTracker += 0.2
-    pdf.drawString((inch*1.1), height-(heightTracker*inch)m "Supplemental Pay: Commission")
+    pdf.drawString((inch*1.1), height-(heightTracker*inch), "Supplemental Pay: Commission")
     currentCommissionWidth = stringWidth(currentCommission, "Helvetica", 10)
     pdf.drawString((width-currentCommissionWidth)/2, height-(heightTracker*inch), currentCommission)
     pdf.drawRightString((width-(inch*1.1)), height-(heightTracker*inch), ytdCommission)
