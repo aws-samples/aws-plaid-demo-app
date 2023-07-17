@@ -57,9 +57,9 @@ def createPlaidPayrollPdf(pdf, width, height, item):
         if breakdown.canonical_description == "COMMISSION":
             currentCommission = breakdown.current_amount
             ytdCommission = breakdown.ytd_amount
-    currentTotalEarnings = currentSalary + currentSupplementalBonus
-    ytdTotalEarnings = ytdSalary + ytdSupplementalBonus
-
+    currentTotalEarnings = currentSalary + currentSupplementalBonus + currentOvertime + currentCommission
+    ytdTotalEarnings = ytdSalary + ytdSupplementalBonus + ytdOvertime + ytdCommission
+ 
     # taxes withheld info
     currentFederalIncomeTax = item.payroll_income[0].w2s[0].federal_income_tax_withheld
     currentSocialSecurity = item.payroll_income[0].w2s[0].social_security_wages
