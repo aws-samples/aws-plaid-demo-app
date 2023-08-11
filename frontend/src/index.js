@@ -3,7 +3,7 @@ import { Amplify, Auth } from "aws-amplify";
 import App from './App';
 
 import '@aws-amplify/ui-react/styles.css';
-import '@fontsource/inter/variable.css';
+import "@fontsource/inter";
 import "./index.css";
 
 const container = document.getElementById('root');
