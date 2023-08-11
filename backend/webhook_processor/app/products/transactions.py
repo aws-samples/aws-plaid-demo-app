@@ -206,7 +206,6 @@ class Transactions(AbstractProduct):
 
         # https://plaid.com/docs/api/products/transactions/#sync_updates_available
         elif webhook_code == constants.PLAID_WEBHOOK_CODE_SYNC_UPDATES_AVAILABLE:
-
             initial_update_complete: bool = payload.get("initial_update_complete", False)
             historical_update_complete: bool = payload.get("historical_update_complete", False)
 
