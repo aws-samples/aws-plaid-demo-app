@@ -1,22 +1,22 @@
 {
-    "name": "resolvers",
-    "private": "true",
-    "dependencies": {
-        "@aws-appsync/utils": "1.0.1"
-    },
-    "devDependencies": {
-        "@aws-appsync/eslint-plugin": "1.0.1",
-        "@aws-sdk/client-appsync": "3.226.0",
-        "eslint": "8.29.0",
-        "eslint-config-airbnb-base": "15.0.0",
-        "eslint-config-prettier": "8.5.0",
-        "eslint-plugin-import": "2.26.0",
-        "eslint-plugin-jest": "27.1.6",
-        "eslint-plugin-prettier": "4.2.1",
-        "jest": "29.3.1",
-        "prettier": "2.8.1"
-    },
-    "scripts": {
-        "test": "jest --coverage"
-    }
+  "name": "resolvers",
+  "private": "true",
+  "dependencies": {
+    "@aws-appsync/utils": "1.2.5"
+  },
+  "devDependencies": {
+    "@aws-appsync/eslint-plugin": "1.2.1",
+    "@aws-sdk/client-appsync": "3.388.0",
+    "eslint": "8.46.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-prettier": "9.0.0",
+    "eslint-plugin-import": "2.28.0",
+    "eslint-plugin-jest": "27.1.6",
+    "eslint-plugin-prettier": "5.0.0",
+    "jest": "29.6.2",
+    "prettier": "3.0.1"
+  },
+  "scripts": {
+    "test": "jest --coverage"
+  }
 }

@@ -57,10 +57,10 @@ Globals:
         TABLE_NAME: !Ref Table
     Handler: app.lambda_handler.handler
     Layers:
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:18"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
       - !Ref DependencyLayer
     MemorySize: 128 # megabytes
-    Runtime: python3.9
+    Runtime: python3.11
     Tags:
       GITHUB_ORG: !Ref GitHubOrg
       GITHUB_REPO: !Ref GitHubRepo
@@ -284,13 +284,13 @@ Resources:
   DependencyLayer:
     Type: "AWS::Serverless::LayerVersion"
     Metadata:
-      BuildMethod: python3.9
+      BuildMethod: python3.11
     Properties:
       LicenseInfo: MIT-0
       CompatibleArchitectures:
         - x86_64
       CompatibleRuntimes:
-        - python3.9
+        - python3.11
       ContentUri: backend/dependencies
       Description: !Sub "Plaid API - ${Environment} - Dependency Layer"
       RetentionPolicy: Delete
