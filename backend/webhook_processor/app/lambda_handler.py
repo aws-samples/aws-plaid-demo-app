@@ -35,7 +35,7 @@ investments_holdings = products.InvestmentsHoldings()
 def record_handler(record: Union[DynamoDBRecord, SQSRecord]) -> None:
     # New items added to DynamoDB via API
     if isinstance(record, DynamoDBRecord):
-        sk: str = record.dynamodb.new_image["sk"].get_value
+        sk: str = record.dynamodb.new_image.get("sk", "")
 
         parts: List[str] = sk.split("#", 3)
         if len(parts) == 4:
