@@ -18,6 +18,7 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
+      <div id="covie-root"></div>
       <Button onClick={() => setCovieVisible(!covieVisible)}>Toggle Covie</Button>
       {plaidVisible ? <Plaid/> : null}
       {covieVisible ? <Covie/> : null}
