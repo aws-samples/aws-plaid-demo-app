@@ -119,9 +119,6 @@ export default function Plaid() {
         <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
           CONNECT ANOTHER ACCOUNT WITH PLAID
         </Button>
-        <Button variation="primary" isLoading={connecting} onClick={() => setCovieRequest(true)}>
-          CONNECT WITH COVIE
-        </Button>
         <Button variation="primary" isLoading={connecting} onClick={() => setPayrollRequest(true)}>
           SEND EMAIL
         </Button>
