@@ -10,7 +10,7 @@ export default function Protected() {
 
   // Variables used to show various buttons in the UI.
   const [plaidVisible, setPlaidVisible] = useState(true);
-  const [covieVisible, setCovieVisible] = useState(true);
+  const [covieVisible, setCovieVisible] = useState(false);
 
   // Plaid tokens necessary for email generation.
 
