@@ -3,7 +3,6 @@ import { Logger } from 'aws-amplify';
 import { Flex } from '@aws-amplify/ui-react';
 import Plaid from '../components/Plaid';
 import Covie from '../components/Covie';
-import { useEffect, useState } from 'react';
 
 const logger = new Logger("Protected");
 
