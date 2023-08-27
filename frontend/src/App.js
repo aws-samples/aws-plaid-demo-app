@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Authenticator } from "@aws-amplify/ui-react";
 import Protected from './pages/Protected';
 import Login from './pages/Login';
-import Institution from './pages/Institution';
 import Layout from './components/Layout';
 import RequireAuth from './RequireAuth';
 
