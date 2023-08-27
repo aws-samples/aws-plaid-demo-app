@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Logger } from 'aws-amplify';
-import { Flex } from '@aws-amplify/ui-react';
+import { Button, Flex } from '@aws-amplify/ui-react';
 import Plaid from '../components/Plaid';
 import Covie from '../components/Covie';
 
@@ -18,6 +18,7 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
+      <Button onClick={() => setCovieVisible(!covieVisible)}>Toggle Covie</Button>
       {plaidVisible ? <Plaid/> : null}
       {covieVisible ? <Covie/> : null}
     </Flex>
