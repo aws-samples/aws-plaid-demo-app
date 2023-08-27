@@ -15,11 +15,18 @@
   </head>
   <body>
     <div id="root">
-      <div id="covie-root">
-
-      </div>
-      <!--TODO: Make this async defer in the future.-->
-      <script src="https://access.covie.io/sdk/covie-access.js"></script>
+      <div id="covie-root"></div>
+      <script>
+      window.covieReady = function() {
+      Covie.access.button({
+        elementId: "covie-root", 
+        buttonTheme: "covie", 
+        buttonText: "Link Insurance", 
+        embed: {"integrationKey":"ik_emx55cdek5xtz2ro","linkId":"","metadata":{},"hide":[]}
+      })
+      }
+      </script>
+      <script async defer src="https://access.covie.io/sdk/covie-access.js"></script>
     </div>
   </body>
 </html>
