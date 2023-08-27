@@ -9,7 +9,7 @@ const logger = new Logger("Protected");
 export default function Protected() {
 
   // Variables used to show various buttons in the UI.
-  // const [plaidVisible, setPlaidVisible] = useState(true);
+  const [plaidVisible, setPlaidVisible] = useState(false);
   const [covieVisible, setCovieVisible] = useState(true);
 
   // Plaid tokens necessary for email generation.
