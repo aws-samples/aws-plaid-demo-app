@@ -10,7 +10,7 @@ export default function Plaid() {
   // Get lawyer's email to send data to.
   const { user } = useAuthenticator((context) => [context.user]);
   const userEmail = user.signInUserSession.idToken.payload.email;
-  
+
   // State to manipulate UI look.
   const [connecting, setConnecting] = useState(false);
   const [showLink, setShowLink] = useState(false);
@@ -21,7 +21,7 @@ export default function Plaid() {
   const [userToken, setUserToken] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
 
-  // State to trigge Plaid requests.
+  // State to trigger Plaid requests.
   const [userRequest, setUserRequest] = useState(false);
   const [linkRequest, setLinkRequest] = useState(false);
   const [payrollRequest, setPayrollRequest] = useState(false);
@@ -85,15 +85,12 @@ export default function Plaid() {
   const sendPayrollRequest = async () => {
     setConnecting(true);
     try {
-      console.log('test')
-      console.log(userEmail);
       const res = await API.post(apiName, '/v1/tokens/payroll', {
         body: {
           user_token: userToken,
           email: userEmail,
         },
       });
-      console.log(userEmail);
       logger.debug('POST /v1/payroll response:', res);
     } catch (err) {
       logger.error('Unable to get payroll information', err);
@@ -104,10 +101,6 @@ export default function Plaid() {
 
   const initialButtonClick = async () => {
     setUserRequest(true);
-    setLinkRequest(true);
-  };
-
-  const subsequentButtonClick = async () => {
     setLinkRequest(true);
   };
 
@@ -125,6 +118,9 @@ export default function Plaid() {
       <div>
         <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
           CONNECT ANOTHER ACCOUNT WITH PLAID
+        </Button>
+        <Button variation="primary" isLoading={connecting} onClick={() => setCovieRequest(true)}>
+          CONNECT WITH COVIE
         </Button>
         <Button variation="primary" isLoading={connecting} onClick={() => setPayrollRequest(true)}>
           SEND EMAIL
