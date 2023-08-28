@@ -7,14 +7,24 @@ const logger = new Logger('Covie');
 export default function Covie() {
   useEffect(() => {
     // Code given to us by Covie.
-    window.covieReady = function() {
-      Covie.access.button({
-        elementId: "covie-root", 
-        buttonTheme: "covie", 
-        buttonText: "Link Insurance", 
-        embed: {"integrationKey":"ik_emx55cdek5xtz2ro","linkId":"","metadata":{},"hide":[]}
-      })
-    }
+    window.covieReady = function () {' '};
+    {
+      window.Covie.access.button({
+        elementId: 'covie-root',
+        buttonTheme: 'covie',
+        buttonText: 'Link Insurance',
+        embed: {
+          integrationKey: 'ik_emx55cdek5xtz2ro',
+          linkId: '',
+          metadata: {},
+          hide: [],
+          onSuccess: (linkId, policies) => {
+            console.log(linkId);
+            console.log(policies);
+          },
+        },
+      });
+    };
   }, []);
 
   return (
