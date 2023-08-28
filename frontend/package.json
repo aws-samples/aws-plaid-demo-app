@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@aws-amplify/ui-react": "5.1.1",
+    "@aws-amplify/ui-react": "5.2.0",
     "@fontsource/inter": "5.0.8",
     "@testing-library/jest-dom": "5.17.0",
     "@testing-library/react": "14.0.0",
