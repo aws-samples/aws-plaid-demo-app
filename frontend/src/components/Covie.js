@@ -7,8 +7,8 @@ const logger = new Logger('Covie');
 export default function Covie() {
 
   useEffect(() => {
-    window.covieReady = () => {
-        window.Covie.access.button({
+    window.covieReady = function(){' '}
+        {window.Covie.access.button({
           elementId: 'covie-root',
           buttonTheme: 'covie',
           buttonText: 'Link Insurance',
@@ -18,7 +18,7 @@ export default function Covie() {
 
   return (
     <div>
-      <div id="covie-root"/>
+      <div id="covie-root" />
     </div>
   );
 }
