@@ -6,29 +6,15 @@ const logger = new Logger('Covie');
 
 export default function Covie() {
   useEffect(() => {
-    window.Covie.access.button({
-      elementId: 'covie-root',
-      buttonTheme: 'covie',
-      buttonText: 'Link Insurance',
-      embed: {
-        integrationKey: 'ik_emx55cdek5xtz2ro',
-        linkId: '',
-        metadata: {},
-        hide: [],
-        onSuccess: (linkId, policies) => {
-          console.log(linkId);
-          console.log(policies);
-        },
-      },
-    });
-    Covie.access.init({
-      integrationKey: 'ik_emx55cdek5xtz2ro',
-      linkId: null,
-      onSuccess: (linkId, policies) => {
-        console.log(linkId);
-        console.log(policies);
-      },
-    });
+    // Code given to us by Covie.
+    window.covieReady = function() {
+      Covie.access.button({
+        elementId: "covie-root", 
+        buttonTheme: "covie", 
+        buttonText: "Link Insurance", 
+        embed: {"integrationKey":"ik_emx55cdek5xtz2ro","linkId":"","metadata":{},"hide":[]}
+      })
+    }
   }, []);
 
   return (
