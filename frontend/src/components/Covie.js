@@ -14,8 +14,16 @@ export default function Covie() {
         elementId: 'covie-root',
         buttonTheme: 'covie',
         buttonText: 'Link Insurance',
-        embed: { integrationKey: 'ik_emx55cdek5xtz2ro', linkId: '', metadata: {}, hide: [] },
-        onSuccess: (linkId, policies) => { console.log(policies) }
+        embed: {
+          integrationKey: 'ik_emx55cdek5xtz2ro',
+          linkId: '',
+          metadata: {},
+          hide: [],
+          onSuccess: (linkId, policies) => {
+            console.log(linkId);
+            console.log(policies);
+          },
+        },
       });
     }
   }, []);
