@@ -10,7 +10,7 @@ export default function Protected() {
 
   // Variables used to show various buttons in the UI.
   const [plaidVisible, setPlaidVisible] = useState(true);
-  const [covieVisible, setCovieVisible] = useState(false);
+  const [covieVisible, setCovieVisible] = useState(true);
 
   // Plaid tokens necessary for email generation.
 
@@ -18,8 +18,6 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
-      <div id="covie-root"></div>
-      <Button onClick={() => setCovieVisible(!covieVisible)}>Toggle Covie</Button>
       {plaidVisible ? <Plaid/> : null}
       {covieVisible ? <Covie/> : null}
     </Flex>
