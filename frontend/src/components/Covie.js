@@ -23,7 +23,7 @@ export default function Covie() {
 
   const sendPolicyRequest = async () => {
     try {
-      const res = await API.post(apiName, '/v1/tokens/link-payroll', {
+      const res = await API.post(apiName, '/v1/tokens/auto-policy', {
         body: {
           policy_ids: policyIds,
         },
