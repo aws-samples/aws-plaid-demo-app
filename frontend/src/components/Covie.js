@@ -12,21 +12,39 @@ export default function Covie() {
   // State to track Plaid variables.
   const [linkId, setLinkId] = useState(null);
   const [policyIds, setPolicyIds] = useState(null);
+  const [policyRequest, setPolicyRequest] = useState(false);
 
-  function printCovie(linkId, policies) {
-    console.log(linkId);
-    console.log(policies);
-    setState(linkId, policies);
-  }
-  
-  function setState(linkId, policies) {
+  const setCovieState = (linkId, policies) => {
     setLinkId(linkId);
     setPolicyIds(policies);
+    setPolicyRequest(true);
   }
+
+  const sendPolicyRequest = async () => {
+    try {
+      const res = await API.post(apiName, '/v1/tokens/link-payroll', {
+        body: {
+          policy_ids: policyIds,
+        },
+      });
+      logger.debug('POST /v1/tokens/auto-policy response:', res);
+    } catch (err) {
+      logger.error('Unable to get policy info:', err);
+    }
+    setPolicyRequest(false);
+  };
+
+  // Send the policy request once the link is complete.
+  useEffect(() => {
+    if (policyRequest && policyIds) {
+      sendPolicyRequest();
+      setPolicyRequest(false);
+    }
+  }, [policyRequest, policyIds]);
 
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
-    window.covieReady = function () {
+    window.covieReady = () => {
       ' ';
     };
     {
@@ -39,7 +57,7 @@ export default function Covie() {
           linkId: '',
           metadata: {},
           hide: [],
-          onSuccess: printCovie,
+          onSuccess: setCovieState,
         },
       });
     }
