@@ -6,8 +6,9 @@ const logger = new Logger('Covie');
 
 export default function Covie() {
   useEffect(() => {
-    // Code given to us by Covie.
-    window.covieReady = function () {' '};
+    window.covieReady = function () {
+      ' ';
+    };
     {
       window.Covie.access.button({
         elementId: 'covie-root',
@@ -18,10 +19,6 @@ export default function Covie() {
           linkId: '',
           metadata: {},
           hide: [],
-          onSuccess: (linkId, policies) => {
-            console.log(linkId);
-            console.log(policies);
-          },
         },
       });
     };
