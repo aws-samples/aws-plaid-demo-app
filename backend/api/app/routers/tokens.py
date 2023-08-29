@@ -6,6 +6,9 @@ import os
 from typing import Dict, Union
 import uuid
 
+import requests
+import base64
+
 # Import AWS Power Tools
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
@@ -199,4 +202,50 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
 
     return {
         "response": "true"
+    }
+
+
+@ router.post("/auto-policy")
+@ tracer.capture_method(capture_response=False)
+def get_auto_policy() -> Dict[str, str]:
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    policy_ids: Union[None, str] = router.current_event.json_body.get(
+        "policy_ids")
+
+    if not policy_ids:
+        raise BadRequestError("No policy IDs specified.")
+
+    first_policy = policy_ids[0]
+    first_policy_id = first_policy.get('id')
+
+    route = "https://api.covie.io/v1/policies/" + first_policy_id
+
+    test_ci = "cl_3xudrg4znef25ean"
+    test_cs = "covie_cs_suf3izqerx62tsdjuk6oqpjc"
+    test_concat = test_ci + ":" + test_cs
+
+    sample_string_bytes = test_concat.encode("ascii")
+    base64_bytes = base64.b64encode(sample_string_bytes)
+    base64_string = base64_bytes.decode("ascii")
+
+    headers = {
+        "Authorization": "Basic " + base64_string
+    }
+
+    json = {
+        "policy_id": first_policy_id
+    }
+
+    try:
+        requests.get(route, headers=headers, json=json)
+    except Exception as e:
+        raise Error("test")
+
+    return {
+        "headers": headers,
+        "json": json
     }
