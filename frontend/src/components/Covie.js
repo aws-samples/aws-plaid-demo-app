@@ -1,8 +1,10 @@
 import { Logger } from 'aws-amplify';
 import { useEffect, useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { API, Logger } from 'aws-amplify';
 
 const logger = new Logger('Covie');
+const apiName = 'plaidapi';
 
 export default function Covie() {
   // Get lawyer's email to send data to.
