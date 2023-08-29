@@ -1,4 +1,3 @@
-import { Logger } from 'aws-amplify';
 import { useEffect, useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { API, Logger } from 'aws-amplify';
