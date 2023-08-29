@@ -4,9 +4,9 @@ import { Button, Flex } from '@aws-amplify/ui-react';
 
 const logger = new Logger('Covie');
 
-function test(e, n) {
-  console.log(e);
-  console.log(n);
+function printCovie(linkId, policies) {
+  console.log(linkId);
+  console.log(policies);
 }
 
 export default function Covie() {
@@ -24,7 +24,7 @@ export default function Covie() {
           linkId: '',
           metadata: {},
           hide: [],
-          onSuccess: function(e,n){console.log(n)}, 
+          onSuccess: printCovie
         },
       });
     };
