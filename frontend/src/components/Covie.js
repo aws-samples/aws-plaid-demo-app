@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { API, Logger } from 'aws-amplify';
-import { Button, Flex } from '@aws-amplify/ui-react';
+import { Logger } from 'aws-amplify';
+import { useEffect, useState } from 'react';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const logger = new Logger('Covie');
 
@@ -23,7 +24,7 @@ export default function Covie() {
     setLinkId(linkId);
     setPolicyIds(policies);
   }
-  
+
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
     window.covieReady = function () {
