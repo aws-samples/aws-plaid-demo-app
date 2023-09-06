@@ -201,7 +201,7 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
                     payroll_response)
 
     return {
-        "response": "true"
+        "success": True
     }
 
 
@@ -213,19 +213,14 @@ def get_auto_policy() -> Dict[str, str]:
     logger.append_keys(user_id=user_id)
     tracer.put_annotation(key="UserId", value=user_id)
 
-    policy_ids: Union[None, str] = router.current_event.json_body.get(
-        "policy_ids")
+    policies: Union[None, str] = router.current_event.json_body.get(
+        "policies")
 
-    if not policy_ids:
+    if not policies:
         raise BadRequestError("No policy IDs specified.")
 
-    first_policy = policy_ids[0]
-    first_policy_id = first_policy.get('id')
-
-    route = "https://api.covie.io/v1/policies/" + first_policy_id
-
     test_ci = "cl_3xudrg4znef25ean"
-    test_cs = "covie_cs_suf3izqerx62tsdjuk6oqpjc"
+    test_cs = "covie_cs_fdo3tp3a2j76ay75unqoyicj"
     test_concat = test_ci + ":" + test_cs
 
     sample_string_bytes = test_concat.encode("ascii")
@@ -236,16 +231,34 @@ def get_auto_policy() -> Dict[str, str]:
         "Authorization": "Basic " + base64_string
     }
 
-    json = {
-        "policy_id": first_policy_id
-    }
+    policy_responses = []
 
-    try:
-        requests.get(route, headers=headers, json=json)
-    except Exception as e:
-        raise Error("test")
+    for policy in policies:
 
+        policy_id = policy.get('id')
+        route = "https://api.covie.io/v1/policies/" + policy_id
+        json = {
+            "policy_id": policy_id
+        }
+
+        try:
+            response = requests.get(
+                route, headers=headers, json=json)
+            response_json = response.json()
+
+            logger.info('Auto Policy Data: ', response.json())
+            policy_responses.append(response_json)
+
+        except Exception as e:
+            raise Error("Error getting data for policy" + policy_id)
+
+    email: Union[None, str] = router.current_event.json_body.get(
+        "email")
+    if not email:
+        raise BadRequestError("Email not found in request")
+
+    send.send_covie_email(EMAIL_SENDER, email,
+                          policy_responses)
     return {
-        "headers": headers,
-        "json": json
+        "success": True
     }
