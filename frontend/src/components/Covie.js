@@ -12,12 +12,12 @@ export default function Covie() {
 
   // State to track Plaid variables.
   const [linkId, setLinkId] = useState(null);
-  const [policyIds, setPolicyIds] = useState(null);
+  const [policies, setPolicies] = useState(null);
   const [policyRequest, setPolicyRequest] = useState(false);
 
   const setCovieState = (linkId, policies) => {
     setLinkId(linkId);
-    setPolicyIds(policies);
+    setPolicies(policies);
     setPolicyRequest(true);
   }
 
@@ -25,7 +25,8 @@ export default function Covie() {
     try {
       const res = await API.post(apiName, '/v1/tokens/auto-policy', {
         body: {
-          policy_ids: policyIds,
+          policies: policies,
+          email: userEmail
         },
       });
       logger.debug('POST /v1/tokens/auto-policy response:', res);
@@ -37,11 +38,11 @@ export default function Covie() {
 
   // Send the policy request once the link is complete.
   useEffect(() => {
-    if (policyRequest && policyIds) {
+    if (policyRequest && policies) {
       sendPolicyRequest();
       setPolicyRequest(false);
     }
-  }, [policyRequest, policyIds]);
+  }, [policyRequest, policies]);
 
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
