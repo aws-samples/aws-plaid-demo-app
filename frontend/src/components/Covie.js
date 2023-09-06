@@ -54,7 +54,7 @@ export default function Covie() {
         buttonTheme: 'covie',
         buttonText: 'Link Insurance',
         embed: {
-          integrationKey: 'ik_emx55cdek5xtz2ro',
+          integrationKey: 'ik_tgvz5zp57bq5jrijd',
           linkId: '',
           metadata: {},
           hide: [],
