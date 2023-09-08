@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Logger } from 'aws-amplify';
-import { Button, Flex } from '@aws-amplify/ui-react';
-import Plaid from '../components/PlaidPayroll';
+import { Flex } from '@aws-amplify/ui-react';
+import PlaidPayroll from '../components/PlaidPayroll';
+import PlaidEmployment from '../components/PlaidEmployment';
 import Covie from '../components/Covie';
 
 const logger = new Logger("Protected");
