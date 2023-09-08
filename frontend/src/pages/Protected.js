@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Logger } from 'aws-amplify';
 import { Button, Flex } from '@aws-amplify/ui-react';
-import Plaid from '../components/Plaid';
+import Plaid from '../components/PlaidPayroll';
 import Covie from '../components/Covie';
 
 const logger = new Logger("Protected");
@@ -18,7 +18,8 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
-      {plaidVisible ? <Plaid/> : null}
+      {plaidVisible ? <PlaidPayroll/> : null}
+      {plaidVisible ? <PlaidEmployment/> : null}
       {covieVisible ? <Covie/> : null}
     </Flex>
   );

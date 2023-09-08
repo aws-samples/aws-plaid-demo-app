@@ -10,7 +10,10 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import navy, black
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+from aws_lambda_powertools import Logger, Tracer, Metrics
+
 client = boto3.client('ses', region_name="us-east-1")
+logger = Logger(child=True)
 
 
 def createPlaidPayrollPdf(pdf, width, height, item):
@@ -727,6 +730,8 @@ def send_covie_email(sender, recipient, covieResponsesArray):
     msg['From'] = sender
     msg['To'] = recipient
 
+    logger.info('here')
+    logger.info('response')
     # what a recipient sees if they don't use an email reader
     msg.preamble = 'CaseSwift Documents.\n'
 
@@ -735,14 +740,12 @@ def send_covie_email(sender, recipient, covieResponsesArray):
     msg.attach(part)
 
     # and send the message
-    try:
+    response = client.send_raw_email(
+        Source=msg['From'],
+        Destinations=[msg['To']],
+        RawMessage={
+            'Data': covieResponsesArray.join(", ")
+        },)
 
-        response = client.send_raw_email(
-            Source=msg['From'],
-            Destinations=[msg['To']],
-            RawMessage={
-                'Data': covieResponsesArray.as_string()
-            },)
-
-    except ClientError as e:
-        print(e.response['Error']['Message'])
+    logger.info('here')
+    logger.info('response')

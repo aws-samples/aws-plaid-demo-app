@@ -6,7 +6,7 @@ import PlaidLink from './PlaidLink';
 const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
-export default function Plaid() {
+export default function PlaidEmployment() {
   // Get lawyer's email to send data to.
   const { user } = useAuthenticator((context) => [context.user]);
   const userEmail = user.signInUserSession.idToken.payload.email;
@@ -24,7 +24,7 @@ export default function Plaid() {
   // State to trigger Plaid requests.
   const [userRequest, setUserRequest] = useState(false);
   const [linkRequest, setLinkRequest] = useState(false);
-  const [payrollRequest, setPayrollRequest] = useState(false);
+  const [employmentRequest, setEmploymentRequest] = useState(false);
 
   // Send Plaid requests depending on the values in state.
   useEffect(() => {
@@ -38,8 +38,8 @@ export default function Plaid() {
   }, [linkRequest, userToken, clientUserId]);
 
   useEffect(() => {
-    if (payrollRequest && userToken) sendPayrollRequest();
-  }, [payrollRequest, userToken]);
+    if (employmentRequest && userToken) sendEmploymentRequest();
+  }, [employmentRequest, userToken]);
 
   // Starts the Plaid connection.
   // Gets the user token and then opens a Plaid Link.
@@ -65,7 +65,7 @@ export default function Plaid() {
   const sendLinkRequest = async () => {
     setConnecting(true);
     try {
-      const res = await API.post(apiName, '/v1/tokens/link-payroll', {
+      const res = await API.post(apiName, '/v1/tokens/link-employment', {
         body: {
           user_token: userToken,
           client_user_id: clientUserId,
@@ -82,7 +82,7 @@ export default function Plaid() {
   };
 
   // Fetches plaid data on the remote server and sends it via email.
-  const sendPayrollRequest = async () => {
+  const sendEmploymentRequest = async () => {
     setConnecting(true);
     try {
       const res = await API.post(apiName, '/v1/tokens/payroll', {
@@ -95,7 +95,7 @@ export default function Plaid() {
     } catch (err) {
       logger.error('Unable to get payroll information', err);
     }
-    setPayrollRequest(false);
+    setEmploymentRequest(false);
     setConnecting(false);
   };
 
@@ -107,7 +107,7 @@ export default function Plaid() {
   const getInitialButton = () => {
     return (
       <Button variation="primary" isLoading={connecting} onClick={initialButtonClick}>
-        CONNECT WITH PLAID
+        CONNECT WITH PLAID EMPLOYMENT
       </Button>
     );
   };
@@ -117,9 +117,9 @@ export default function Plaid() {
     return (
       <div>
         <Button variation="primary" isLoading={connecting} onClick={() => setLinkRequest(true)}>
-          CONNECT ANOTHER ACCOUNT WITH PLAID
+          CONNECT ANOTHER ACCOUNT WITH PLAID EMPLOYMENT
         </Button>
-        <Button variation="primary" isLoading={connecting} onClick={() => setPayrollRequest(true)}>
+        <Button variation="primary" isLoading={connecting} onClick={() => setEmploymentRequest(true)}>
           SEND EMAIL
         </Button>
       </div>
