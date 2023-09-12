@@ -4,6 +4,7 @@ import { Flex } from '@aws-amplify/ui-react';
 import PlaidPayroll from '../components/PlaidPayroll';
 import PlaidEmployment from '../components/PlaidEmployment';
 import Covie from '../components/Covie';
+import Button from '@mui/material/Button';
 
 const logger = new Logger("Protected");
 
@@ -13,15 +14,12 @@ export default function Protected() {
   const [plaidVisible, setPlaidVisible] = useState(true);
   const [covieVisible, setCovieVisible] = useState(true);
 
-  // Plaid tokens necessary for email generation.
-
-  // Covie tokens necessaary for email generation.
-
   return (
     <Flex direction="column">
       {plaidVisible ? <PlaidPayroll/> : null}
       {plaidVisible ? <PlaidEmployment/> : null}
       {covieVisible ? <Covie/> : null}
+      <Button>Material UI Installed</Button>
     </Flex>
   );
 }
