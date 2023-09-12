@@ -4,9 +4,7 @@ import { Flex } from '@aws-amplify/ui-react';
 import PlaidPayroll from '../components/PlaidPayroll';
 import PlaidEmployment from '../components/PlaidEmployment';
 import Covie from '../components/Covie';
-import Button from '@mui/material/Button';
-
-const logger = new Logger("Protected");
+import OnboardingForm from '../components/OnboardingForm';
 
 export default function Protected() {
 
@@ -19,7 +17,7 @@ export default function Protected() {
       {plaidVisible ? <PlaidPayroll/> : null}
       {plaidVisible ? <PlaidEmployment/> : null}
       {covieVisible ? <Covie/> : null}
-      <Button>Material UI Installed</Button>
+      <OnboardingForm/>
     </Flex>
   );
 }
