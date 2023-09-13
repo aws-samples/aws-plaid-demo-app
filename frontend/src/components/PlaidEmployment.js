@@ -85,13 +85,13 @@ export default function PlaidEmployment() {
   const sendEmploymentRequest = async () => {
     setConnecting(true);
     try {
-      const res = await API.post(apiName, '/v1/tokens/payroll', {
+      const res = await API.post(apiName, '/v1/tokens/employment', {
         body: {
           user_token: userToken,
           email: userEmail,
         },
       });
-      logger.debug('POST /v1/payroll response:', res);
+      logger.debug('POST /v1/employment response:', res);
     } catch (err) {
       logger.error('Unable to get payroll information', err);
     }
