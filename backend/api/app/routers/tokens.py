@@ -33,6 +33,9 @@ from plaid.model.income_verification_payroll_flow_type import IncomeVerification
 from plaid.model.payroll_item import PayrollItem
 from plaid.model.credit_payroll_income_get_request import CreditPayrollIncomeGetRequest
 from plaid.model.credit_payroll_income_get_response import CreditPayrollIncomeGetResponse
+from plaid.model.credit_employment_get_request import CreditEmploymentGetRequest
+from plaid.model.credit_employment_get_response import CreditEmploymentGetResponse
+
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
@@ -125,45 +128,6 @@ def create_link_token() -> Dict[str, str]:
     return {"link_token": response.link_token}
 
 
-@ router.post("/link-employment")
-@ tracer.capture_method(capture_response=False)
-def create_link_token() -> Dict[str, str]:
-
-    user_id: str = utils.authorize_request(router)
-
-    logger.append_keys(user_id=user_id)
-    tracer.put_annotation(key="UserId", value=user_id)
-
-    client_user_id: Union[None, str] = router.current_event.json_body.get(
-        "client_user_id")
-
-    if not client_user_id:
-        raise BadRequestError("Client User ID not found in request")
-
-    user_token: Union[None, str] = router.current_event.json_body.get(
-        "user_token")
-
-    request = LinkTokenCreateRequest(
-        products=[Products("employment")],
-        client_name="plaidaws",
-        country_codes=[CountryCode("US")],
-        language="en",
-        webhook=WEBHOOK_URL,
-        user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
-        user_token=user_token
-    )
-
-    client = utils.get_plaid_client()
-
-    try:
-        response: LinkTokenCreateResponse = client.link_token_create(request)
-    except plaid.ApiException:
-        logger.exception("Unable to create link token")
-        raise InternalServerError("Failed to create link token")
-
-    return {"link_token": response.link_token}
-
-
 @ router.post("/payroll")
 @ tracer.capture_method(capture_response=False)
 def get_payroll_income() -> Dict[str, PayrollItem]:
@@ -202,6 +166,86 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
 
     return {
         "success": True
+    }
+
+
+@ router.post("/link-employment")
+@ tracer.capture_method(capture_response=False)
+def create_link_token() -> Dict[str, str]:
+
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    client_user_id: Union[None, str] = router.current_event.json_body.get(
+        "client_user_id")
+
+    if not client_user_id:
+        raise BadRequestError("Client User ID not found in request")
+
+    user_token: Union[None, str] = router.current_event.json_body.get(
+        "user_token")
+
+    request = LinkTokenCreateRequest(
+        products=[Products("employment")],
+        client_name="plaidaws",
+        country_codes=[CountryCode("US")],
+        language="en",
+        webhook=WEBHOOK_URL,
+        user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
+        user_token=user_token
+    )
+
+    client = utils.get_plaid_client()
+    response: LinkTokenCreateResponse = client.link_token_create(request)
+
+    try:
+        response: LinkTokenCreateResponse = client.link_token_create(request)
+    except plaid.ApiException:
+        logger.exception("Unable to create link token")
+        raise InternalServerError("Failed to create link token")
+
+    return {"link_token": response.link_token}
+
+
+@ router.post("/employment")
+@ tracer.capture_method(capture_response=False)
+def get_employment_verification() -> Dict[str, str]:
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    user_token: Union[None, str] = router.current_event.json_body.get(
+        "user_token")
+    if not user_token:
+        raise BadRequestError("Public token not found in request")
+
+    client = utils.get_plaid_client()
+
+    # Handle employment verification.
+    logger.info('Getting payroll info for ' + user_id)
+    employment_request = CreditEmploymentGetRequest(
+        user_token=user_token)
+
+    try:
+        employment_response: CreditEmploymentGetResponse = client.credit_employment_get(
+            employment_request)
+    except plaid.ApiException:
+        logger.exception("Unable to verify employment")
+        logger.exception(plaid.ApiException)
+        raise InternalServerError("Unable to verify employment")
+
+    logger.info('Employment Data: ', employment_response)
+
+    email: Union[None, str] = router.current_event.json_body.get(
+        "email")
+    if not email:
+        raise BadRequestError("Email not found in request")
+
+    return {
+        "success": str(employment_response)
     }
 
 
