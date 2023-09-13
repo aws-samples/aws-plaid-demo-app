@@ -8,16 +8,23 @@ import OnboardingForm from '../components/OnboardingForm';
 
 export default function Protected() {
 
-  // Variables used to show various buttons in the UI.
-  const [plaidVisible, setPlaidVisible] = useState(true);
-  const [covieVisible, setCovieVisible] = useState(true);
+  const [plaidEmployment, setPlaidEmployment] = useState(true);
+  const [plaidPayroll, setPlaidPayroll] = useState(true);
+  const [covieInsurance, setCovieInsurance] = useState(true);
 
   return (
     <Flex direction="column">
       {plaidVisible ? <PlaidPayroll/> : null}
       {plaidVisible ? <PlaidEmployment/> : null}
       {covieVisible ? <Covie/> : null}
-      <OnboardingForm/>
+      <OnboardingForm
+        plaidEmployment={plaidEmployment}
+        setPlaidEmployment={setPlaidEmployment}
+        plaidPayroll={plaidPayroll}
+        setPlaidPayroll={setPlaidPayroll}
+        covieInsurance={covieInsurance}
+        setCovieInsurance={setCovieInsurance}
+      />
     </Flex>
   );
 }

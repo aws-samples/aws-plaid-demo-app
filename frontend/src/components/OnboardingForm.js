@@ -11,15 +11,49 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-export default function OnboardingForm() {
+export default function OnboardingForm({
+  plaidEmployment,
+  setPlaidEmployment,
+  plaidPayroll,
+  setPlaidPayroll,
+  covieInsurance,
+  setCovieInsurance,
+}) {
   const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleFormGeneration = () => {
+    setOpen(false);
+  };
+
+  const getPlaidEmploymentSwitch = () => {
+    return (
+      <Switch
+        checked={plaidEmployment}
+        onChange={(event) => setPlaidEmployment(event.target.checked)}
+      />
+    );
+  };
+
+  const getPlaidPayrollSwitch = () => {
+    return (
+      <Switch
+        checked={plaidPayroll}
+        onChange={(event) => setPlaidPayroll(event.target.checked)}
+      />
+    );
+  };
+
+  const getCovieInsuranceSwitch = () => {
+    return (
+      <Switch
+        checked={covieInsurance}
+        onChange={(event) => setCovieInsurance(event.target.checked)}
+      />
+    );
   };
 
   return (
@@ -35,9 +69,9 @@ export default function OnboardingForm() {
             Please check the infomtaion that you would like to pull for the claimant.
           </DialogContentText>
           <FormGroup>
-            <FormControlLabel disabled control={<Switch />} label="Employment Verification" />
-            <FormControlLabel control={<Switch defaultChecked />} label="Payroll Information" />
-            <FormControlLabel control={<Switch defaultChecked />} label="Auto Insurance Policy" />
+            <FormControlLabel control={getPlaidEmploymentSwitch()} label="Employment Verification" />
+            <FormControlLabel control={getPlaidPayrollSwitch()} label="Payroll Information" />
+            <FormControlLabel control={getCovieInsuranceSwitch()} label="Auto Insurance Policy" />
           </FormGroup>
         </DialogContent>
         <DialogActions>
