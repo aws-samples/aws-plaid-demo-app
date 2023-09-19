@@ -9,7 +9,9 @@ import OnboardingForm from '../components/OnboardingForm';
 export default function Protected() {
 
   const [plaidEmployment, setPlaidEmployment] = useState(true);
+  const [plaidEmploymentNumber, setPlaidEmployment] = useState(true);
   const [plaidPayroll, setPlaidPayroll] = useState(true);
+  const [plaidPayrollNumber, setPlaidPayroll] = useState(true);
   const [covieInsurance, setCovieInsurance] = useState(true);
 
   return (
@@ -20,8 +22,12 @@ export default function Protected() {
       <OnboardingForm
         plaidEmployment={plaidEmployment}
         setPlaidEmployment={setPlaidEmployment}
+        plaidEmploymentNumber={plaidEmploymentNumber}
+        setPlaidEmploymentNumber={setPlaidEmploymentNumber}
         plaidPayroll={plaidPayroll}
         setPlaidPayroll={setPlaidPayroll}
+        plaidPayrollNumber={plaidPayrollNumber}
+        setPlaidPayrollNumber={setPlaidPayrollNumber}
         covieInsurance={covieInsurance}
         setCovieInsurance={setCovieInsurance}
       />
