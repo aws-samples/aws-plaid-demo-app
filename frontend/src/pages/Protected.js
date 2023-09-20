@@ -8,28 +8,21 @@ import OnboardingForm from '../components/OnboardingForm';
 
 export default function Protected() {
 
-  const [plaidEmployment, setPlaidEmployment] = useState(true);
-  const [plaidEmploymentNumber, setPlaidEmployment] = useState(true);
-  const [plaidPayroll, setPlaidPayroll] = useState(true);
-  const [plaidPayrollNumber, setPlaidPayroll] = useState(true);
-  const [covieInsurance, setCovieInsurance] = useState(true);
-
+  const [plaidToggle, setPlaidToggle] = useState(true);
+  const [plaidNumber, setPlaidNumber] = useState(true);
+  const [covieToggle, setCovieToggle] = useState(true);
   return (
     <Flex direction="column">
       {plaidVisible ? <PlaidPayroll/> : null}
       {plaidVisible ? <PlaidEmployment/> : null}
       {covieVisible ? <Covie/> : null}
       <OnboardingForm
-        plaidEmployment={plaidEmployment}
-        setPlaidEmployment={setPlaidEmployment}
-        plaidEmploymentNumber={plaidEmploymentNumber}
-        setPlaidEmploymentNumber={setPlaidEmploymentNumber}
-        plaidPayroll={plaidPayroll}
-        setPlaidPayroll={setPlaidPayroll}
-        plaidPayrollNumber={plaidPayrollNumber}
-        setPlaidPayrollNumber={setPlaidPayrollNumber}
-        covieInsurance={covieInsurance}
-        setCovieInsurance={setCovieInsurance}
+        plaidToggle={plaidToggle}
+        setPlaidToggle={setPlaidToggle}
+        plaidNumber={plaidNumber}
+        setPlaidNumber={setPlaidNumber}
+        covieToggle={covieToggle}
+        setCovieToggle={covieToggle}
       />
     </Flex>
   );
