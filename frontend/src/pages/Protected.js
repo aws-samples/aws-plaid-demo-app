@@ -11,11 +11,12 @@ export default function Protected() {
   const [plaidToggle, setPlaidToggle] = useState(true);
   const [plaidNumber, setPlaidNumber] = useState(true);
   const [covieToggle, setCovieToggle] = useState(true);
+
   return (
     <Flex direction="column">
-      {plaidVisible ? <PlaidPayroll/> : null}
-      {plaidVisible ? <PlaidEmployment/> : null}
-      {covieVisible ? <Covie/> : null}
+      <PlaidPayroll/>
+      <PlaidEmployment/>
+      <Covie/>
       <OnboardingForm
         plaidToggle={plaidToggle}
         setPlaidToggle={setPlaidToggle}

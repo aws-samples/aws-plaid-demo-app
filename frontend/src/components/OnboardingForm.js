@@ -28,6 +28,10 @@ export default function OnboardingForm({
     setOpen(true);
   };
 
+  const handleFormCancelation = () => {
+    setOpen(false);
+  };
+
   const handleFormSubmission = () => {
     setOpen(false);
   };
@@ -80,8 +84,8 @@ export default function OnboardingForm({
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Generate</Button>
+          <Button onClick={handleFormCancelation}>Cancel</Button>
+          <Button onClick={handleFormSubmission}>Generate</Button>
         </DialogActions>
       </Dialog>
     </div>
