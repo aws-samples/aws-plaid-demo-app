@@ -20,6 +20,7 @@ export default function OnboardingForm({
   setPlaidNumber,
   covieToggle,
   setCovieToggle,
+  setFormSubmitted
 }) {
   // Displays whether the onboarding form is visible.
   const [open, setOpen] = useState(false);
@@ -34,6 +35,7 @@ export default function OnboardingForm({
 
   const handleFormSubmission = () => {
     setOpen(false);
+    setFormSubmitted(false);
   };
 
   // For now, there is no health data.
@@ -51,7 +53,7 @@ export default function OnboardingForm({
     return (
       <TextField
         id="outlined-required"
-        label="Number of Employments To Verify"
+        label="Number of Employments"
         value={plaidNumber}
         onChange={(event) => setPlaidNumber(event.target.value)}
         type="number"
@@ -79,7 +81,7 @@ export default function OnboardingForm({
             <FormControlLabel control={getHealthDataSwitch()} label="Health Data" />
             <FormControlLabel control={getPlaidSwitch()} label="Employment Data" />
             {/* Only render the # input if the toggle is checked for Plaid. */}
-            {plaidToggle ? <FormControlLabel control={getPlaidNumberInput()} label="Payroll Information" /> : null}
+            {plaidToggle ? <FormControlLabel control={getPlaidNumberInput()} /> : null}
             <FormControlLabel control={getCovieSwitch()} label="Auto Insurance Data" />
           </FormGroup>
         </DialogContent>

@@ -2,40 +2,36 @@ import { useEffect, useState } from 'react';
 import { API, Logger } from 'aws-amplify';
 import { useAuthenticator, Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
+import PlaidInit from './PlaidInit';
 
 const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
-export default function Plaid() {
-  // Get lawyer's email to send data to.
-  const { user } = useAuthenticator((context) => [context.user]);
-  const userEmail = user.signInUserSession.idToken.payload.email;
-
+export default function PlaidLinkController({ setUserToken, finishLink }) {
   // State to manipulate UI look.
-  const [connecting, setConnecting] = useState(false);
   const [showLink, setShowLink] = useState(false);
-  const [connectedAccount, setConnectedAccount] = useState(false);
 
-  // State to track Plaid variables.
+  // State to track tokens and IDs.
   const [clientUserId, setClientUserId] = useState(null);
-  const [userToken, setUserToken] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
 
   // State to trigger Plaid requests.
-  const [userRequest, setUserRequest] = useState(false);
+  const [userRequest, setUserRequest] = useState(true);
   const [linkRequest, setLinkRequest] = useState(false);
   const [payrollRequest, setPayrollRequest] = useState(false);
 
   // Send Plaid requests depending on the values in state.
   useEffect(() => {
     if (userRequest) {
-      sendUserRequest();
+      return <PlaidInit setUserRequest={setUserRequest} setClientUserId={setClientUserId} setUserToken={setUserToken} />;
     }
   }, [userRequest]);
 
+  // Left off here. In theory, when a plaid link controller gets rendered, it should send out the user request. Now, need to handle opening the correct # of links and moving the user token into its own logic.
+  // PlaidLinkCreator should get the link token and then open the link. When done, it should call finishLink().
   useEffect(() => {
-    if (linkRequest && userToken && clientUserId) sendLinkRequest();
-  }, [linkRequest, userToken, clientUserId]);
+    if (linkRequest && clientUserId && userToken) sendLinkRequest();
+  }, [linkRequest, clientUserId, userToken]);
 
   useEffect(() => {
     if (payrollRequest && userToken) sendPayrollRequest();
