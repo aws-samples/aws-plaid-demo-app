@@ -102,7 +102,7 @@ def create_link_token() -> Dict[str, str]:
         "user_token")
 
     request = LinkTokenCreateRequest(
-        products=[Products("income_verification")],
+        products=[Products("income_verification"), Products("employment")],
         client_name="plaidaws",
         country_codes=[CountryCode("US")],
         language="en",
@@ -188,13 +188,19 @@ def create_link_token() -> Dict[str, str]:
         "user_token")
 
     request = LinkTokenCreateRequest(
-        products=[Products("employment")],
+        products=[Products("income_verification"), Products("employment")],
         client_name="plaidaws",
         country_codes=[CountryCode("US")],
         language="en",
         webhook=WEBHOOK_URL,
         user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
-        user_token=user_token
+        user_token=user_token,
+        income_verification=LinkTokenCreateRequestIncomeVerification(
+            income_source_types=[IncomeVerificationSourceType('payroll')],
+            payroll_income=LinkTokenCreateRequestIncomeVerificationPayrollIncome(
+                flow_types=[IncomeVerificationPayrollFlowType(
+                    'payroll_digital_income')]
+            ))
     )
 
     client = utils.get_plaid_client()
