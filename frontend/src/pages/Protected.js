@@ -32,7 +32,7 @@ export default function Protected() {
       <PlaidPayroll />
       <PlaidEmployment />
       <Covie />
-      <OnboardingForm
+      {/* <OnboardingForm
         plaidToggle={plaidToggle}
         setPlaidToggle={setPlaidToggle}
         plaidNumber={plaidNumber}
@@ -51,7 +51,7 @@ export default function Protected() {
         setPlaidNumber={setPlaidNumber}
         covieToggle={covieToggle}
         setCovieToggle={covieToggle}
-      />
+      /> */}
     </Flex>
   );
 }

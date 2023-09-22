@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { API, Logger } from 'aws-amplify';
 
+const apiName = 'plaidapi';
+const logger = new Logger('PlaidInit');
+
 export default function PlaidInit({ setUserRequest, setClientUserId, setUserToken }) {
 
   // Send Plaid requests depending on the values in state.
