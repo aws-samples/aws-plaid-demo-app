@@ -19,9 +19,11 @@ export default function OnboardingLink({
   const [plaidUserToken, setPlaidUserToken] = useState(null);
   const [plaidFinished, setPlaidFinished] = useState(null);
 
+  console.log('OPEN')
   console.log(open);
+  console.log('PLAID TOGGLE')
   console.log(plaidToggle);
-  
+
   if (!open) {
     return null;
   } else if (plaidToggle) {
