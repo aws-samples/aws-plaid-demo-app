@@ -69,5 +69,7 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
     }
   };
 
+  console.log('PLAID')
+  console.log(showLink)
   return showLink ? <PlaidLink token={linkToken} onSuccess={finishLink} /> : null;
 }
