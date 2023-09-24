@@ -5,6 +5,7 @@ import Plaid from './Plaid';
 import Covie from './Covie';
 
 export default function OnboardingLink({
+  open,
   setOpen,
   plaidToggle,
   setPlaidToggle,
@@ -18,7 +19,12 @@ export default function OnboardingLink({
   const [plaidUserToken, setPlaidUserToken] = useState(null);
   const [plaidFinished, setPlaidFinished] = useState(null);
 
-  if (plaidToggle) {
+  console.log(open);
+  console.log(plaidToggle);
+  
+  if (!open) {
+    return null;
+  } else if (plaidToggle) {
     return (
       <Plaid
         userToken={plaidUserToken}
