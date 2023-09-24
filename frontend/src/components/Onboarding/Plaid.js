@@ -67,6 +67,8 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
     setPlaidNumber(plaidNumber - 1);
     if (plaidNumber === 0) {
       setPlaidToggle(false);
+    } else {
+      setLinkRequest(true);
     }
   };
 
