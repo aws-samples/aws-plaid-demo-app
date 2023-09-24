@@ -14,7 +14,7 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
 
   // State to trigger Plaid requests.
   const [userRequest, setUserRequest] = useState(true);
-  const [linkRequest, setLinkRequest] = useState(false);
+  const [linkRequest, setLinkRequest] = useState(true);
 
   // Send Plaid requests depending on the values in state.
   useEffect(() => {
