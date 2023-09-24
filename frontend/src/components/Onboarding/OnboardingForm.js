@@ -34,7 +34,7 @@ export default function OnboardingForm({
 
   const handleFormSubmission = () => {
     setOpen(false);
-    setFormSubmitted(false);
+    setFormSubmitted(true);
   };
 
   // For now, there is no health data.

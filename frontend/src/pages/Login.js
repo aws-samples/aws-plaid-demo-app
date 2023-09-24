@@ -37,7 +37,6 @@ export default function Login() {
 
   return (
     <View className="auth-wrapper">
-      <OnboardingForm/>
       <Authenticator components={components}/>
     </View>
   );
