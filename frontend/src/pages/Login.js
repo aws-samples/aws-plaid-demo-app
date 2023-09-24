@@ -2,7 +2,6 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { useAuthenticator, View } from '@aws-amplify/ui-react';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import OnboardingForm from '../components/Onboarding/OnboardingForm';
 
 export default function Login() {
   const { route } = useAuthenticator((context) => [context.route]);
