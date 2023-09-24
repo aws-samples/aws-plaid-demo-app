@@ -14,7 +14,7 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
 
   // State to trigger Plaid requests.
   const [userRequest, setUserRequest] = useState(true);
-  const [linkRequest, setLinkRequest] = useState(true);
+  const [linkRequest, setLinkRequest] = useState(false);
 
   // Send Plaid requests depending on the values in state.
   useEffect(() => {
@@ -37,6 +37,7 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
       // Set user ID and token values asynchronously.
       setUserToken(res.user_token);
       setClientUserId(res.client_user_id);
+      setLinkRequest(true);
     } catch (err) {
       logger.error('Unable to create link token:', err);
     }
