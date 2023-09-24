@@ -53,7 +53,7 @@ metrics = Metrics()
 router = Router()
 
 
-@ router.get("/user")
+@ router.get("/plaid-user")
 @ tracer.capture_method(capture_response=False)
 def create_user_token() -> Dict[str, str]:
     user_id: str = utils.authorize_request(router)
@@ -83,7 +83,7 @@ def create_user_token() -> Dict[str, str]:
     }
 
 
-@ router.post("/link-payroll")
+@ router.post("/plaid-link")
 @ tracer.capture_method(capture_response=False)
 def create_link_token() -> Dict[str, str]:
 
@@ -167,52 +167,6 @@ def get_payroll_income() -> Dict[str, PayrollItem]:
     return {
         "success": True
     }
-
-
-@ router.post("/link-employment")
-@ tracer.capture_method(capture_response=False)
-def create_link_token() -> Dict[str, str]:
-
-    user_id: str = utils.authorize_request(router)
-
-    logger.append_keys(user_id=user_id)
-    tracer.put_annotation(key="UserId", value=user_id)
-
-    client_user_id: Union[None, str] = router.current_event.json_body.get(
-        "client_user_id")
-
-    if not client_user_id:
-        raise BadRequestError("Client User ID not found in request")
-
-    user_token: Union[None, str] = router.current_event.json_body.get(
-        "user_token")
-
-    request = LinkTokenCreateRequest(
-        products=[Products("income_verification"), Products("employment")],
-        client_name="plaidaws",
-        country_codes=[CountryCode("US")],
-        language="en",
-        webhook=WEBHOOK_URL,
-        user=LinkTokenCreateRequestUser(client_user_id=client_user_id),
-        user_token=user_token,
-        income_verification=LinkTokenCreateRequestIncomeVerification(
-            income_source_types=[IncomeVerificationSourceType('payroll')],
-            payroll_income=LinkTokenCreateRequestIncomeVerificationPayrollIncome(
-                flow_types=[IncomeVerificationPayrollFlowType(
-                    'payroll_digital_income')]
-            ))
-    )
-
-    client = utils.get_plaid_client()
-    response: LinkTokenCreateResponse = client.link_token_create(request)
-
-    try:
-        response: LinkTokenCreateResponse = client.link_token_create(request)
-    except plaid.ApiException:
-        logger.exception("Unable to create link token")
-        raise InternalServerError("Failed to create link token")
-
-    return {"link_token": response.link_token}
 
 
 @ router.post("/employment")
