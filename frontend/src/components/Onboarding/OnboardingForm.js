@@ -13,7 +13,6 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 
 export default function OnboardingForm({
-  // TODO: INSTALL REDUX!
   plaidToggle,
   setPlaidToggle,
   plaidNumber,

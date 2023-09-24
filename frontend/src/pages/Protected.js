@@ -1,23 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Logger } from 'aws-amplify';
 import { Flex } from '@aws-amplify/ui-react';
-import PlaidPayroll from '../components/PlaidPayroll';
-import PlaidEmployment from '../components/PlaidEmployment';
-import Covie from '../components/Covie';
-import OnboardingForm from '../components/OnboardingForm';
-import OnboardingLink from '../components/OnboardingLink';
+import OnboardingForm from '../components/Onboarding/OnboardingForm';
+import OnboardingLink from '../components/Onboarding/OnboardingLink';
 
 export default function Protected() {
   // State associated with form building.
   const [formSubmitted, setFormSubmitted] = useState(false);
-
   // State associated wtih link handling.
   const [linkOpen, setLinkOpen] = useState(false);
+  // State associated with email sending.
+  const [sendEmail, setSendEmail] = useState(false);
 
   // State shared between form building and read by link handling.
-  const [plaidToggle, setPlaidToggle] = useState(false);
+  const [plaidToggle, setPlaidToggle] = useState(true);
   const [plaidNumber, setPlaidNumber] = useState(1);
-  const [covieToggle, setCovieToggle] = useState(false);
+  const [covieToggle, setCovieToggle] = useState(true);
 
   // When the form is submitted, open the link.
   useEffect(() => {
@@ -29,10 +27,7 @@ export default function Protected() {
 
   return (
     <Flex direction="column">
-      <PlaidPayroll />
-      <PlaidEmployment />
-      <Covie />
-      {/* <OnboardingForm
+      <OnboardingForm
         plaidToggle={plaidToggle}
         setPlaidToggle={setPlaidToggle}
         plaidNumber={plaidNumber}
@@ -51,7 +46,7 @@ export default function Protected() {
         setPlaidNumber={setPlaidNumber}
         covieToggle={covieToggle}
         setCovieToggle={covieToggle}
-      /> */}
+      />
     </Flex>
   );
 }
