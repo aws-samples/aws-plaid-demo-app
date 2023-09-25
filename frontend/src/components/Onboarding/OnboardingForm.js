@@ -1,6 +1,4 @@
-import * as React from 'react';
 import { useState } from 'react';
-
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -17,9 +15,12 @@ export default function OnboardingForm({
   setPlaidToggle,
   plaidNumber,
   setPlaidNumber,
+  setPlaidRequired,
   covieToggle,
   setCovieToggle,
-  setFormSubmitted
+  setCovieRequired,
+  formSubmitted,
+  setFormSubmitted,
 }) {
   // Displays whether the onboarding form is visible.
   const [open, setOpen] = useState(false);
@@ -35,6 +36,12 @@ export default function OnboardingForm({
   const handleFormSubmission = () => {
     setOpen(false);
     setFormSubmitted(true);
+    if (plaidToggle) {
+      setPlaidRequired(true);
+    }
+    if (covieToggle) {
+      setCovieRequired(true);
+    }
   };
 
   // For now, there is no health data.
@@ -64,12 +71,16 @@ export default function OnboardingForm({
     return <Switch checked={covieToggle} onChange={(event) => setCovieToggle(event.target.checked)} />;
   };
 
-  return (
-    <div>
+  if (formSubmitted) {
+    return null;
+  } else {
+    return open ? (
+      // If the dialogue is closed, show the button.
       <Button variant="outlined" onClick={handleFormGeneration}>
         Generate Onboarding Form
       </Button>
-
+    ) : (
+      // Otherwise, show the dialogue.
       <Dialog open={open} onClose={handleFormSubmission}>
         <DialogTitle>Generate Claimant Form!</DialogTitle>
         <DialogContent>
@@ -89,6 +100,6 @@ export default function OnboardingForm({
           <Button onClick={handleFormSubmission}>Generate</Button>
         </DialogActions>
       </Dialog>
-    </div>
-  );
+    );
+  }
 }

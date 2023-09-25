@@ -11,17 +11,15 @@ export default function OnboardingLink({
   setPlaidToggle,
   plaidNumber,
   setPlaidNumber,
+  plaidUserToken,
+  setPlaidUserToken,
   covieToggle,
   setCovieToggle,
+  setCoviePolicies,
 }) {
-
-  // State needed to generate the Plaid email.
-  const [plaidUserToken, setPlaidUserToken] = useState(null);
-  const [plaidFinished, setPlaidFinished] = useState(null);
-
-  console.log('OPEN')
+  console.log('OPEN');
   console.log(open);
-  console.log('PLAID TOGGLE')
+  console.log('PLAID TOGGLE');
   console.log(plaidToggle);
 
   if (!open) {
@@ -29,17 +27,16 @@ export default function OnboardingLink({
   } else if (plaidToggle) {
     return (
       <Plaid
-        userToken={plaidUserToken}
-        setUserToken={setPlaidUserToken}
-        setPlaidFinished={setPlaidFinished}
+        plaidUserToken={plaidUserToken}
+        setPlaidUserToken={setPlaidUserToken}
         setPlaidToggle={setPlaidToggle}
         plaidNumber={plaidNumber}
         setPlaidNumber={setPlaidNumber}
       />
     );
   } else if (covieToggle) {
-    return <Covie />;
-  } else {
+    return <Covie setCovieToggle={setCovieToggle} setCoviePolicies={setCoviePolicies} />;
+  } else 
     return setOpen(false);
   }
 }

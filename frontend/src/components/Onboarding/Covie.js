@@ -1,32 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import { API, Logger } from 'aws-amplify';
 
 const logger = new Logger('Covie');
 const apiName = 'plaidapi';
 
-export default function Covie() {
-  // Get lawyer's email to send data to.
-  const { user } = useAuthenticator((context) => [context.user]);
-  const userEmail = user.signInUserSession.idToken.payload.email;
+export default function Covie({ setCovieToggle, setCoviePolicies }) {
 
-  // State to track Plaid variables.
+  // State to track Covie variables.
   const [linkId, setLinkId] = useState(null);
-  const [policies, setPolicies] = useState(null);
   const [policyRequest, setPolicyRequest] = useState(false);
 
-  const setCovieState = (linkId, policies) => {
+  const handleLinkSuccess = (linkId, policies) => {
     setLinkId(linkId);
-    setPolicies(policies);
-    setPolicyRequest(true);
-  }
+    setCoviePolicies(policies);
+    setCovieToggle(false);
+  };
 
   const sendPolicyRequest = async () => {
     try {
       const res = await API.post(apiName, '/v1/tokens/auto-policy', {
         body: {
           policies: policies,
-          email: userEmail
+          email: userEmail,
         },
       });
       logger.debug('POST /v1/tokens/auto-policy response:', res);
@@ -46,37 +41,12 @@ export default function Covie() {
 
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
-
     window.Covie.access.init({
-      integrationKey: "ik_tgvz5zp57bq5jrij", 
-      linkId: "", 
-      metadata: {}, 
-      onSuccess: setCovieState
-    })
-
-    // window.covieReady = () => {
-    //   ' ';
-    // };
-    // {
-    //   window.Covie.access.button({
-    //     elementId: 'covie-root',
-    //     buttonTheme: 'covie',
-    //     buttonText: 'Link Insurance',
-    //     embed: {
-    //       integrationKey: 'ik_tgvz5zp57bq5jrij',
-    //       linkId: '',
-    //       metadata: {},
-    //       hide: [],
-    //       onSuccess: setCovieState,
-    //     },
-    //   });
-    // }
-    
+      integrationKey: 'ik_tgvz5zp57bq5jrij',
+      metadata: {},
+      onSuccess: handleLinkSuccess,
+    });
   }, []);
 
-  return (
-    <div>
-      <div id="covie-root" />
-    </div>
-  );
+  return null;
 }
