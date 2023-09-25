@@ -11,6 +11,7 @@ export default function EmailBanner({email}) {
   const [open, setOpen] = useState(true);
 
   return (
+      <Collapse in={open}>
         <Alert
           action={
             <IconButton
@@ -30,5 +31,6 @@ export default function EmailBanner({email}) {
         <AlertTitle>Email sent successfully!</AlertTitle>
           Please review the information sent to {email}.
         </Alert>
+      </Collapse>
   );
 }
