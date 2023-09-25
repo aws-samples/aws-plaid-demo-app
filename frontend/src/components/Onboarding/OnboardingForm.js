@@ -74,7 +74,7 @@ export default function OnboardingForm({
   if (formSubmitted) {
     return null;
   } else {
-    return open ? (
+    return !open ? (
       // If the dialogue is closed, show the button.
       <Button variant="outlined" onClick={handleFormGeneration}>
         Generate Onboarding Form

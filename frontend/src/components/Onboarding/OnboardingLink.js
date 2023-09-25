@@ -5,8 +5,8 @@ import Plaid from './Plaid';
 import Covie from './Covie';
 
 export default function OnboardingLink({
-  open,
-  setOpen,
+  linkOpen,
+  setLinkOpen,
   plaidToggle,
   setPlaidToggle,
   plaidNumber,
@@ -17,12 +17,7 @@ export default function OnboardingLink({
   setCovieToggle,
   setCoviePolicies,
 }) {
-  console.log('OPEN');
-  console.log(open);
-  console.log('PLAID TOGGLE');
-  console.log(plaidToggle);
-
-  if (!open) {
+  if (!linkOpen) {
     return null;
   } else if (plaidToggle) {
     return (
@@ -37,6 +32,6 @@ export default function OnboardingLink({
   } else if (covieToggle) {
     return <Covie setCovieToggle={setCovieToggle} setCoviePolicies={setCoviePolicies} />;
   } else {
-    return setOpen(false);
+    return setLinkOpen(false);
   }
 }

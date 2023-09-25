@@ -13,6 +13,7 @@ export default function Protected() {
   // State associated wtih link handling.
   const [linkOpen, setLinkOpen] = useState(false);
   // State associated with email sending.
+  const [sendEmail, setSendEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
   // State shared between form building and read by link handling.
@@ -27,6 +28,13 @@ export default function Protected() {
       setFormSubmitted(false);
     }
   }, [formSubmitted]);
+
+  // When the form is submitted, open the link.
+  useEffect(() => {
+    if (formSubmitted && !linkOpen) {
+      setSendEmail(true);
+    }
+  }, [formSubmitted, linkOpen]);
 
   // State needed to generate the Plaid email.
   const [plaidUserToken, setPlaidUserToken] = useState(null);
@@ -52,8 +60,8 @@ export default function Protected() {
       />
 
       <OnboardingLink
-        open={linkOpen}
-        setOpen={setLinkOpen}
+        linkOpen={linkOpen}
+        setLinkOpen={setLinkOpen}
         plaidToggle={plaidToggle}
         setPlaidToggle={setPlaidToggle}
         plaidNumber={plaidNumber}
@@ -66,12 +74,13 @@ export default function Protected() {
       />
 
       <EmailGenerator
-      plaidRequired={plaidRequired}
-      plaidUserToken={plaidUserToken}
-      covieRequired={covieRequired}
-      coviePolicies={coviePolicies}
-      emailSent={setEmailSent}
-      setEmailSent={setEmailSent}
+        plaidRequired={plaidRequired}
+        plaidUserToken={plaidUserToken}
+        covieRequired={covieRequired}
+        coviePolicies={coviePolicies}
+        sendEmail={sendEmail}
+        emailSent={setEmailSent}
+        setEmailSent={setEmailSent}
       />
     </Flex>
   );

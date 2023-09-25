@@ -6,7 +6,7 @@ import EmailBanner from './EmailBanner';
 const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
-export default function EmailGenerator({ plaidRequired, plaidUserToken, covieRequired, coviePolicies, emailSent, setEmailSent }) {
+export default function EmailGenerator({ plaidRequired, plaidUserToken, covieRequired, coviePolicies, sendEmail, emailSent, setEmailSent }) {
   // State to track request variables.
   const [emailRequest, setEmailRequest] = useState(true);
 
@@ -16,7 +16,7 @@ export default function EmailGenerator({ plaidRequired, plaidUserToken, covieReq
 
   // When the form is submitted, open the link.
   useEffect(() => {
-    if (emailRequest) {
+    if (sendEmail && emailRequest) {
       sendEmailRequest();
     }
   }, [emailRequest]);
