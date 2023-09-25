@@ -36,7 +36,7 @@ export default function OnboardingLink({
     );
   } else if (covieToggle) {
     return <Covie setCovieToggle={setCovieToggle} setCoviePolicies={setCoviePolicies} />;
-  } else 
+  } else {
     return setOpen(false);
   }
 }

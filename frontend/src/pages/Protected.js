@@ -65,7 +65,14 @@ export default function Protected() {
         setCoviePolicies={setCoviePolicies}
       />
 
-      <EmailGenerator/>
+      <EmailGenerator
+      plaidRequired={plaidRequired}
+      plaidUserToken={plaidUserToken}
+      covieRequired={covieRequired}
+      coviePolicies={coviePolicies}
+      emailSent={setEmailSent}
+      setEmailSent={setEmailSent}
+      />
     </Flex>
   );
 }
