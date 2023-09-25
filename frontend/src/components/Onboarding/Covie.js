@@ -46,23 +46,32 @@ export default function Covie() {
 
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
-    window.covieReady = () => {
-      ' ';
-    };
-    {
-      window.Covie.access.button({
-        elementId: 'covie-root',
-        buttonTheme: 'covie',
-        buttonText: 'Link Insurance',
-        embed: {
-          integrationKey: 'ik_tgvz5zp57bq5jrij',
-          linkId: '',
-          metadata: {},
-          hide: [],
-          onSuccess: setCovieState,
-        },
-      });
-    }
+
+    Covie.access.init({
+      integrationKey: "ik_tgvz5zp57bq5jrij", 
+      linkId: "", 
+      metadata: {}, 
+      onSuccess: setCovieState
+    })
+
+    // window.covieReady = () => {
+    //   ' ';
+    // };
+    // {
+    //   window.Covie.access.button({
+    //     elementId: 'covie-root',
+    //     buttonTheme: 'covie',
+    //     buttonText: 'Link Insurance',
+    //     embed: {
+    //       integrationKey: 'ik_tgvz5zp57bq5jrij',
+    //       linkId: '',
+    //       metadata: {},
+    //       hide: [],
+    //       onSuccess: setCovieState,
+    //     },
+    //   });
+    // }
+    
   }, []);
 
   return (
