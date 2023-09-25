@@ -266,3 +266,23 @@ def get_auto_policy() -> Dict[str, str]:
     return {
         "success": True
     }
+
+
+@ router.post("/send-email")
+@ tracer.capture_method(capture_response=False)
+def post_send_email() -> Dict[str, str]:
+    user_id: str = utils.authorize_request(router)
+
+    logger.append_keys(user_id=user_id)
+    tracer.put_annotation(key="UserId", value=user_id)
+
+    plaidUserToken: policies: Union[None, str] = router.current_event.json_body.get(
+        "plaidUserToken")
+
+    coviePolicies: Union[None, str] = router.current_event.json_body.get(
+        "coviePolicies")
+
+    return {
+        plaidUserToken: plaidUserToken,
+        coviePolicies: coviePolicies
+    }

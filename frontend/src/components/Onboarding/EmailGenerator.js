@@ -6,7 +6,7 @@ import EmailBanner from './EmailBanner';
 const logger = new Logger('Plaid');
 const apiName = 'plaidapi';
 
-export default function EmailGenerator({ plaidRequired, plaidUserToken, covieRequired, emailSent, setEmailSent }) {
+export default function EmailGenerator({ plaidRequired, plaidUserToken, covieRequired, coviePolicies, emailSent, setEmailSent }) {
   // State to track request variables.
   const [emailRequest, setEmailRequest] = useState(true);
 
