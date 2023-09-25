@@ -28,13 +28,13 @@ export default function Plaid({ userToken, setUserToken, setPlaidFinished, setPl
   }, [linkRequest, userToken, clientUserId]);
 
   // Every time the # of requests left gets set, check to see if the process should be continued or ended.
-  useEffect(()=> {
+  useEffect(() => {
     if (plaidNumber === 0) {
       setPlaidToggle(false);
     } else {
       setLinkRequest(true);
     }
-  }), [plaidNumber];
+  }, [plaidNumber]);
 
   // Starts the Plaid connection: gets the user token and triggers the opening of a Plaid Link.
   const sendUserRequest = async () => {
