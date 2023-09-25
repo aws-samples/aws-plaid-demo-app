@@ -47,7 +47,7 @@ export default function Covie() {
   // Establish the link button. This code was provided by Covie.
   useEffect(() => {
 
-    Covie.access.init({
+    window.Covie.access.init({
       integrationKey: "ik_tgvz5zp57bq5jrij", 
       linkId: "", 
       metadata: {}, 
