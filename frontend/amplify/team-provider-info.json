@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-caseswiftfrontend-dev-220656-authRole",
+      "UnauthRoleArn": "arn:aws:iam::719017127741:role/amplify-caseswiftfrontend-dev-220656-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::719017127741:role/amplify-caseswiftfrontend-dev-220656-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-caseswiftfrontend-dev-220656-deployment",
+      "UnauthRoleName": "amplify-caseswiftfrontend-dev-220656-unauthRole",
+      "StackName": "amplify-caseswiftfrontend-dev-220656",
+      "StackId": "arn:aws:cloudformation:us-east-1:719017127741:stack/amplify-caseswiftfrontend-dev-220656/5f2b3290-5c11-11ee-9454-0efb8fb6ad6d",
+      "AmplifyAppId": "d34cvcllk8gxol"
+    },
+    "categories": {
+      "auth": {
+        "caseswiftfrontendcf7ce39b": {}
+      }
+    }
+  }
+}
