@@ -5,7 +5,7 @@
   "dependencies": {
     "@aws-amplify/ui-react": "5.3.1",
     "@fontsource/inter": "5.0.8",
-    "@testing-library/jest-dom": "5.17.0",
+    "@testing-library/jest-dom": "6.1.4",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "14.4.3",
     "aws-amplify": "5.3.11",
