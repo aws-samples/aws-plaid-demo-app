@@ -1,7 +1,7 @@
 dynamodb-encryption-sdk==3.2.0
 mypy-boto3-dynamodb==1.29.0
 mypy-boto3-sqs==1.29.0
-plaid-python==17.0.0
+plaid-python==18.0.0
 python-jose[cryptography]==3.3.0
 requests==2.31.0
 urllib3<2
