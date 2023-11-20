@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { API, Logger } from 'aws-amplify';
+import { get, post } from 'aws-amplify/api';
+import { ConsoleLogger } from 'aws-amplify/utils';
 import { Button, Flex } from '@aws-amplify/ui-react';
 import PlaidLink from './PlaidLink';
 
-const logger = new Logger("Plaid");
+const logger = new ConsoleLogger("Plaid");
 
 const apiName = "plaidapi";
 
@@ -14,9 +15,13 @@ export default function Plaid({ getItems }) {
   const handleGetToken = async () => {
     setConnecting(true);
     try {
-      const res = await API.get(apiName, '/v1/tokens');
-      logger.debug('GET /v1/tokens response:', res);
-      setToken(res.link_token);
+      const { body } = await get({
+        apiName,
+        path: '/v1/tokens'
+      }).response;
+      const data = await body.json();
+      logger.debug('GET /v1/tokens response:', data);
+      setToken(data.link_token);
     } catch (err) {
       logger.error('unable to create link token:', err);
     }
@@ -24,13 +29,18 @@ export default function Plaid({ getItems }) {
 
   const handleSuccess = async (public_token, metadata) => {
     try {
-      const res = await API.post(apiName, '/v1/tokens', {
-        body: {
-          public_token,
-          metadata
-        }
-      });
-      logger.debug('POST /v1/tokens response:', res);
+      const { body } = await post({
+        apiName,
+        path: '/v1/tokens',
+        options: {
+          body: {
+            public_token,
+            metadata
+          },
+        },
+      }).response;
+      const data = await body.text(); // returns an 202 response code with an empty body
+      logger.debug('POST /v1/tokens response:', data);
       getItems();
       setConnecting(false);
     } catch (err) {

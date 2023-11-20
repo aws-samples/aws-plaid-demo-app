@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react';
-import { API, graphqlOperation, Logger } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+import { ConsoleLogger } from 'aws-amplify/utils';
 import { Table, TableHead, TableRow, TableCell, TableBody, Loader } from '@aws-amplify/ui-react';
 import { getAccounts as GetAccounts } from '../graphql/queries';
 import Account from './Account';
 
-const logger = new Logger("Accounts");
+const logger = new ConsoleLogger("Accounts");
 
 export default function Accounts({ id, updateAccounts }) {
 
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState([]);
 
+  const client = generateClient();
+
   const getAccounts = async () => {
     setLoading(true);
     try {
-      const res = await API.graphql(graphqlOperation(GetAccounts, { id }));
+      const res = await client.graphql({
+        query: GetAccounts,
+        variables: { id }
+      });
       setAccounts(res.data.getAccounts);
       updateAccounts(res.data.getAccounts);
       setLoading(false);

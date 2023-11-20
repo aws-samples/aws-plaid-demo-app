@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client';
-import { Amplify, Auth } from "aws-amplify";
+import { Amplify } from "aws-amplify";
+import { ConsoleLogger } from "aws-amplify/utils";
+import { fetchAuthSession } from "aws-amplify/auth";
 import App from './App';
 
 import '@aws-amplify/ui-react/styles.css';
@@ -9,36 +11,73 @@ import "./index.css";
 const container = document.getElementById('root');
 const root = createRoot(container);
 
-Amplify.Logger.LOG_LEVEL = 'DEBUG';
+ConsoleLogger.LOG_LEVEL = 'DEBUG';
+
+const existingConfig = Amplify.getConfig();
+
+async function custom_headers() {
+  const accessToken  = (await fetchAuthSession()).tokens?.accessToken?.toString();
+  return { Authorization: `Bearer ${accessToken}` }
+}
+
+const libraryOptions = {
+  API: {
+    GraphQL: {
+      headers: custom_headers
+    },
+    REST: {
+      headers: custom_headers
+    }
+  }
+}
 
 Amplify.configure({
-  aws_appsync_graphqlEndpoint: process.env.REACT_APP_GRAPHQL_URL,
-  aws_appsync_region: process.env.REACT_APP_REGION,
-  aws_appsync_authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+  ...existingConfig,
   Auth: {
-    region: process.env.REACT_APP_REGION,
-    userPoolId: process.env.REACT_APP_COGNTIO_USERPOOL_ID,
-    userPoolWebClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    mandatorySignIn: true,
-    oauth: {
-      domain: process.env.REACT_APP_COGNITO_DOMAIN,
-      scope: ['email', 'openid', `${process.env.REACT_APP_BACKEND_URL}/plaid.rw}`],
-      responseType: 'code'
-    }
+    ...existingConfig.Auth,
+    Cognito: {
+      ...existingConfig.Auth?.Cognito,
+      userPoolId: process.env.REACT_APP_COGNTIO_USERPOOL_ID,
+      userPoolClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+      signUpVerificationMethod: 'code',
+      loginWith: {
+        oauth: {
+          domain: process.env.REACT_APP_COGNITO_DOMAIN,
+          scopes: ['email', 'openid', `${process.env.REACT_APP_BACKEND_URL}/plaid.rw}`],
+          responseType: 'code'
+        }
+      },
+      mfa: {
+        status: 'on'
+      },
+      passwordFormat: {
+        requireNumbers: true,
+        minLength: 8,
+        requireLowercase: true,
+        requireSpecialCharacters: true,
+        requireUppercase: true
+      },
+    },
   },
   API: {
-    endpoints: [
-      {
-        name: "plaidapi",
+    ...existingConfig.API,
+    GraphQL: {
+      ...existingConfig.API?.GraphQL,
+      endpoint: process.env.REACT_APP_GRAPHQL_URL,
+      region: process.env.REACT_APP_REGION,
+      defaultAuthMode: 'none',
+    },
+    REST: {
+      ...existingConfig.API?.REST,
+      plaidapi: {
         endpoint: process.env.REACT_APP_BACKEND_URL,
         region: process.env.REACT_APP_REGION,
-        clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-        custom_header: async () => {
-          return { Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}` }
-        }
-      }
-    ]
+      },
+    },
   }
-});
+}, libraryOptions);
+
+const config = Amplify.getConfig();
+console.log('CONFIG:', config);
 
 root.render(<App />);

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from abc import ABC, abstractmethod
+from abc import ABC
 import os
 from typing import Dict, Any, List
 

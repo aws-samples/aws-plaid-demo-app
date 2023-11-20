@@ -193,7 +193,6 @@ def exchange_token() -> Response:
     ]
 
     metrics.add_metric(name="AddItem", unit=MetricUnit.Count, value=1)
-    logger.debug(items)
 
     dynamodb_client: DynamoDBClient = dynamodb.meta.client
 

@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
-import { API, graphqlOperation, Logger } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+import { ConsoleLogger } from 'aws-amplify/utils';
 import { View, Heading, Flex } from '@aws-amplify/ui-react';
 import { getItems as GetItems } from '../graphql/queries';
 import Plaid from '../components/Plaid';
 import Institutions from '../components/Institutions';
 
-const logger = new Logger("Protected");
+const logger = new ConsoleLogger("Protected");
 
 export default function Protected() {
   const [items, setItems] = useState([]);
+  const client = generateClient();
 
   const getItems = async () => {
     try {
-      const res = await API.graphql(graphqlOperation(GetItems));
+      const res = await client.graphql({
+        query: GetItems
+      });
       logger.info(res);
       setItems(res.data.getItems.items);
     } catch (err) {

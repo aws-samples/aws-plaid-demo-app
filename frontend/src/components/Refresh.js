@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { API, Logger } from 'aws-amplify';
+import { post } from 'aws-amplify/api';
+import { ConsoleLogger } from 'aws-amplify/utils';
 import { Button } from '@aws-amplify/ui-react';
 
-const logger = new Logger("Refresh");
+const logger = new ConsoleLogger("Refresh");
 
 const apiName = "plaidapi";
 
@@ -12,8 +13,12 @@ export default function Refresh({ item_id }) {
   const refresh = async() => {
     setLoading(true);
     try {
-      const res = await API.post(apiName, `/v1/items/${item_id}/refresh`);
-      logger.debug(`POST /v1/items/${item_id}/refresh response:`, res);
+      const { body } = await post({
+        apiName,
+        path: `/v1/items/${item_id}/refresh`
+      }).response;
+      const data = await body.json();
+      logger.debug(`POST /v1/items/${item_id}/refresh response:`, data);
       setLoading(false);
     } catch (err) {
       setLoading(false);

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { API, graphqlOperation, Logger } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+import { ConsoleLogger } from 'aws-amplify/utils';
 import { Table, TableHead, TableRow, TableCell, TableBody, Loader, View, Button } from '@aws-amplify/ui-react';
 import Transaction from './Transaction';
 import { getTransactions as GetTransactions } from '../graphql/queries';
 
-const logger = new Logger("Transactions");
+const logger = new ConsoleLogger("Transactions");
 
 export default function Transactions({ id, accounts = {} }) {
 
@@ -14,10 +15,15 @@ export default function Transactions({ id, accounts = {} }) {
   const [nextToken, setNextToken] = useState(null);
   const [hasMorePages, setHasMorePages] = useState(false);
 
+  const client = generateClient();
+
   const getTransactions = async () => {
     setLoading(true);
     try {
-      const res = await API.graphql(graphqlOperation(GetTransactions, { id }));
+      const res = await client.graphql({
+        query: GetTransactions,
+        variables: { id }
+      });
       setTransactions(res.data.getTransactions.transactions);
       if (res.data.getTransactions.cursor) {
         setHasMorePages(true);
@@ -32,7 +38,10 @@ export default function Transactions({ id, accounts = {} }) {
 
   const handleLoadMore = async () => {
     try {
-      const res = await API.graphql(graphqlOperation(GetTransactions, { id, cursor: nextToken }));
+      const res = await client.graphql({
+        query: GetTransactions,
+        variables: { id, cursor: nextToken }
+      });
       if (res.data.getTransactions.cursor) {
         setNextToken(res.data.getTransactions.cursor);
         setHasMorePages(true);

@@ -49,7 +49,8 @@ Globals:
       - x86_64 # arm64 is not supported by dynamodb-encryption-sdk
     Environment:
       Variables:
-        LOG_LEVEL: DEBUG
+        AWS_LAMBDA_LOG_LEVEL: INFO
+        POWERTOOLS_LOG_LEVEL: INFO
         POWERTOOLS_LOGGER_SAMPLE_RATE: 0.1
         POWERTOOLS_LOGGER_LOG_EVENT: true
         POWERTOOLS_METRICS_NAMESPACE: PlaidApi
@@ -57,9 +58,12 @@ Globals:
         TABLE_NAME: !Ref Table
     Handler: app.lambda_handler.handler
     Layers:
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:48"
       - !Ref DependencyLayer
+    LoggingConfig:
+      LogFormat: JSON
     MemorySize: 128 # megabytes
+    PropagateTags: true
     Runtime: python3.11
     Tags:
       GITHUB_ORG: !Ref GitHubOrg
@@ -285,6 +289,7 @@ Resources:
     Type: "AWS::Serverless::LayerVersion"
     Metadata:
       BuildMethod: python3.11
+      BuildArchitecture: x86_64
     Properties:
       LicenseInfo: MIT-0
       CompatibleArchitectures:
