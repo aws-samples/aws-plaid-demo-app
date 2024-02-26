@@ -1,4 +1,4 @@
 wheel==0.42.0
-aws-lambda-powertools[all,aws-sdk]==2.33.1
+aws-lambda-powertools[all,aws-sdk]==2.34.1
 black==24.1.1
 pre-commit==3.6.1
