@@ -26,7 +26,7 @@ export default function Layout() {
       </nav>
       <Heading level={2}>Plaid AWS Quickstart</Heading>
       <View>
-        {route === 'authenticated' ? `Welcome ${user.signInDetails?.loginId}` : 'Please Login!'}
+        {route === 'authenticated' ? `Welcome! ${user.signInDetails?.loginId}` : 'Please Login!'}
       </View>
 
       <Outlet />
