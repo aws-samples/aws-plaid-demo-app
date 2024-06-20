@@ -1,4 +1,4 @@
-.PHONY: setup build deploy format clean
+.PHONY: setup build deploy format clean outdated
 
 setup:
 	python3 -m venv .venv
@@ -17,3 +17,6 @@ clean:
 
 format:
 	.venv/bin/black .
+
+outdated:
+	.venv/bin/python3 -m pip list -o
