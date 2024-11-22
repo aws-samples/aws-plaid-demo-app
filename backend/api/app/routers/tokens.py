@@ -3,7 +3,7 @@
 
 from functools import partial
 import os
-from typing import Dict, Union
+from typing import Dict, Union, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -20,8 +20,6 @@ from dynamodb_encryption_sdk.identifiers import CryptoAction
 from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
 from dynamodb_encryption_sdk.structures import AttributeActions
 from dynamodb_encryption_sdk.internal.utils import encrypt_put_item
-from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
-from mypy_boto3_dynamodb.service_resource import Table
 import plaid
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
@@ -30,6 +28,10 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.item_public_token_exchange_response import ItemPublicTokenExchangeResponse
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
+    from mypy_boto3_dynamodb.service_resource import Table
 
 from app import utils, constants, datastore, exceptions
 
@@ -44,7 +46,7 @@ logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+dynamodb: "DynamoDBServiceResource" = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
 
 
 @router.get("/")
@@ -194,7 +196,7 @@ def exchange_token() -> Response:
 
     metrics.add_metric(name="AddItem", unit=MetricUnit.Count, value=1)
 
-    dynamodb_client: DynamoDBClient = dynamodb.meta.client
+    dynamodb_client: "DynamoDBClient" = dynamodb.meta.client
 
     try:
         dynamodb_client.transact_write_items(TransactItems=items)
@@ -205,7 +207,7 @@ def exchange_token() -> Response:
         metrics.add_metric(name="AddItemFailed", unit=MetricUnit.Count, value=1)
         raise
 
-    table: Table = dynamodb.Table(TABLE_NAME)
+    table: "Table" = dynamodb.Table(TABLE_NAME)
 
     with table.batch_writer(overwrite_by_pkeys=["pk", "sk"]) as batch:
         for account in metadata.get("accounts", []):

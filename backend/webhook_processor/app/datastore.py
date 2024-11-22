@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -13,8 +13,10 @@ from dynamodb_encryption_sdk.encrypted.table import EncryptedTable
 from dynamodb_encryption_sdk.identifiers import CryptoAction
 from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
 from dynamodb_encryption_sdk.structures import AttributeActions
-from mypy_boto3_dynamodb import DynamoDBServiceResource
-from mypy_boto3_dynamodb.service_resource import Table
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource
+    from mypy_boto3_dynamodb.service_resource import Table
 
 from app import constants, exceptions
 
@@ -27,8 +29,8 @@ KEY_ARN = os.getenv("KEY_ARN")
 logger = Logger(child=True)
 metrics = Metrics()
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
-table: Table = dynamodb.Table(TABLE_NAME)
+dynamodb: "DynamoDBServiceResource" = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+table: "Table" = dynamodb.Table(TABLE_NAME)
 aws_kms_cmp = AwsKmsCryptographicMaterialsProvider(key_id=KEY_ARN)
 actions = AttributeActions(
     default_action=CryptoAction.DO_NOTHING,

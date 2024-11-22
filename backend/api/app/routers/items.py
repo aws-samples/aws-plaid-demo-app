@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -11,9 +11,11 @@ from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.event_handler.exceptions import InternalServerError
 import boto3
 import botocore
-from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
-from mypy_boto3_dynamodb.service_resource import Table
-from mypy_boto3_sqs.client import SQSClient
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
+    from mypy_boto3_dynamodb.service_resource import Table
+    from mypy_boto3_sqs.client import SQSClient
 
 from app import constants, datastore, utils
 
@@ -27,10 +29,10 @@ logger = Logger(child=True)
 metrics = Metrics()
 router = Router()
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
-table: Table = dynamodb.Table(TABLE_NAME)
-dynamodb_client: DynamoDBClient = dynamodb.meta.client
-sqs: SQSClient = boto3.client("sqs", config=constants.BOTO3_CONFIG)
+dynamodb: "DynamoDBServiceResource" = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+table: "Table" = dynamodb.Table(TABLE_NAME)
+dynamodb_client: "DynamoDBClient" = dynamodb.meta.client
+sqs: "SQSClient" = boto3.client("sqs", config=constants.BOTO3_CONFIG)
 
 
 @router.post("/<item_id>/refresh")
