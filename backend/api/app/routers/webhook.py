@@ -5,7 +5,7 @@ import hashlib
 import hmac
 import os
 import time
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -19,7 +19,9 @@ import boto3
 import botocore
 from jose import jwt
 import requests
-from mypy_boto3_sqs.client import SQSClient
+
+if TYPE_CHECKING:
+    from mypy_boto3_sqs.client import SQSClient
 
 from app import constants, schemas
 
@@ -40,8 +42,8 @@ KEY_CACHE = {}
 # Plaid client credentials
 CREDENTIALS = {}
 
-secrets_provider = parameters.SecretsProvider(config=constants.BOTO3_CONFIG)
-sqs: SQSClient = boto3.client("sqs", config=constants.BOTO3_CONFIG)
+secrets_provider = parameters.SecretsProvider(boto_config=constants.BOTO3_CONFIG)
+sqs: "SQSClient" = boto3.client("sqs", config=constants.BOTO3_CONFIG)
 
 
 def get_credentials() -> Dict[str, str]:
@@ -97,7 +99,7 @@ def verify(body: str, signed_jwt: str) -> bool:
     # If the key ID is not in the cache, the key ID may be invalid.
     if current_key_id not in KEY_CACHE:
         metrics.add_metric(name="JWTKeyInvalid", unit=MetricUnit.Count, value=1)
-        logger.warn(f"Key {current_key_id} is invalid")
+        logger.warning(f"Key {current_key_id} is invalid")
         return False
 
     # Fetch the current key from the cache.
@@ -106,7 +108,7 @@ def verify(body: str, signed_jwt: str) -> bool:
     # Reject expired keys.
     if key["expired_at"] is not None:
         metrics.add_metric(name="JWTKeyExpired", unit=MetricUnit.Count, value=1)
-        logger.warn(f"Key {current_key_id} has expired")
+        logger.warning(f"Key {current_key_id} has expired")
         return False
 
     # Validate the signature and extract the claims.
@@ -114,13 +116,13 @@ def verify(body: str, signed_jwt: str) -> bool:
         claims = jwt.decode(signed_jwt, key, algorithms=["ES256"])
     except jwt.JWTError:
         metrics.add_metric(name="JWTDecodeError", unit=MetricUnit.Count, value=1)
-        logger.warn(f"Failed to decode JWT: {signed_jwt}")
+        logger.warning(f"Failed to decode JWT: {signed_jwt}")
         return False
 
     # Ensure that the token is not expired.
     if claims["iat"] < time.time() - constants.TOKEN_EXPIRATION:
         metrics.add_metric(name="JWTKeyExpired", unit=MetricUnit.Count, value=1)
-        logger.warn(f"Key {current_key_id} has expired")
+        logger.warning(f"Key {current_key_id} has expired")
         return False
 
     # Compute the hash of the body.

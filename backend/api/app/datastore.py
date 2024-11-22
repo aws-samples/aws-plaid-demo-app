@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger
 import boto3
 import botocore
-from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
-from mypy_boto3_dynamodb.paginator import QueryPaginator
-from mypy_boto3_dynamodb.service_resource import Table
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource, DynamoDBClient
+    from mypy_boto3_dynamodb.paginator import QueryPaginator
+    from mypy_boto3_dynamodb.service_resource import Table
 
 from app import constants
 
@@ -20,9 +22,9 @@ TABLE_NAME = os.getenv("TABLE_NAME")
 
 logger = Logger(child=True)
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
-table: Table = dynamodb.Table(TABLE_NAME)
-dynamodb_client: DynamoDBClient = dynamodb.meta.client
+dynamodb: "DynamoDBServiceResource" = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+table: "Table" = dynamodb.Table(TABLE_NAME)
+dynamodb_client: "DynamoDBClient" = dynamodb.meta.client
 
 
 def check_institution(user_id: str, institution_id: str) -> bool:

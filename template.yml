@@ -64,7 +64,7 @@ Globals:
       LogFormat: JSON
     MemorySize: 128 # megabytes
     PropagateTags: true
-    Runtime: python3.12
+    Runtime: python3.13
     Tags:
       GITHUB_ORG: !Ref GitHubOrg
       GITHUB_REPO: !Ref GitHubRepo

@@ -218,5 +218,5 @@ class InvestmentsTransactions:
             self.get_transactions(user_id, item_id, start_date=start_date, end_date=end_date)
 
         else:
-            logger.warn(f"Unsupported webhook code: {webhook_code}")
+            logger.warning(f"Unsupported webhook code: {webhook_code}")
             metrics.add_metric(name="UnknownWebhookCode", unit=MetricUnit.Count, value=1)

@@ -4,7 +4,7 @@
 import datetime
 import decimal
 import json
-from typing import Generator, List, Any
+from typing import Any
 import os
 import uuid
 
@@ -16,13 +16,13 @@ from plaid.api import plaid_api
 
 from app import constants
 
-__all__ = ["get_plaid_client", "json_dumps", "chunk_list", "now_iso8601", "today", "generate_id"]
+__all__ = ["get_plaid_client", "json_dumps", "now_iso8601", "today", "generate_id"]
 
 PLAID_SECRET_ARN = os.getenv("PLAID_SECRET_ARN")
 
 logger = Logger(child=True)
 metrics = Metrics()
-secrets_provider = parameters.SecretsProvider(config=constants.BOTO3_CONFIG)
+secrets_provider = parameters.SecretsProvider(boto_config=constants.BOTO3_CONFIG)
 
 
 class Encoder(json.JSONEncoder):
@@ -70,11 +70,6 @@ def json_dumps(obj: Any) -> str:
     Compact JSON encoder
     """
     return json.dumps(obj, indent=None, separators=(",", ":"), sort_keys=True, cls=Encoder)
-
-
-def chunk_list(lst: List[Any], size: int = 3) -> Generator[list, None, None]:
-    for i in range(0, len(lst), size):
-        yield lst[i : i + size]
 
 
 def now_iso8601() -> str:

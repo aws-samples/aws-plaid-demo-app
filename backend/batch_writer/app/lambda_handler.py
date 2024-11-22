@@ -3,14 +3,16 @@
 
 import json
 import os
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.typing import LambdaContext
 import boto3
-from mypy_boto3_dynamodb import DynamoDBServiceResource
-from mypy_boto3_dynamodb.service_resource import Table
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource
+    from mypy_boto3_dynamodb.service_resource import Table
 
 from app import constants, utils
 
@@ -22,8 +24,8 @@ logger = Logger(use_rfc3339=True, utc=True)
 metrics = Metrics()
 metrics.set_default_dimensions(environment=ENVIRONMENT)
 
-dynamodb: DynamoDBServiceResource = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
-table: Table = dynamodb.Table(TABLE_NAME)
+dynamodb: "DynamoDBServiceResource" = boto3.resource("dynamodb", config=constants.BOTO3_CONFIG)
+table: "Table" = dynamodb.Table(TABLE_NAME)
 
 
 @metrics.log_metrics(capture_cold_start_metric=False)
