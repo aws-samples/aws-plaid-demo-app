@@ -1,4 +1,4 @@
 dynamodb-encryption-sdk==3.3.0
 plaid-python==28.1.0
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 requests==2.32.3
