@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 
 from abc import ABC
+from itertools import batched
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, TYPE_CHECKING
 
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 import boto3
 import botocore
-from mypy_boto3_dynamodb import DynamoDBServiceResource
-from mypy_boto3_dynamodb.service_resource import Table
-from mypy_boto3_sqs import SQSClient
 from plaid.api import plaid_api
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb import DynamoDBServiceResource
+    from mypy_boto3_dynamodb.service_resource import Table
+    from mypy_boto3_sqs import SQSClient
 
 from app import utils, constants
 
@@ -34,11 +37,11 @@ class AbstractProduct(ABC):
 
         self.client = client
 
-        dynamodb: DynamoDBServiceResource = session.resource(
+        dynamodb: "DynamoDBServiceResource" = session.resource(
             "dynamodb", config=constants.BOTO3_CONFIG
         )
-        self.dynamodb: Table = dynamodb.Table(TABLE_NAME)
-        self.sqs: SQSClient = session.client("sqs", config=constants.BOTO3_CONFIG)
+        self.dynamodb: "Table" = dynamodb.Table(TABLE_NAME)
+        self.sqs: "SQSClient" = session.client("sqs", config=constants.BOTO3_CONFIG)
 
     def send_messages(self, messages: List[Dict[str, Any]]) -> None:
         # remove any messages that are None
@@ -46,10 +49,10 @@ class AbstractProduct(ABC):
 
         if not messages:
             metrics.add_metric(name="SQSEmptyBatch", unit=MetricUnit.Count, value=1)
-            logger.warn("Not sending empty batch of messages")
+            logger.warning("Not sending empty batch of messages")
             return
 
-        for batch in utils.chunk_list(messages, constants.SQS_SEND_MESSAGE_BATCH_MAX):
+        for batch in batched(messages, constants.SQS_SEND_MESSAGE_BATCH_MAX):
             self._send_messages(batch)
 
     def _send_messages(self, messages: List[Dict[str, Any]]) -> None:
@@ -60,7 +63,7 @@ class AbstractProduct(ABC):
         message_count = len(messages)
         if not message_count:
             metrics.add_metric(name="SQSEmptyBatch", unit=MetricUnit.Count, value=1)
-            logger.warn("Not sending empty batch of messages")
+            logger.warning("Not sending empty batch of messages")
             return
 
         if message_count > constants.SQS_SEND_MESSAGE_BATCH_MAX:

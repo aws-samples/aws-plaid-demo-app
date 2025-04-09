@@ -198,5 +198,5 @@ class Liabilities(AbstractProduct):
 
             self.get_liabilities(user_id, item_id, account_ids)
         else:
-            logger.warn(f"Unsupported webhook code: {webhook_code}")
+            logger.warning(f"Unsupported webhook code: {webhook_code}")
             metrics.add_metric(name="UnknownWebhookCode", unit=MetricUnit.Count, value=1)

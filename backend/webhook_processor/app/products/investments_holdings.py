@@ -176,5 +176,5 @@ class InvestmentsHoldings:
             self.get_holdings(user_id, item_id)
 
         else:
-            logger.warn(f"Unsupported webhook code: {webhook_code}")
+            logger.warning(f"Unsupported webhook code: {webhook_code}")
             metrics.add_metric(name="UnknownWebhookCode", unit=MetricUnit.Count, value=1)

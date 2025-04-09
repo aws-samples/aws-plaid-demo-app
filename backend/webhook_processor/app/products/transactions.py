@@ -237,5 +237,5 @@ class Transactions(AbstractProduct):
             self.send_messages(messages)
 
         else:
-            logger.warn(f"Unsupported webhook code: {webhook_code}")
+            logger.warning(f"Unsupported webhook code: {webhook_code}")
             metrics.add_metric(name="UnknownWebhookCode", unit=MetricUnit.Count, value=1)

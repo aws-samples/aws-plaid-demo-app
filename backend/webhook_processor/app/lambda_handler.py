@@ -61,7 +61,7 @@ def record_handler(record: Union[DynamoDBRecord, SQSRecord]) -> None:
         else:
             user_id = datastore.get_user_by_item(item_id)
             if not user_id:
-                logger.warn(f"Item {item_id} not found")
+                logger.warning(f"Item {item_id} not found")
                 return
 
         logger.append_keys(user_id=user_id)
@@ -101,11 +101,11 @@ def record_handler(record: Union[DynamoDBRecord, SQSRecord]) -> None:
             pass
 
         else:
-            logger.warn(f"Unsupported webhook type: {webhook_type}")
+            logger.warning(f"Unsupported webhook type: {webhook_type}")
             metrics.add_metric(name="UnknownWebhookType", unit=MetricUnit.Count, value=1)
 
     else:
-        logger.warn(f"Unsupported event source: {record.event_source}")
+        logger.warning(f"Unsupported event source: {record.event_source}")
         metrics.add_metric(name="UnknownEventSource", unit=MetricUnit.Count, value=1)
 
 
