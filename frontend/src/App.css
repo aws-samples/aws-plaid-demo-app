@@ -1,17 +1,163 @@
 #root {
   text-align: center;
-  margin: 1.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
+/* Main navigation styling */
 nav {
   display: flex;
-  justify-content: center;
-  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
   margin-bottom: 2rem;
+  background-color: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.nav-logo {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+}
+
+.nav-logo svg {
+  margin-right: 0.5rem;
+  color: var(--color-primary-main);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+  text-align: left;
+}
+
+.welcome-text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+/* Authentication styling */
 .auth-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--color-bg-primary);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  text-align: left;
+}
+
+.auth-header {
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Custom amplify components overrides */
+.amplify-button--primary {
+  background-color: var(--color-primary-main);
+  border-color: var(--color-primary-main);
+  transition: all 0.2s ease;
+}
+
+.amplify-button--primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.amplify-tabs {
+  border-color: var(--color-border-light);
+}
+
+.amplify-tabs-item[data-state="active"] {
+  color: var(--color-primary-main);
+  border-color: var(--color-primary-main);
+}
+
+.amplify-field__control:focus-within {
+  border-color: var(--color-primary-main);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* Table styling */
+.amplify-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.amplify-table th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.amplify-table td {
+  padding: 1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Card component styling */
+.finance-card {
+  background-color: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .nav-logo {
+    margin-bottom: 1rem;
+  }
+  
+  .auth-container {
+    padding: 1.5rem;
+  }
 }
