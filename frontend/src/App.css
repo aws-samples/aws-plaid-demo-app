@@ -32,13 +32,14 @@ nav {
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .app-title {
   font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   color: var(--color-text-primary);
   text-align: left;
 }
@@ -48,6 +49,42 @@ nav {
   color: var(--color-text-secondary);
   margin-bottom: 2rem;
   text-align: left;
+}
+
+/* Dashboard card styles */
+.dashboard-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Analytics dashboard cards */
+.stat-card {
+  background-color: var(--color-bg-tertiary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  background-color: var(--color-bg-secondary);
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
 /* Authentication styling */

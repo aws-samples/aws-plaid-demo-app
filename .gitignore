@@ -519,3 +519,6 @@ $RECYCLE.BIN/
 *.zip
 samconfig.toml
 *.bkp
+
+#Claude File 
+CLAUDE.md

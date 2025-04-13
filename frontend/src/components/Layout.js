@@ -1,6 +1,6 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useAuthenticator, Button, Heading, View, Flex, Text } from '@aws-amplify/ui-react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuthenticator, Button, Heading, View, Flex, Text, Menu, MenuItem, Divider } from '@aws-amplify/ui-react';
 
 export default function Layout() {
   const { route, signOut, user } = useAuthenticator((context) => [
@@ -9,11 +9,36 @@ export default function Layout() {
     context.user
   ]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   function logOut() {
     signOut();
     navigate('/login');
   }
+  
+  // Helper function to determine if a nav link is active
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+  
+  // Get page title based on current path
+  const getPageTitle = () => {
+    switch(location.pathname) {
+      case '/':
+        return 'Financial Dashboard';
+      case '/accounts':
+        return 'Manage Accounts';
+      case '/transactions':
+        return 'Transactions Overview';
+      case '/analytics':
+        return 'Investment Analytics';
+      default:
+        if (location.pathname.startsWith('/institution/')) {
+          return 'Institution Details';
+        }
+        return 'Financial Dashboard';
+    }
+  };
   
   return (
     <>
@@ -26,15 +51,36 @@ export default function Layout() {
           </svg>
           <span>Passive Analytics</span>
         </div>
-        <div className="nav-links">
-          <Button 
-            size="small" 
-            onClick={() => navigate('/')}
-            variation="link"
-          >
-            Dashboard
-          </Button>
-          {route === 'authenticated' && (
+        {route === 'authenticated' && (
+          <Flex className="nav-links" gap="1rem">
+            <Button 
+              size="small" 
+              onClick={() => navigate('/')}
+              variation={isActive('/') ? "primary" : "link"}
+            >
+              Overview
+            </Button>
+            <Button 
+              size="small" 
+              onClick={() => navigate('/accounts')}
+              variation={isActive('/accounts') ? "primary" : "link"}
+            >
+              Accounts
+            </Button>
+            <Button 
+              size="small" 
+              onClick={() => navigate('/transactions')}
+              variation={isActive('/transactions') ? "primary" : "link"}
+            >
+              Transactions
+            </Button>
+            <Button 
+              size="small" 
+              onClick={() => navigate('/analytics')}
+              variation={isActive('/analytics') ? "primary" : "link"}
+            >
+              Analytics
+            </Button>
             <Button 
               size="small" 
               onClick={() => logOut()}
@@ -42,8 +88,10 @@ export default function Layout() {
             >
               Sign Out
             </Button>
-          )}
-          {route !== 'authenticated' && (
+          </Flex>
+        )}
+        {route !== 'authenticated' && (
+          <div className="nav-links">
             <Button 
               size="small" 
               onClick={() => navigate('/login')}
@@ -51,14 +99,14 @@ export default function Layout() {
             >
               Sign In
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </nav>
       
       {route === 'authenticated' ? (
         <Flex direction="column" alignItems="flex-start" marginBottom="1.5rem">
           <Heading level={3} className="app-title">
-            Financial Dashboard
+            {getPageTitle()}
           </Heading>
           <Text className="welcome-text">
             Welcome back, {user.signInDetails?.loginId}. Here's a snapshot of your investments.
