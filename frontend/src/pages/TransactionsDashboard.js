@@ -67,21 +67,35 @@ function TransactionsDashboard() {
       <Divider orientation="horizontal" marginBottom="1rem" />
       
       <Flex direction="column" gap="1.5rem">
-        <SelectField
-          label="Select Institution"
-          value={selectedInstitution}
-          onChange={e => setSelectedInstitution(e.target.value)}
-          isDisabled={loading || institutions.length === 0}
-        >
-          {institutions.map(institution => (
-            <option key={institution.id} value={institution.id}>
-              {institution.name}
-            </option>
-          ))}
-        </SelectField>
+        {institutions.length === 0 ? (
+          <Flex direction="column" alignItems="center" padding="3rem" gap="1rem">
+            <Heading level={4}>No Financial Accounts Connected</Heading>
+            <Button 
+              variation="primary"
+              onClick={() => window.location.href = '/accounts'}
+            >
+              Connect an Account
+            </Button>
+          </Flex>
+        ) : (
+          <>
+            <SelectField
+              label="Select Institution"
+              value={selectedInstitution}
+              onChange={e => setSelectedInstitution(e.target.value)}
+              isDisabled={loading || institutions.length === 0}
+            >
+              {institutions.map(institution => (
+                <option key={institution.id} value={institution.id}>
+                  {institution.name}
+                </option>
+              ))}
+            </SelectField>
 
-        {selectedInstitution && (
-          <Transactions accountMap={accountMap} institutionId={selectedInstitution} />
+            {selectedInstitution && (
+              <Transactions accountMap={accountMap} institutionId={selectedInstitution} />
+            )}
+          </>
         )}
       </Flex>
     </View>

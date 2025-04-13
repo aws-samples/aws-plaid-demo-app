@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/api';
-import { Heading, Flex, Divider, Card, Text, Badge, View } from '@aws-amplify/ui-react';
+import { Heading, Flex, Divider, Card, Text, Badge, View, Button, Loader } from '@aws-amplify/ui-react';
 import Currency from '../components/Currency';
 import { getItems, getAccounts } from '../graphql/queries';
 
@@ -70,7 +70,21 @@ function AnalyticsDashboard() {
       <Divider orientation="horizontal" marginBottom="1rem" />
       
       {loading ? (
-        <Text>Loading your financial data...</Text>
+        <Flex direction="column" alignItems="center" justifyContent="center" padding="3rem">
+          <Loader size="large" />
+          <Text marginTop="1rem">Loading your financial data...</Text>
+        </Flex>
+      ) : institutions.length === 0 ? (
+        <Flex direction="column" alignItems="center" padding="3rem" gap="1.5rem">
+          <Heading level={4}>No Financial Accounts Connected</Heading>
+          <Text>Connect your investment accounts to see portfolio analytics</Text>
+          <Button 
+            variation="primary"
+            onClick={() => window.location.href = '/accounts'}
+          >
+            Connect Accounts
+          </Button>
+        </Flex>
       ) : (
         <Flex direction="column" gap="1.5rem">
           <Card padding="1.5rem">
@@ -123,7 +137,16 @@ function AnalyticsDashboard() {
                   ))}
               </Flex>
             ) : (
-              <Text>No investment accounts found. Connect accounts to see data.</Text>
+              <Flex direction="column" alignItems="center" padding="2rem" gap="0.5rem">
+                <Text>No investment accounts found. Connect investment accounts to see data.</Text>
+                <Button 
+                  size="small"
+                  onClick={() => window.location.href = '/accounts'}
+                  marginTop="1rem"
+                >
+                  Connect Investment Account
+                </Button>
+              </Flex>
             )}
           </Card>
           

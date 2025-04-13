@@ -8,7 +8,7 @@ const logger = new ConsoleLogger("Plaid");
 
 const apiName = "plaidapi";
 
-export default function Plaid({ getItems }) {
+export default function Plaid({ refreshAccounts }) {
   const [connecting, setConnecting] = useState(false);
   const [token, setToken] = useState(null);
 
@@ -41,7 +41,7 @@ export default function Plaid({ getItems }) {
       }).response;
       const data = await body.text(); // returns an 202 response code with an empty body
       logger.debug('POST /v1/tokens response:', data);
-      getItems();
+      if (refreshAccounts) refreshAccounts();
       setConnecting(false);
     } catch (err) {
       logger.error('unable to exchange public token', err);
