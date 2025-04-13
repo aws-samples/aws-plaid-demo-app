@@ -7,7 +7,7 @@ import { getTransactions as GetTransactions } from '../graphql/queries';
 
 const logger = new ConsoleLogger("Transactions");
 
-export default function Transactions({ id, accounts = {} }) {
+export default function Transactions({ institutionId, accountMap = {} }) {
 
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
@@ -22,7 +22,7 @@ export default function Transactions({ id, accounts = {} }) {
     try {
       const res = await client.graphql({
         query: GetTransactions,
-        variables: { id }
+        variables: { id: institutionId }
       });
       setTransactions(res.data.getTransactions.transactions);
       if (res.data.getTransactions.cursor) {
@@ -40,7 +40,7 @@ export default function Transactions({ id, accounts = {} }) {
     try {
       const res = await client.graphql({
         query: GetTransactions,
-        variables: { id, cursor: nextToken }
+        variables: { id: institutionId, cursor: nextToken }
       });
       if (res.data.getTransactions.cursor) {
         setNextToken(res.data.getTransactions.cursor);
@@ -56,8 +56,11 @@ export default function Transactions({ id, accounts = {} }) {
   }
 
   useEffect(() => {
-    getTransactions();
-  }, []);
+    if (institutionId) {
+      getTransactions();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [institutionId]);
 
   return (
     <View>
@@ -82,7 +85,7 @@ export default function Transactions({ id, accounts = {} }) {
           ) : (
             transactions.length ? (
               transactions.map((transaction) => {
-                return <Transaction key={transaction.transaction_id} transaction={transaction} account={accounts[transaction.account_id]}/>;
+                return <Transaction key={transaction.transaction_id} transaction={transaction} account={accountMap[transaction.account_id]}/>;
               })
             ) : (
               <TableRow>

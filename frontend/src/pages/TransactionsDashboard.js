@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { API, graphqlOperation } from 'aws-amplify';
-import { Container, Heading, Flex, Divider, Select, Button } from '@aws-amplify/ui-react';
+import { generateClient } from 'aws-amplify/api';
+import { Heading, Flex, Divider, Button, View, SelectField } from '@aws-amplify/ui-react';
 import Transactions from '../components/Transactions';
 import { getItems, getAccounts } from '../graphql/queries';
 
@@ -10,6 +10,7 @@ function TransactionsDashboard() {
   const [accounts, setAccounts] = useState([]);
   const [accountMap, setAccountMap] = useState({});
   const [loading, setLoading] = useState(true);
+  const client = generateClient();
 
   useEffect(() => {
     fetchInstitutions();
@@ -24,7 +25,9 @@ function TransactionsDashboard() {
   async function fetchInstitutions() {
     setLoading(true);
     try {
-      const itemData = await API.graphql(graphqlOperation(getItems));
+      const itemData = await client.graphql({
+        query: getItems
+      });
       const items = itemData.data.getItems;
       setInstitutions(items);
       if (items.length > 0) {
@@ -39,9 +42,10 @@ function TransactionsDashboard() {
   async function fetchAccounts(institutionId) {
     setLoading(true);
     try {
-      const accountData = await API.graphql(
-        graphqlOperation(getAccounts, { id: institutionId })
-      );
+      const accountData = await client.graphql({
+        query: getAccounts,
+        variables: { id: institutionId }
+      });
       const accountsList = accountData.data.getAccounts;
       setAccounts(accountsList);
 
@@ -58,29 +62,29 @@ function TransactionsDashboard() {
   }
 
   return (
-    <Container>
+    <View>
       <Heading level={2}>All Transactions</Heading>
       <Divider orientation="horizontal" marginBottom="1rem" />
       
       <Flex direction="column" gap="1.5rem">
-        <Select
+        <SelectField
           label="Select Institution"
           value={selectedInstitution}
           onChange={e => setSelectedInstitution(e.target.value)}
-          disabled={loading || institutions.length === 0}
+          isDisabled={loading || institutions.length === 0}
         >
           {institutions.map(institution => (
             <option key={institution.id} value={institution.id}>
               {institution.name}
             </option>
           ))}
-        </Select>
+        </SelectField>
 
         {selectedInstitution && (
           <Transactions accountMap={accountMap} institutionId={selectedInstitution} />
         )}
       </Flex>
-    </Container>
+    </View>
   );
 }
 

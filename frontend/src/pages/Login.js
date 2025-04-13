@@ -1,7 +1,7 @@
 import { Authenticator, Image } from '@aws-amplify/ui-react';
 import { useAuthenticator, View, Heading, Text, Flex } from '@aws-amplify/ui-react';
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Login() {
   const { route } = useAuthenticator((context) => [context.route]);

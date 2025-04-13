@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { API, graphqlOperation } from 'aws-amplify';
-import { Container, Heading, Flex, Divider, Card, Text, Badge } from '@aws-amplify/ui-react';
+import { generateClient } from 'aws-amplify/api';
+import { Heading, Flex, Divider, Card, Text, Badge, View } from '@aws-amplify/ui-react';
 import Currency from '../components/Currency';
 import { getItems, getAccounts } from '../graphql/queries';
 
@@ -13,6 +13,7 @@ function AnalyticsDashboard() {
     institutionCount: 0
   });
   const [loading, setLoading] = useState(true);
+  const client = generateClient();
 
   useEffect(() => {
     fetchInstitutions();
@@ -21,7 +22,9 @@ function AnalyticsDashboard() {
   async function fetchInstitutions() {
     setLoading(true);
     try {
-      const itemData = await API.graphql(graphqlOperation(getItems));
+      const itemData = await client.graphql({
+        query: getItems
+      });
       const items = itemData.data.getItems;
       setInstitutions(items);
       setSummary(prev => ({ ...prev, institutionCount: items.length }));
@@ -29,9 +32,10 @@ function AnalyticsDashboard() {
       // Fetch all accounts for each institution
       const accounts = [];
       for (const item of items) {
-        const accountData = await API.graphql(
-          graphqlOperation(getAccounts, { id: item.id })
-        );
+        const accountData = await client.graphql({
+          query: getAccounts,
+          variables: { id: item.id }
+        });
         accounts.push(...accountData.data.getAccounts);
       }
       
@@ -61,7 +65,7 @@ function AnalyticsDashboard() {
   }
 
   return (
-    <Container>
+    <View>
       <Heading level={2}>Investment Analytics</Heading>
       <Divider orientation="horizontal" marginBottom="1rem" />
       
@@ -129,7 +133,7 @@ function AnalyticsDashboard() {
           </Card>
         </Flex>
       )}
-    </Container>
+    </View>
   );
 }
 
