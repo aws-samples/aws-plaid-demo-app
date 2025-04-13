@@ -20,57 +20,87 @@ export default function Transactions({ institutionId, accountMap = {} }) {
   const getTransactions = async () => {
     setLoading(true);
     setError(null);
+    
+    console.log("Fetching transactions for institution:", institutionId);
+    
     try {
       const res = await client.graphql({
         query: GetTransactions,
         variables: { id: institutionId }
       });
       
+      console.log("Transactions response:", res);
+      
       if (res.data && res.data.getTransactions) {
-        setTransactions(res.data.getTransactions.transactions || []);
+        const transactionsList = res.data.getTransactions.transactions || [];
+        console.log(`Loaded ${transactionsList.length} transactions`);
+        
+        setTransactions(transactionsList);
+        
         if (res.data.getTransactions.cursor) {
+          console.log("Pagination cursor available:", res.data.getTransactions.cursor);
           setHasMorePages(true);
           setNextToken(res.data.getTransactions.cursor);
         } else {
+          console.log("No pagination cursor");
           setHasMorePages(false);
         }
       } else {
+        console.warn("Unexpected response format:", res);
         setTransactions([]);
         setHasMorePages(false);
       }
-      
-      setLoading(false);
     } catch (err) {
-      setLoading(false);
-      setError('Failed to load transactions. Please try again later.');
+      console.error('Error fetching transactions:', err);
+      setError('Failed to load transactions. Please see console for details.');
       logger.error('unable to get transactions', err);
+    } finally {
+      setLoading(false);
     }
   }
 
   const handleLoadMore = async () => {
+    let isLoading = true;
+    
     try {
       setError(null);
+      console.log("Loading more transactions with cursor:", nextToken);
+      
       const res = await client.graphql({
         query: GetTransactions,
         variables: { id: institutionId, cursor: nextToken }
       });
       
+      console.log("Load more response:", res);
+      
       if (res.data && res.data.getTransactions) {
         if (res.data.getTransactions.cursor) {
+          console.log("New pagination cursor:", res.data.getTransactions.cursor);
           setNextToken(res.data.getTransactions.cursor);
           setHasMorePages(true);
         }
         else {
+          console.log("No more transactions available");
           setHasMorePages(false);
         }
         
         if (res.data.getTransactions.transactions && res.data.getTransactions.transactions.length > 0) {
-          setTransactions([...transactions, ...res.data.getTransactions.transactions]);
+          const newTransactions = res.data.getTransactions.transactions;
+          console.log(`Loaded ${newTransactions.length} more transactions`);
+          setTransactions(prevTransactions => [...prevTransactions, ...newTransactions]);
+        } else {
+          console.log("No new transactions in response");
         }
+      } else {
+        console.warn("Unexpected load more response format:", res);
       }
+      
+      isLoading = false;
     } catch (err) {
-      setError('Failed to load more transactions.');
+      console.error("Error loading more transactions:", err);
+      setError('Failed to load more transactions. See console for details.');
       logger.error('unable to get transactions', err);
+      isLoading = false;
     }
   }
 
