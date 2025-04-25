@@ -2,9 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from "aws-amplify";
 import { ConsoleLogger } from "aws-amplify/utils";
 import { fetchAuthSession } from "aws-amplify/auth";
-import { ThemeProvider } from '@aws-amplify/ui-react';
 import App from './App';
-import { amplifyTheme } from './theme';
 
 import '@aws-amplify/ui-react/styles.css';
 import "@fontsource/inter";
@@ -82,8 +80,4 @@ Amplify.configure({
 const config = Amplify.getConfig();
 console.log('CONFIG:', config);
 
-root.render(
-  <ThemeProvider theme={amplifyTheme}>
-    <App />
-  </ThemeProvider>
-);
+root.render(<App />);

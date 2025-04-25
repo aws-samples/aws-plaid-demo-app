@@ -1,54 +1,13 @@
-:root {
-  --color-primary-main: #0061FF;
-  --color-primary-light: #4D8FFF;
-  --color-primary-dark: #0047CC;
-  --color-secondary-main: #00D1B2;
-  --color-secondary-light: #4DEACC;
-  --color-secondary-dark: #00A78F;
-  --color-positive: #00C853;
-  --color-negative: #FF3D71;
-  --color-warning: #FFAA00;
-  --color-neutral: #6E7891;
-  --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F9FAFB;
-  --color-bg-tertiary: #F0F2F5;
-  --color-text-primary: #1A1F36;
-  --color-text-secondary: #4E5D78;
-  --color-text-tertiary: #8A94A6;
-  --color-border-light: #E6E8EB;
-  --color-border-medium: #D3D8E0;
-}
-
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-primary);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-/* Global button styling */
-button, .amplify-button {
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-/* Link styling */
-a {
-  color: var(--color-primary-main);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:hover {
-  color: var(--color-primary-dark);
-  text-decoration: underline;
 }
