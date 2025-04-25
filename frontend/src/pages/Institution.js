@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Divider, Flex, Heading, View, Tabs, TabItem, Button } from '@aws-amplify/ui-react';
+import { Divider, Flex, Heading, View, Tabs, Button } from '@aws-amplify/ui-react';
 import Accounts from '../components/Accounts';
 import Transactions from '../components/Transactions';
 import InvestmentAccounts from '../components/InvestmentAccounts';
@@ -47,32 +47,40 @@ export default function Institution() {
         <Disconnect id={id} institutionName={institutionName} />
       </Flex>
       
-      <Tabs justifyContent="center">
-        <TabItem title="Banking">
-          <Flex direction="row">
-            <View width="50%">
-              <Heading level={6}>Accounts</Heading>
-              <Accounts id={id} updateAccounts={updateAccounts}/>
-            </View>
-            <View width="50%">
-              <Heading level={6}>Transactions</Heading>
-              <Transactions id={id} accounts={accountMap}/>
-            </View>
-          </Flex>
-        </TabItem>
-        <TabItem title="Investments">
-          <Flex direction="column">
-            <View>
-              <Heading level={6}>Investment Accounts</Heading>
-              <InvestmentAccounts id={id} updateAccounts={updateInvestmentAccounts}/>
-            </View>
-            <View marginTop="1rem">
-              <Heading level={6}>Holdings</Heading>
-              <Holdings id={id} accounts={investmentAccountMap}/>
-            </View>
-          </Flex>
-        </TabItem>
-      </Tabs>
+      <Tabs justifyContent="center"
+        items={[
+          {
+            label: "Banking",
+            content: (
+              <Flex direction="row">
+                <View width="50%">
+                  <Heading level={6}>Accounts</Heading>
+                  <Accounts id={id} updateAccounts={updateAccounts}/>
+                </View>
+                <View width="50%">
+                  <Heading level={6}>Transactions</Heading>
+                  <Transactions id={id} accounts={accountMap}/>
+                </View>
+              </Flex>
+            )
+          },
+          {
+            label: "Investments",
+            content: (
+              <Flex direction="column">
+                <View>
+                  <Heading level={6}>Investment Accounts</Heading>
+                  <InvestmentAccounts id={id} updateAccounts={updateInvestmentAccounts}/>
+                </View>
+                <View marginTop="1rem">
+                  <Heading level={6}>Holdings</Heading>
+                  <Holdings id={id} accounts={investmentAccountMap}/>
+                </View>
+              </Flex>
+            )
+          }
+        ]}
+      />
     </Flex>
   );
 }

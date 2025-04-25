@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { Divider, Flex, Heading, View, Tabs, TabItem } from '@aws-amplify/ui-react';
+import { Divider, Flex, Heading, View, Tabs } from '@aws-amplify/ui-react';
 import InvestmentAccounts from '../components/InvestmentAccounts';
 import Holdings from '../components/Holdings';
 import Disconnect from '../components/Disconnect';
@@ -31,18 +31,26 @@ export default function InvestmentDashboard() {
         <Disconnect id={id} institutionName={institutionName} />
       </Flex>
       
-      <Tabs justifyContent="center">
-        <TabItem title="Investment Accounts">
-          <View>
-            <InvestmentAccounts id={id} updateAccounts={updateAccounts}/>
-          </View>
-        </TabItem>
-        <TabItem title="Holdings">
-          <View>
-            <Holdings id={id} accounts={accountMap} />
-          </View>
-        </TabItem>
-      </Tabs>
+      <Tabs justifyContent="center"
+        items={[
+          {
+            label: "Investment Accounts",
+            content: (
+              <View>
+                <InvestmentAccounts id={id} updateAccounts={updateAccounts}/>
+              </View>
+            )
+          },
+          {
+            label: "Holdings",
+            content: (
+              <View>
+                <Holdings id={id} accounts={accountMap} />
+              </View>
+            )
+          }
+        ]}
+      />
     </Flex>
   );
 }
