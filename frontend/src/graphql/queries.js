@@ -39,3 +39,41 @@ export const getTransactions = `query GetTransactions($id: ID!, $limit: Int, $cu
     cursor
   }
 }`;
+
+export const getInvestmentAccounts = `query GetInvestmentAccounts($id: ID!) {
+  getInvestmentAccounts(id: $id) {
+    account_id
+    name
+    type
+    balances {
+      current
+      iso_currency_code
+      available
+    }
+    subtype
+    mask
+  }
+}`;
+
+export const getInvestmentHoldings = `query GetInvestmentHoldings($id: ID!) {
+  getInvestmentHoldings(id: $id) {
+    account_id
+    security_id
+    institution_price
+    institution_price_as_of
+    cost_basis
+    quantity
+    currency
+    security {
+      security_id
+      ticker_symbol
+      name
+      currency
+      type
+    }
+  }
+}`;
+
+export const disconnectItem = `mutation DisconnectItem($id: ID!) {
+  disconnectItem(id: $id)
+}`;

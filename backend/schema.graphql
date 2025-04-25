@@ -1,11 +1,18 @@
 schema {
   query: Query
+  mutation: Mutation
 }
 
 type Query {
   getItems(limit: Int, cursor: String): PaginatedItems!
   getAccounts(id: ID!): [Account!]!
   getTransactions(id: ID!, limit: Int, cursor: String): PaginatedTransactions!
+  getInvestmentAccounts(id: ID!): [InvestmentAccount!]!
+  getInvestmentHoldings(id: ID!): [Holding!]!
+}
+
+type Mutation {
+  disconnectItem(id: ID!): Boolean
 }
 
 type Item {
@@ -47,4 +54,38 @@ type Transaction {
 type PaginatedTransactions {
   cursor: String
   transactions: [Transaction!]!
+}
+
+type InvestmentAccount {
+  account_id: ID!
+  name: String
+  type: String
+  subtype: String
+  balances: InvestmentBalances
+  mask: String
+}
+
+type InvestmentBalances {
+  current: String
+  iso_currency_code: String
+  available: String
+}
+
+type Holding {
+  account_id: ID!
+  security_id: ID!
+  institution_price: Float
+  institution_price_as_of: String
+  cost_basis: Float
+  quantity: Float
+  currency: String
+  security: Security
+}
+
+type Security {
+  security_id: ID!
+  ticker_symbol: String
+  name: String
+  currency: String
+  type: String
 }
