@@ -24,17 +24,60 @@ export const getAccounts = `query GetAccounts($id: ID!) {
   }
 }`;
 
-export const getTransactions = `query GetTransactions($id: ID!, $limit: Int, $cursor: String) {
-  getTransactions(id: $id, limit: $limit, cursor: $cursor) {
-    transactions {
-      transaction_id
-      account_id
-      name
-      amount
+export const getInvestmentAccounts = `query GetInvestmentAccounts($id: ID!) {
+  getInvestmentAccounts(id: $id) {
+    account_id
+    name
+    type
+    subtype
+    balances {
+      current
       iso_currency_code
-      payment_channel
-      transaction_type
+    }
+    mask
+  }
+}`;
+
+export const getInvestmentHoldings = `query GetInvestmentHoldings($accountId: ID!) {
+  getInvestmentHoldings(accountId: $accountId) {
+    account_id
+    security_id
+    quantity
+    cost_basis
+    institution_value
+    iso_currency_code
+    security {
+      security_id
+      name
+      ticker_symbol
+      type
+      close_price
+      close_price_as_of
+      iso_currency_code
+    }
+  }
+}`;
+
+export const getInvestmentTransactions = `query GetInvestmentTransactions($accountId: ID!, $limit: Int, $cursor: String) {
+  getInvestmentTransactions(accountId: $accountId, limit: $limit, cursor: $cursor) {
+    investment_transactions {
+      investment_transaction_id
+      account_id
+      security_id
       date
+      name
+      quantity
+      amount
+      price
+      fees
+      type
+      iso_currency_code
+      security {
+        security_id
+        name
+        ticker_symbol
+        type
+      }
     }
     cursor
   }

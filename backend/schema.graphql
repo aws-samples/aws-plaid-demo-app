@@ -5,7 +5,9 @@ schema {
 type Query {
   getItems(limit: Int, cursor: String): PaginatedItems!
   getAccounts(id: ID!): [Account!]!
-  getTransactions(id: ID!, limit: Int, cursor: String): PaginatedTransactions!
+  getInvestmentAccounts(id: ID!): [Account!]!
+  getInvestmentHoldings(accountId: ID!): [Holding!]!
+  getInvestmentTransactions(accountId: ID!, limit: Int, cursor: String): PaginatedInvestmentTransactions!
 }
 
 type Item {
@@ -33,18 +35,42 @@ type Balances {
   iso_currency_code: String
 }
 
-type Transaction {
-  transaction_id: ID!
-  account_id: ID
-  amount: String
+type Security {
+  security_id: ID!
   name: String
+  ticker_symbol: String
+  type: String
+  close_price: String
+  close_price_as_of: String
   iso_currency_code: String
-  date: String
-  payment_channel: String
-  transaction_type: String
 }
 
-type PaginatedTransactions {
+type Holding {
+  account_id: ID!
+  security_id: ID!
+  security: Security
+  quantity: String
+  cost_basis: String
+  institution_value: String
+  iso_currency_code: String
+}
+
+type InvestmentTransaction {
+  investment_transaction_id: ID!
+  account_id: ID!
+  security_id: ID
+  date: String
+  name: String
+  quantity: String
+  amount: String
+  price: String
+  fees: String
+  type: String
+  iso_currency_code: String
+  security: Security
+}
+
+type PaginatedInvestmentTransactions {
   cursor: String
-  transactions: [Transaction!]!
+  investment_transactions: [InvestmentTransaction!]!
 }

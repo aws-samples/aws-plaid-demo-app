@@ -25,18 +25,11 @@ export default function Layout() {
   const getPageTitle = () => {
     switch(location.pathname) {
       case '/':
-        return 'Financial Dashboard';
-      case '/accounts':
-        return 'Manage Accounts';
-      case '/transactions':
-        return 'Transactions Overview';
-      case '/analytics':
-        return 'Investment Analytics';
+        return 'Connect Your Accounts';
+      case '/investments':
+        return 'Investment Dashboard';
       default:
-        if (location.pathname.startsWith('/institution/')) {
-          return 'Institution Details';
-        }
-        return 'Financial Dashboard';
+        return 'Passive Analytics';
     }
   };
   
@@ -58,28 +51,14 @@ export default function Layout() {
               onClick={() => navigate('/')}
               variation={isActive('/') ? "primary" : "link"}
             >
-              Overview
+              Connect Accounts
             </Button>
             <Button 
               size="small" 
-              onClick={() => navigate('/accounts')}
-              variation={isActive('/accounts') ? "primary" : "link"}
+              onClick={() => navigate('/investments')}
+              variation={isActive('/investments') ? "primary" : "link"}
             >
-              Accounts
-            </Button>
-            <Button 
-              size="small" 
-              onClick={() => navigate('/transactions')}
-              variation={isActive('/transactions') ? "primary" : "link"}
-            >
-              Transactions
-            </Button>
-            <Button 
-              size="small" 
-              onClick={() => navigate('/analytics')}
-              variation={isActive('/analytics') ? "primary" : "link"}
-            >
-              Analytics
+              Investments
             </Button>
             <Button 
               size="small" 

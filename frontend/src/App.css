@@ -183,6 +183,17 @@ nav {
   color: var(--color-text-primary);
 }
 
+/* Investment Dashboard specific styles */
+.clickable-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive layout */
 @media (max-width: 768px) {
   nav {
@@ -196,5 +207,15 @@ nav {
   
   .auth-container {
     padding: 1.5rem;
+  }
+  
+  /* Make investment dashboard responsive */
+  .investment-dashboard-flex {
+    flex-direction: column !important;
+  }
+  
+  .investment-dashboard-flex > div {
+    width: 100% !important;
+    margin-bottom: 1rem;
   }
 }

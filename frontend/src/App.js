@@ -1,16 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Authenticator } from "@aws-amplify/ui-react";
-import Protected from './pages/Protected';
 import Login from './pages/Login';
-import Institution from './pages/Institution';
 import AccountManagement from './pages/AccountManagement';
-import TransactionsDashboard from './pages/TransactionsDashboard';
-import AnalyticsDashboard from './pages/AnalyticsDashboard';
+import InvestmentDashboard from './pages/InvestmentDashboard';
 import Layout from './components/Layout';
 import RequireAuth from './RequireAuth';
 
 import './App.css';
-
 
 function App() {
   return (
@@ -22,39 +18,15 @@ function App() {
               index
               element={
                 <RequireAuth>
-                  <Protected />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/institution/:id"
-              element={
-                <RequireAuth>
-                  <Institution />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/accounts"
-              element={
-                <RequireAuth>
                   <AccountManagement />
                 </RequireAuth>
               }
             />
             <Route
-              path="/transactions"
+              path="/investments"
               element={
                 <RequireAuth>
-                  <TransactionsDashboard />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <RequireAuth>
-                  <AnalyticsDashboard />
+                  <InvestmentDashboard />
                 </RequireAuth>
               }
             />
