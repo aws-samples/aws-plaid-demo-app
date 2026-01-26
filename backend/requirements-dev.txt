@@ -1,5 +1,5 @@
-wheel==0.45.1
-aws-lambda-powertools[all,aws-sdk]==3.22.1
+wheel==0.46.3
+aws-lambda-powertools[all,aws-sdk]==3.24.0
 black==24.10.0
-boto3-stubs[sqs,dynamodb]==1.40.69
-pre-commit==4.4.0
+boto3-stubs[sqs,dynamodb]==1.42.34
+pre-commit==4.5.1
